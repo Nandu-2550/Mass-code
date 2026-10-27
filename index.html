@@ -205,13 +205,14 @@
             </div>
             <p style="font-size: 0.88rem; color: var(--text-secondary);">
               Broadcasts contest configurations across the offline laboratory local area network (LAN) and accepts
-              candidate submissions at <code>/api/contest/sync-submission</code>.
+              candidate submissions at <code>/sync-result</code>.
             </p>
             <div style="display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap;">
-              <div class="candidate-pill">Port: <span id="server-port-val">4500</span></div>
+              <div class="candidate-pill">Port: <span id="server-port-val">8080</span></div>
               <div class="candidate-pill">Active Contest: <span id="server-contest-val">MASS2026</span></div>
               <div class="candidate-pill">Status: <span id="server-state-val"
                   style="color: var(--color-emerald);">Running</span></div>
+              <div class="candidate-pill" style="border-color: var(--color-cyan); color: var(--color-cyan);">UDP Broadcast: <span id="server-udp-val">Active (Port 45454)</span></div>
             </div>
             <div id="server-ip-badges" style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;"></div>
           </div>
@@ -223,9 +224,10 @@
             </div>
             <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
               <div>1. Instruct students on lab PCs to launch <strong>Mass-Code</strong> and select <strong>Competitor Mode</strong>.</div>
-              <div>2. In the <strong>Host Server URL</strong> field, enter one of the Endpoint URLs shown above (e.g., <code style="color: var(--color-cyan);">http://&lt;HOST_IP&gt;:4500</code>).</div>
-              <div>3. In the <strong>Contest PIN</strong> field, enter: <strong id="server-guide-pin" style="color: var(--color-cyan); font-family: var(--font-mono); font-size: 1rem;">MASS2026</strong>.</div>
-              <div>4. Students click <strong>"Pull Config Over LAN"</strong>, enter their USN / Reg No &amp; Name, and click <strong>"Enter Workspace"</strong>.</div>
+              <div>2. The app will <strong>automatically detect</strong> this host on the network via UDP.</div>
+              <div>3. If entering manually, set Host URL to one of the Endpoints shown above (e.g., <code style="color: var(--color-cyan);">http://&lt;HOST_IP&gt;:8080</code>).</div>
+              <div>4. Contest PIN: <strong id="server-guide-pin" style="color: var(--color-cyan); font-family: var(--font-mono); font-size: 1rem;">MASS2026</strong>.</div>
+              <div>5. Students click <strong>"Pull Config Over LAN"</strong> (or "Auto-Connect"), enter their USN &amp; Name, and start the test.</div>
             </div>
           </div>
         </div>
@@ -286,15 +288,32 @@
             </p>
           </div>
 
+          <!-- UDP Local LAN Discovery Live Indicator -->
+          <div id="lan-discovery-box" style="background: rgba(0, 229, 255, 0.05); border: 1px solid rgba(0, 229, 255, 0.25); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span id="lan-discovery-dot" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--color-cyan); box-shadow: 0 0 8px var(--color-cyan); flex-shrink: 0;"></span>
+              <div>
+                <div id="lan-discovery-title" style="font-size: 0.82rem; font-weight: 700; color: var(--text-main);">
+                  Searching LAN for Host Broadcast...
+                </div>
+                <div id="lan-discovery-sub" style="font-size: 0.72rem; color: var(--text-muted);">
+                  Listening for UDP broadcast on port 45454
+                </div>
+              </div>
+            </div>
+            <button id="btn-lan-auto-connect" class="btn btn-success btn-sm" style="display: none; padding: 6px 14px; font-weight: 700; font-size: 0.76rem; flex-shrink: 0; box-shadow: 0 0 10px rgba(0, 200, 83, 0.3);">
+              ⚡ Auto-Connect
+            </button>
+          </div>
+
           <div class="form-group">
             <label>Contest Code / PIN</label>
             <input type="text" id="comp-pin-input" class="form-control" value="MASS2026" placeholder="e.g. MASS2026">
           </div>
 
           <div class="form-group">
-            <label>Host Server URL <span style="font-size: 0.72rem; color: var(--text-muted);">(Optional if offline file
-                loaded)</span></label>
-            <input type="text" id="comp-host-url" class="form-control" value="http://localhost:4500">
+            <label>Host Server URL <span style="font-size: 0.72rem; color: var(--text-muted);">(Auto-discovered or manual)</span></label>
+            <input type="text" id="comp-host-url" class="form-control" value="http://localhost:8080">
           </div>
 
           <div style="display: flex; gap: 8px;">

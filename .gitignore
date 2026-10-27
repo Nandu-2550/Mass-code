@@ -2,6 +2,7 @@ node_modules/
 temp/
 sessions/
 submissions/
+synced_submissions/
 *.exe
 *.log
 .DS_Store

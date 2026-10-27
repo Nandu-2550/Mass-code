@@ -34,7 +34,10 @@ contextBridge.exposeInMainWorld('api', {
   scanGradingFolder: (folder) => ipcRenderer.invoke('grading:scan-folder', folder),
   exportLeaderboardCsv: (options) => ipcRenderer.invoke('grading:export-csv', options),
 
-  // LAN Remote Sync Bridge
+  // LAN Remote Sync & UDP Discovery Bridge
   fetchRemoteContest: (options) => ipcRenderer.invoke('sync:fetch-remote-contest', options),
-  pushSubmissionHttp: (options) => ipcRenderer.invoke('sync:push-submission', options)
+  pushSubmissionHttp: (options) => ipcRenderer.invoke('sync:push-submission', options),
+  startLanListening: () => ipcRenderer.invoke('lan:start-listening'),
+  stopLanListening: () => ipcRenderer.invoke('lan:stop-listening'),
+  onHostDiscovered: (callback) => ipcRenderer.on('lan:host-discovered', (e, data) => callback(data))
 });

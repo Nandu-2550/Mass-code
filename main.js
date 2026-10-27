@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu } = require('e
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
+const dgram = require('dgram');
 const os = require('os');
 const { spawn, exec } = require('child_process');
 
@@ -13,25 +14,159 @@ let mainWindow = null;
 let currentSecurityMode = 'welcome'; // 'welcome' | 'host' | 'competitor'
 const SUPERVISOR_EMERGENCY_KEY = 'MASSCODE_EMERGENCY_2026';
 
+// Network Port Standards
+const DEFAULT_HTTP_PORT = 8080;
+const UDP_BROADCAST_PORT = 45454;
+
 // Persistent Storage Directories
 const submissionsDir = path.join(__dirname, 'submissions');
+const syncedSubmissionsDir = path.join(__dirname, 'synced_submissions');
 const sessionsDir = path.join(__dirname, 'sessions');
 const contestsDir = path.join(__dirname, 'contests');
 const tempDir = path.join(__dirname, 'temp');
 
-[submissionsDir, sessionsDir, contestsDir, tempDir].forEach((dir) => {
+[submissionsDir, syncedSubmissionsDir, sessionsDir, contestsDir, tempDir].forEach((dir) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 });
 
 // ----------------------------------------------------------------------------
-// Embedded Host LAN Server Module
+// Local LAN UDP Discovery Engine (Host Broadcast & Competitor Discovery)
+// ----------------------------------------------------------------------------
+class LanDiscoveryEngine {
+  constructor() {
+    this.broadcastSocket = null;
+    this.listenerSocket = null;
+    this.broadcastTimer = null;
+    this.isBroadcasting = false;
+    this.isListening = false;
+    this.activeContestData = null;
+  }
+
+  getLocalBroadcastAddresses() {
+    const interfaces = os.networkInterfaces();
+    const addresses = new Set();
+    addresses.add('255.255.255.255');
+    addresses.add('127.0.0.1');
+
+    for (const name of Object.keys(interfaces)) {
+      for (const iface of interfaces[name]) {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          if (iface.netmask && iface.address) {
+            try {
+              const ipParts = iface.address.split('.').map(Number);
+              const maskParts = iface.netmask.split('.').map(Number);
+              const bcastParts = ipParts.map((p, i) => (p | (~maskParts[i] & 255)));
+              addresses.add(bcastParts.join('.'));
+            } catch (_) {}
+          }
+        }
+      }
+    }
+    return Array.from(addresses);
+  }
+
+  startBroadcasting(hostPayload) {
+    this.stopBroadcasting();
+    this.activeContestData = hostPayload;
+
+    try {
+      this.broadcastSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+      this.broadcastSocket.on('error', (err) => {
+        // Non-critical UDP logging
+      });
+
+      this.broadcastSocket.bind(0, () => {
+        try {
+          this.broadcastSocket.setBroadcast(true);
+          this.isBroadcasting = true;
+
+          const broadcastPacket = () => {
+            if (!this.isBroadcasting || !this.broadcastSocket || !this.activeContestData) return;
+            const message = Buffer.from(JSON.stringify({
+              type: 'MASSCODE_HOST_ANNOUNCE',
+              ...this.activeContestData,
+              timestamp: Date.now()
+            }));
+
+            const targets = this.getLocalBroadcastAddresses();
+            targets.forEach((addr) => {
+              this.broadcastSocket.send(message, 0, message.length, UDP_BROADCAST_PORT, addr, () => {});
+            });
+          };
+
+          broadcastPacket();
+          this.broadcastTimer = setInterval(broadcastPacket, 2000);
+        } catch (_) {}
+      });
+    } catch (_) {}
+  }
+
+  stopBroadcasting() {
+    this.isBroadcasting = false;
+    if (this.broadcastTimer) {
+      clearInterval(this.broadcastTimer);
+      this.broadcastTimer = null;
+    }
+    if (this.broadcastSocket) {
+      try { this.broadcastSocket.close(); } catch (_) {}
+      this.broadcastSocket = null;
+    }
+    this.activeContestData = null;
+  }
+
+  startListening(onDiscovered) {
+    if (this.isListening) return;
+
+    try {
+      this.listenerSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+      this.listenerSocket.on('error', (err) => {
+        // Non-critical UDP logging
+      });
+
+      this.listenerSocket.on('message', (msg, rinfo) => {
+        try {
+          const packet = JSON.parse(msg.toString('utf-8'));
+          if (packet && packet.type === 'MASSCODE_HOST_ANNOUNCE') {
+            const hostIp = packet.host || rinfo.address;
+            const port = packet.port || DEFAULT_HTTP_PORT;
+            const payload = {
+              ...packet,
+              senderIp: rinfo.address,
+              hostIp,
+              port,
+              url: `http://${hostIp}:${port}`
+            };
+            if (onDiscovered) onDiscovered(payload);
+          }
+        } catch (_) {}
+      });
+
+      this.listenerSocket.bind(UDP_BROADCAST_PORT, '0.0.0.0', () => {
+        this.isListening = true;
+      });
+    } catch (_) {}
+  }
+
+  stopListening() {
+    this.isListening = false;
+    if (this.listenerSocket) {
+      try { this.listenerSocket.close(); } catch (_) {}
+      this.listenerSocket = null;
+    }
+  }
+}
+
+const lanDiscovery = new LanDiscoveryEngine();
+
+// ----------------------------------------------------------------------------
+// Embedded Host LAN Server Module (HTTP on Port 8080 + UDP Broadcast)
 // ----------------------------------------------------------------------------
 class HostServer {
   constructor() {
     this.server = null;
-    this.port = 4500;
+    this.port = DEFAULT_HTTP_PORT;
     this.activeContest = null;
     this.isRunning = false;
   }
@@ -49,13 +184,24 @@ class HostServer {
     return addresses.length > 0 ? addresses : ['127.0.0.1'];
   }
 
-  start(port = 4500, contestConfig = null) {
+  start(port = DEFAULT_HTTP_PORT, contestConfig = null) {
     if (this.isRunning) {
-      if (contestConfig) this.activeContest = contestConfig;
+      if (contestConfig) {
+        this.activeContest = contestConfig;
+        lanDiscovery.startBroadcasting({
+          host: this.getLocalIps()[0] || '127.0.0.1',
+          port: this.port,
+          contestId: this.activeContest.id || this.activeContest.token,
+          contestToken: this.activeContest.token || 'MASS2026',
+          contestTitle: this.activeContest.title || 'Mass-Code Contest',
+          durationMinutes: this.activeContest.durationMinutes || 60,
+          problemCount: (this.activeContest.problems || []).length
+        });
+      }
       return { success: true, port: this.port, ips: this.getLocalIps() };
     }
 
-    this.port = port;
+    this.port = port || DEFAULT_HTTP_PORT;
     if (contestConfig) this.activeContest = contestConfig;
 
     return new Promise((resolve, reject) => {
@@ -73,35 +219,44 @@ class HostServer {
         const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
         const pathname = parsedUrl.pathname;
 
-        // Discovery / Health
-        if (req.method === 'GET' && pathname === '/api/ping') {
+        // Discovery / Health: GET /ping or /api/ping
+        if (req.method === 'GET' && (pathname === '/api/ping' || pathname === '/ping')) {
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({
             status: 'online',
             platform: 'Mass-Code Host Distribution Engine',
+            port: this.port,
             contestActive: !!this.activeContest,
             contestId: this.activeContest ? (this.activeContest.id || this.activeContest.token) : null,
-            contestTitle: this.activeContest ? this.activeContest.title : null
+            contestTitle: this.activeContest ? this.activeContest.title : null,
+            contestToken: this.activeContest ? this.activeContest.token : null
           }));
           return;
         }
 
-        // Contest Retrieval: GET /api/contest/:code
-        if (req.method === 'GET' && pathname.startsWith('/api/contest/')) {
-          const code = pathname.replace('/api/contest/', '').trim().toLowerCase();
+        // Contest Retrieval: GET /api/contest/:code or GET /contest/:code or GET /contest
+        if (req.method === 'GET' && (pathname.startsWith('/api/contest') || pathname.startsWith('/contest'))) {
           if (!this.activeContest) {
             res.writeHead(404, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'No active contest configured on Host server.' }));
             return;
           }
 
-          const idMatch = (this.activeContest.id || '').toLowerCase() === code;
-          const tokenMatch = (this.activeContest.token || '').toLowerCase() === code;
+          let code = '';
+          if (pathname.startsWith('/api/contest/')) {
+            code = pathname.replace('/api/contest/', '').trim().toLowerCase();
+          } else if (pathname.startsWith('/contest/')) {
+            code = pathname.replace('/contest/', '').trim().toLowerCase();
+          }
 
-          if (!idMatch && !tokenMatch) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: `Contest ID mismatch. Expected: ${this.activeContest.id || this.activeContest.token}, got: ${code}` }));
-            return;
+          if (code) {
+            const idMatch = (this.activeContest.id || '').toLowerCase() === code;
+            const tokenMatch = (this.activeContest.token || '').toLowerCase() === code;
+            if (!idMatch && !tokenMatch) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: `Contest PIN/ID mismatch. Expected: ${this.activeContest.token || this.activeContest.id}` }));
+              return;
+            }
           }
 
           res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -109,8 +264,8 @@ class HostServer {
           return;
         }
 
-        // Final Submission Sync: POST /api/contest/sync-submission
-        if (req.method === 'POST' && pathname === '/api/contest/sync-submission') {
+        // Final Submission Sync: POST /sync-result and POST /api/contest/sync-submission
+        if (req.method === 'POST' && (pathname === '/sync-result' || pathname === '/api/contest/sync-submission')) {
           let body = '';
           req.on('data', chunk => { body += chunk.toString(); });
           req.on('end', () => {
@@ -118,21 +273,27 @@ class HostServer {
               const submission = JSON.parse(body);
               if (!submission.usn) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Missing USN in submission package.' }));
+                res.end(JSON.stringify({ error: 'Missing candidate USN in submission payload.' }));
                 return;
               }
 
               const safeUsn = submission.usn.replace(/[^a-zA-Z0-9_-]/g, '_');
               const filename = `FINAL_${safeUsn}.json`;
-              const filePath = path.join(submissionsDir, filename);
 
-              fs.writeFileSync(filePath, JSON.stringify(submission, null, 2), 'utf-8');
+              // Write to synced_submissions/
+              const syncedPath = path.join(syncedSubmissionsDir, filename);
+              fs.writeFileSync(syncedPath, JSON.stringify(submission, null, 2), 'utf-8');
+
+              // Mirror to submissions/ for backward compatibility
+              const subPath = path.join(submissionsDir, filename);
+              fs.writeFileSync(subPath, JSON.stringify(submission, null, 2), 'utf-8');
 
               res.writeHead(200, { 'Content-Type': 'application/json' });
               res.end(JSON.stringify({
                 success: true,
                 message: `Submission for ${submission.usn} synchronized to Host.`,
-                filename
+                filename,
+                savedFolder: 'synced_submissions'
               }));
             } catch (err) {
               res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -148,6 +309,17 @@ class HostServer {
 
       this.server.listen(this.port, '0.0.0.0', () => {
         this.isRunning = true;
+        if (this.activeContest) {
+          lanDiscovery.startBroadcasting({
+            host: this.getLocalIps()[0] || '127.0.0.1',
+            port: this.port,
+            contestId: this.activeContest.id || this.activeContest.token,
+            contestToken: this.activeContest.token || 'MASS2026',
+            contestTitle: this.activeContest.title || 'Mass-Code Contest',
+            durationMinutes: this.activeContest.durationMinutes || 60,
+            problemCount: (this.activeContest.problems || []).length
+          });
+        }
         resolve({ success: true, port: this.port, ips: this.getLocalIps() });
       });
 
@@ -160,6 +332,7 @@ class HostServer {
 
   stop() {
     return new Promise((resolve) => {
+      lanDiscovery.stopBroadcasting();
       if (this.server && this.isRunning) {
         this.server.close(() => {
           this.isRunning = false;
@@ -576,7 +749,7 @@ ipcMain.handle('contest:import-dialog', async () => {
 });
 
 // Host Server Management
-ipcMain.handle('server:start', async (event, { port = 4500, contestConfig = null }) => {
+ipcMain.handle('server:start', async (event, { port = DEFAULT_HTTP_PORT, contestConfig = null }) => {
   try {
     const res = await hostServer.start(port, contestConfig);
     return { success: true, ...res };
@@ -598,35 +771,44 @@ ipcMain.handle('server:get-status', () => {
   };
 });
 
-// Grading Leaderboard Scanner
+// Grading Leaderboard Scanner (Scans synced_submissions/ and submissions/)
 ipcMain.handle('grading:scan-folder', async (event, customFolder = null) => {
   try {
-    const targetDir = customFolder || submissionsDir;
-    if (!fs.existsSync(targetDir)) return { success: false, error: 'Directory does not exist.' };
+    const foldersToScan = customFolder ? [customFolder] : [syncedSubmissionsDir, submissionsDir];
+    const recordsMap = new Map();
 
-    const files = fs.readdirSync(targetDir).filter(f => f.startsWith('FINAL_') && f.endsWith('.json'));
-    const records = [];
+    for (const targetDir of foldersToScan) {
+      if (!fs.existsSync(targetDir)) continue;
 
-    for (const file of files) {
-      try {
-        const fullPath = path.join(targetDir, file);
-        const data = JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
-        records.push({
-          usn: data.usn || file.replace('FINAL_', '').replace('.json', ''),
-          name: data.name || 'Anonymous',
-          totalScore: data.totalScore || 0,
-          maxScore: data.maxScore || 100,
-          problemsSolvedCount: data.problemsSolvedCount || 0,
-          totalProblems: data.totalProblems || 0,
-          timeElapsedSeconds: data.timeElapsedSeconds || 0,
-          totalExecutionTimeMs: data.totalExecutionTimeMs || 0,
-          violationsCount: data.violationStrikes || (data.violations ? data.violations.length : 0),
-          submittedAt: data.submittedAt || 'N/A',
-          filename: file,
-          fullPayload: data
-        });
-      } catch (_) {}
+      const files = fs.readdirSync(targetDir).filter(f => f.startsWith('FINAL_') && f.endsWith('.json'));
+      for (const file of files) {
+        try {
+          const fullPath = path.join(targetDir, file);
+          const data = JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
+          const usn = data.usn || file.replace('FINAL_', '').replace('.json', '');
+
+          // Keep latest submission if duplicate across folders
+          if (!recordsMap.has(usn) || (data.submittedAt && recordsMap.get(usn).submittedAt < data.submittedAt)) {
+            recordsMap.set(usn, {
+              usn,
+              name: data.name || 'Anonymous',
+              totalScore: data.totalScore || 0,
+              maxScore: data.maxScore || 100,
+              problemsSolvedCount: data.problemsSolvedCount || 0,
+              totalProblems: data.totalProblems || 0,
+              timeElapsedSeconds: data.timeElapsedSeconds || 0,
+              totalExecutionTimeMs: data.totalExecutionTimeMs || 0,
+              violationsCount: data.violationStrikes || (data.violations ? data.violations.length : 0),
+              submittedAt: data.submittedAt || 'N/A',
+              filename: file,
+              fullPayload: data
+            });
+          }
+        } catch (_) {}
+      }
     }
+
+    const records = Array.from(recordsMap.values());
 
     // Competitive Grading: 1. Highest Score, 2. Fastest CPU Time, 3. Lowest Elapsed Time
     records.sort((a, b) => {
@@ -637,7 +819,7 @@ ipcMain.handle('grading:scan-folder', async (event, customFolder = null) => {
 
     records.forEach((r, idx) => { r.rank = idx + 1; });
 
-    return { success: true, directory: targetDir, totalCount: records.length, records };
+    return { success: true, directory: syncedSubmissionsDir, totalCount: records.length, records };
   } catch (err) {
     return { success: false, error: err.message };
   }
@@ -660,24 +842,40 @@ ipcMain.handle('grading:export-csv', async (event, { records, contestTitle = 'Ma
   return { success: true, filePath };
 });
 
-// Remote LAN Sync Bridge (Attender -> Host)
+// Remote LAN Sync Bridge (Competitor -> Host)
 ipcMain.handle('sync:fetch-remote-contest', async (event, { hostUrl, contestCode }) => {
   return new Promise((resolve) => {
     try {
-      const url = new URL(`/api/contest/${encodeURIComponent(contestCode)}`, hostUrl);
-      const req = http.get(url, { timeout: 4000 }, (res) => {
+      let normalizedHost = (hostUrl || '').trim();
+      if (!normalizedHost.startsWith('http://') && !normalizedHost.startsWith('https://')) {
+        normalizedHost = `http://${normalizedHost}`;
+      }
+
+      const parsed = new URL(normalizedHost);
+      if (!parsed.port && !hostUrl.includes(':')) {
+        parsed.port = DEFAULT_HTTP_PORT.toString();
+      }
+
+      const codePart = contestCode ? encodeURIComponent(contestCode.trim()) : '';
+      const targetUrl = new URL(`/api/contest/${codePart}`, parsed.origin);
+
+      const req = http.get(targetUrl, { timeout: 5000 }, (res) => {
         let body = '';
         res.on('data', chunk => { body += chunk; });
         res.on('end', () => {
           if (res.statusCode === 200) {
-            resolve({ success: true, contest: JSON.parse(body) });
+            try {
+              resolve({ success: true, contest: JSON.parse(body) });
+            } catch (e) {
+              resolve({ success: false, error: 'Malformed JSON payload from host.' });
+            }
           } else {
-            resolve({ success: false, error: body });
+            resolve({ success: false, error: body || `Host returned HTTP ${res.statusCode}` });
           }
         });
       });
-      req.on('error', err => resolve({ success: false, error: err.message }));
-      req.on('timeout', () => { req.destroy(); resolve({ success: false, error: 'Connection timed out' }); });
+      req.on('error', err => resolve({ success: false, error: `Network error: ${err.message}` }));
+      req.on('timeout', () => { req.destroy(); resolve({ success: false, error: 'Connection timed out connecting to Host.' }); });
     } catch (err) {
       resolve({ success: false, error: err.message });
     }
@@ -687,7 +885,18 @@ ipcMain.handle('sync:fetch-remote-contest', async (event, { hostUrl, contestCode
 ipcMain.handle('sync:push-submission', async (event, { hostUrl, payload }) => {
   return new Promise((resolve) => {
     try {
-      const url = new URL('/api/contest/sync-submission', hostUrl);
+      let normalizedHost = (hostUrl || '').trim();
+      if (!normalizedHost.startsWith('http://') && !normalizedHost.startsWith('https://')) {
+        normalizedHost = `http://${normalizedHost}`;
+      }
+
+      const parsed = new URL(normalizedHost);
+      if (!parsed.port && !hostUrl.includes(':')) {
+        parsed.port = DEFAULT_HTTP_PORT.toString();
+      }
+
+      // User requirement: HTTP POST http://[Host-IP]:8080/sync-result
+      const url = new URL('/sync-result', parsed.origin);
       const postData = JSON.stringify(payload);
       const req = http.request(url, {
         method: 'POST',
@@ -695,7 +904,7 @@ ipcMain.handle('sync:push-submission', async (event, { hostUrl, payload }) => {
           'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(postData)
         },
-        timeout: 4000
+        timeout: 5000
       }, (res) => {
         let respData = '';
         res.on('data', chunk => { respData += chunk; });
@@ -711,4 +920,19 @@ ipcMain.handle('sync:push-submission', async (event, { hostUrl, payload }) => {
       resolve({ success: false, error: err.message });
     }
   });
+});
+
+// UDP LAN Discovery Handlers
+ipcMain.handle('lan:start-listening', () => {
+  lanDiscovery.startListening((discoveredHost) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('lan:host-discovered', discoveredHost);
+    }
+  });
+  return { success: true };
+});
+
+ipcMain.handle('lan:stop-listening', () => {
+  lanDiscovery.stopListening();
+  return { success: true };
 });

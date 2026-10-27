@@ -9,21 +9,26 @@ Mass-Code is a production-grade, offline-first competitive programming and asses
 ```
 c:\Projects\Mass_code\
 ├── package.json              # Project identity & Electron launch configuration
+├── run-mass-code.bat         # Zero-installation click-to-run USB execution bundle
 ├── main.js                   # Window lifecycle, OS detection, security rules & compiler sandbox
 ├── preload.js                # ContextBridge security layer exposing safe IPC channels
 ├── index.html                # Dynamic multi-view view router (Welcome, Host, Competitor, Thank You)
 ├── renderer.js               # Application state, timer latches, multi-tier question bank & sync
 ├── styles.css                # High-contrast modern dark UI layout system
 ├── assets/
-│   └── logo.png              # Designated branding media artifact (256x256 RGBA)
-├── launch_masscode.bat       # Single double-click Windows desktop launcher
+│   ├── logo.png              # Designated branding media artifact (512x512 RGBA)
+│   ├── favicon.png           # Browser & view tab favicon (64x64 RGBA)
+│   ├── favicon.ico           # Windows multi-resolution icon
+│   └── logo-full.png         # Complete branding lockup with typography
+├── launch_masscode.bat       # Windows desktop launcher
 ├── launch_masscode.sh        # Linux executable desktop shell launcher
 ├── setup_env.bat             # Automated USB deployment & verification script for Windows
 ├── setup_env.sh              # Automated USB deployment & verification script for Linux
 ├── sample-contest.json       # Bundled multi-tier contest configuration (Easy, Medium, Hard)
 ├── contests/                 # Exported contest packages
 ├── sessions/                 # Continuous autosave snapshots (SESSION_[USN].json)
-└── submissions/              # Immutable finalized submissions (FINAL_[USN].json)
+├── submissions/              # Immutable finalized submissions (FINAL_[USN].json)
+└── synced_submissions/       # Live LAN-synchronized candidate results (FINAL_[USN].json)
 ```
 
 ---
@@ -36,14 +41,15 @@ c:\Projects\Mass_code\
   - **[Host Mode]**
   - **[Competitor Mode]**
 
-### 2. Host Mode (Full Computing Freedom)
+### 2. Host Mode (Full Computing Freedom & LAN Distribution)
 - Granted full computing freedom:
   - Unconfined, resizable, and minimizable window.
   - Can switch between native tabs, desktop software, or background apps without restrictions (`Alt+Tab` operates freely).
 - Features:
   - Multi-tier Contest Builder with Easy, Medium, and Hard problem assignments.
   - Test case authoring with Sample vs. Hidden flags.
-  - Embedded LAN distribution server on port `4500` with local IP discovery.
+  - Embedded LAN distribution server on port `8080` with local IP discovery and automated UDP broadcasting (`dgram` on port `45454`).
+  - Automated sync endpoint (`POST /sync-result`) safely writing incoming candidate payloads to `synced_submissions/`.
   - Live competitive grading scanner with tie-breaking rules (Highest Score first, ties broken by Fastest CPU Execution Time) and CSV spreadsheet export.
 
 ### 3. Competitor Mode (Strict Kiosk Confinement Framework)
@@ -54,7 +60,7 @@ c:\Projects\Mass_code\
   - Window blur detection: logs incidents, strikes, and warning alerts.
 - **Release Conditions**: The student can ONLY regain full system access under two conditions:
   1. Clicking **"End Session"** (displays confirmation modal, packages final answers, lifts kiosk confinement, and shows "Thank You for Participating" screen).
-  2. Inputting the parameterized **Supervisor Emergency Key** (`MASSCODE_EMERGENCY_2026`).
+  2. Inputting the parameterized **Supervisor Emergency Key** (`GECM@8123`).
 
 ---
 
@@ -106,4 +112,4 @@ c:\Projects\Mass_code\
 ---
 
 ## 🔑 Supervisor Credentials
-- **Supervisor Emergency Override Key**: `MASSCODE_EMERGENCY_2026`
+- **Supervisor Emergency Override Key**: `GECM@8123`
