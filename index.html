@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mass-Code // Universal Offline Competitive Programming Platform</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- ====================================================================
+         UNIVERSAL NAVIGATION BAR
+         ==================================================================== -->
+    <header class="main-header">
+      <div class="brand-wrapper">
+        <img src="assets/logo.png" alt="Mass-Code Logo" class="brand-logo-img">
+        <div class="brand-text-block">
+          <div class="brand-title">MASS<span>-CODE</span></div>
+          <div class="brand-tag">OFFLINE COMPETITIVE PLATFORM</div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <!-- Candidate Info Pill (Competitor Mode) -->
+        <div id="nav-candidate-pill" class="candidate-pill" style="display: none;">
+          USN: <span id="nav-candidate-usn">--</span>
+        </div>
+
+        <!-- Isolated Relative Countdown Timer (Competitor Mode) -->
+        <div id="nav-timer-box" class="timer-badge" style="display: none;">
+          <span>⏱</span>
+          <span id="nav-timer-digits">00:00:00</span>
+        </div>
+
+        <!-- Security Kiosk Status Indicator -->
+        <div id="nav-kiosk-badge" class="security-badge" style="display: none;">
+          KIOSK CONFINEMENT ACTIVE
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Supervisor Emergency Key Override Trigger -->
+        <button id="btn-supervisor-key" class="btn btn-secondary btn-sm" title="Supervisor Emergency Key Override">
+          Emergency Key
+        </button>
+
+        <!-- Globally Accessible End Session Button (Competitor Mode) -->
+        <button id="btn-end-session" class="btn btn-danger btn-sm" style="display: none;">
+          ✖ End Session
+        </button>
+
+        <!-- Exit to Welcome Button (Host Mode) -->
+        <button id="btn-exit-host" class="btn btn-secondary btn-sm" style="display: none;">
+          ← Mode Selection
+        </button>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         VIEW 1: MODE SELECTION WELCOME SCREEN (LANDING DASHBOARD)
+         ==================================================================== -->
+    <main id="view-welcome" class="app-view active">
+      <div class="welcome-box">
+        <div class="welcome-logo-container">
+          <img src="assets/logo.png" alt="Mass-Code Brand Logo" class="welcome-logo-img">
+          <h1 class="welcome-header-title">MASS<span>-CODE</span></h1>
+          <p class="welcome-subtitle">
+            Universal, offline-first competitive programming and examination platform. Engineered with isolated native compiler sandboxes, monotonic relative timing, and tamper-proof kiosk window security.
+          </p>
+        </div>
+
+        <!-- Exactly Two Operational Modules -->
+        <div class="modules-grid">
+          <!-- Module 1: Host Mode -->
+          <div id="card-enter-host" class="module-card card-host">
+            <div class="module-icon">🛠</div>
+            <h2 class="module-title">Host Mode</h2>
+            <p class="module-desc">
+              Author multi-tier contests, manage hidden test cases, host LAN distribution, and review real-time competitive grading with tie-breaking algorithms.
+            </p>
+            <span class="module-tag">Full Computing Freedom // Non-Kiosk</span>
+            <button class="btn btn-primary" style="margin-top: 8px; width: 100%;">
+              Launch Host Workspace →
+            </button>
+          </div>
+
+          <!-- Module 2: Competitor Mode -->
+          <div id="card-enter-competitor" class="module-card card-competitor">
+            <div class="module-icon">⚡</div>
+            <h2 class="module-title">Competitor Mode</h2>
+            <p class="module-desc">
+              Enter secure, fullscreen kiosk confinement with blocked OS shortcuts. Solve questions across Easy, Medium, and Hard tiers in an isolated C/C++ compiler sandbox.
+            </p>
+            <span class="module-tag">Kiosk Lockdown // Fullscreen Active</span>
+            <button class="btn btn-success" style="margin-top: 8px; width: 100%;">
+              Enter Competition Mode →
+            </button>
+          </div>
+        </div>
+
+        <!-- System Diagnostic Bar -->
+        <div class="welcome-diag-bar">
+          <div class="diag-item">
+            <span>Compiler:</span>
+            <span id="welcome-gcc-status" class="status-ok">Scanning...</span>
+          </div>
+          <div class="diag-item">
+            <span>Architecture:</span>
+            <span id="welcome-arch-status" style="color: var(--color-cyan);">--</span>
+          </div>
+          <div class="diag-item">
+            <span>Local LAN IP:</span>
+            <span id="welcome-ip-status">--</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         VIEW 2: HOST MODE DASHBOARD (FULL COMPUTING FREEDOM)
+         ==================================================================== -->
+    <main id="view-host" class="app-view">
+      <nav class="host-subnav">
+        <div class="host-tabs">
+          <button class="host-tab-btn active" data-tab="builder">Contest Builder</button>
+          <button class="host-tab-btn" data-tab="server">Server &amp; LAN Distribution</button>
+          <button class="host-tab-btn" data-tab="grading">Grading Reporter &amp; Leaderboard</button>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-host-load-sample" class="btn btn-secondary btn-sm">Load Default Template</button>
+          <button id="btn-host-import" class="btn btn-secondary btn-sm">Import Contest JSON</button>
+          <button id="btn-host-export" class="btn btn-primary btn-sm">Export contest-config.json</button>
+        </div>
+      </nav>
+
+      <!-- TAB 1: CONTEST BUILDER -->
+      <section id="host-panel-builder" class="host-content-panel active">
+        <div class="builder-box">
+          <div class="card-panel">
+            <div class="card-panel-header">
+              <h2>Contest Configuration</h2>
+              <span class="candidate-pill">Configuration Metadata</span>
+            </div>
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label>Contest Title</label>
+                <input type="text" id="host-contest-title" class="form-control" value="Mass-Code National Championship">
+              </div>
+              <div class="form-group">
+                <label>Contest Token / PIN</label>
+                <input type="text" id="host-contest-token" class="form-control" value="MASS2026">
+              </div>
+              <div class="form-group">
+                <label>Duration (Minutes)</label>
+                <input type="number" id="host-contest-duration" class="form-control" value="60">
+              </div>
+            </div>
+          </div>
+
+          <!-- Problem Stack with Easy, Medium, Hard Tiers -->
+          <div class="card-panel">
+            <div class="card-panel-header">
+              <h2>Multi-Tier Question Bank</h2>
+              <button id="btn-host-add-problem" class="btn btn-success btn-sm">+ Add New Question</button>
+            </div>
+            <div id="host-problems-list" style="display: flex; flex-direction: column; gap: 16px;">
+              <!-- Dynamically populated problem builder cards -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: SERVER & LAN DISTRIBUTION -->
+      <section id="host-panel-server" class="host-content-panel">
+        <div class="builder-box">
+          <div class="card-panel">
+            <div class="card-panel-header">
+              <h2>Distribution Server Status</h2>
+              <button id="btn-host-toggle-server" class="btn btn-danger btn-sm">Stop Server</button>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-secondary);">
+              Broadcasts contest configurations across the offline laboratory local area network (LAN) and accepts candidate submissions at <code>/api/contest/sync-submission</code>.
+            </p>
+            <div style="display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap;">
+              <div class="candidate-pill">Port: <span id="server-port-val">4500</span></div>
+              <div class="candidate-pill">Active Contest: <span id="server-contest-val">MASS2026</span></div>
+              <div class="candidate-pill">Status: <span id="server-state-val" style="color: var(--color-emerald);">Running</span></div>
+            </div>
+            <div id="server-ip-badges" style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: GRADING REPORTER & LEADERBOARD -->
+      <section id="host-panel-grading" class="host-content-panel">
+        <div class="builder-box">
+          <div class="card-panel" style="flex-direction: row; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <button id="btn-host-scan-folder" class="btn btn-primary btn-sm">Scan Submissions Folder</button>
+              <span id="grading-count-label" style="font-size: 0.85rem; color: var(--text-secondary);">0 candidate submissions loaded</span>
+            </div>
+            <button id="btn-host-export-csv" class="btn btn-secondary btn-sm">Export CSV Leaderboard</button>
+          </div>
+
+          <div class="card-panel" style="padding: 0; overflow: hidden;">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th style="width: 70px;">Rank</th>
+                  <th>USN</th>
+                  <th>Candidate Name</th>
+                  <th>Total Score</th>
+                  <th>Solved</th>
+                  <th>Elapsed Time</th>
+                  <th>CPU Exec Time</th>
+                  <th>Violations</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="host-leaderboard-tbody">
+                <tr>
+                  <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                    No submissions scanned yet. Click "Scan Submissions Folder" to load candidate records.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ====================================================================
+         VIEW 3: COMPETITOR MODE (STRICT KIOSK CONFINEMENT)
+         ==================================================================== -->
+    <main id="view-competitor" class="app-view">
+      <!-- REGISTRATION / PIN ENTRY OVERLAY -->
+      <section id="competitor-reg-overlay" class="competitor-reg-overlay">
+        <div class="reg-card">
+          <div class="reg-card-header">
+            <img src="assets/logo.png" alt="Logo" style="width: 56px; height: 56px;">
+            <h2 style="font-size: 1.35rem; font-weight: 800;">Candidate Contest Entry</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+              Connect to the active contest, register your institutional identifier, and lock down workspace.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label>Contest Code / PIN</label>
+            <input type="text" id="comp-pin-input" class="form-control" value="MASS2026" placeholder="e.g. MASS2026">
+          </div>
+
+          <div class="form-group">
+            <label>Host Server URL <span style="font-size: 0.72rem; color: var(--text-muted);">(Optional if offline file loaded)</span></label>
+            <input type="text" id="comp-host-url" class="form-control" value="http://localhost:4500">
+          </div>
+
+          <div style="display: flex; gap: 8px;">
+            <button id="btn-comp-pull-lan" class="btn btn-secondary btn-sm" style="flex: 1;">Pull Config Over LAN</button>
+            <button id="btn-comp-load-local" class="btn btn-secondary btn-sm" style="flex: 1;">Load Config File</button>
+          </div>
+
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+            <div class="form-group">
+              <label>Student Institutional USN / Reg No <span style="color: var(--color-rose);">*</span></label>
+              <input type="text" id="comp-usn-input" class="form-control" placeholder="e.g. 1MS21CS001" style="font-family: var(--font-mono); font-weight: 700; text-transform: uppercase;">
+            </div>
+            <div class="form-group" style="margin-top: 10px;">
+              <label>Full Name</label>
+              <input type="text" id="comp-name-input" class="form-control" placeholder="e.g. John Doe">
+            </div>
+          </div>
+
+          <button id="btn-comp-start-contest" class="btn btn-success" style="padding: 12px; font-weight: 700;" disabled>
+            Lock Down Station &amp; Start Contest
+          </button>
+        </div>
+      </section>
+
+      <!-- ACTIVE WORKSPACE -->
+      <section id="competitor-workspace" class="competitor-workspace" style="display: none;">
+        <!-- SUB-VIEW A: MULTI-TIER QUESTION BANK VIEW -->
+        <div id="competitor-bank-view" class="tier-dashboard-container">
+          <!-- Left-Hand Context Control: Easy, Medium, Hard -->
+          <aside class="tier-sidebar">
+            <div class="tier-sidebar-title">Select Difficulty Tier</div>
+
+            <div id="tier-btn-easy" class="tier-btn active" data-tier="easy">
+              <div class="tier-header-row">
+                <span class="tier-name"><span class="tier-badge-easy">●</span> Easy</span>
+                <span id="tier-count-easy" class="candidate-pill" style="font-size: 0.7rem;">0 Qs</span>
+              </div>
+              <span id="tier-status-easy" class="tier-progress-tag">0 / 0 Verified</span>
+            </div>
+
+            <div id="tier-btn-medium" class="tier-btn" data-tier="medium">
+              <div class="tier-header-row">
+                <span class="tier-name"><span class="tier-badge-med">●</span> Medium</span>
+                <span id="tier-count-medium" class="candidate-pill" style="font-size: 0.7rem;">0 Qs</span>
+              </div>
+              <span id="tier-status-medium" class="tier-progress-tag">0 / 0 Verified</span>
+            </div>
+
+            <div id="tier-btn-hard" class="tier-btn" data-tier="hard">
+              <div class="tier-header-row">
+                <span class="tier-name"><span class="tier-badge-hard">●</span> Hard</span>
+                <span id="tier-count-hard" class="candidate-pill" style="font-size: 0.7rem;">0 Qs</span>
+              </div>
+              <span id="tier-status-hard" class="tier-progress-tag">0 / 0 Verified</span>
+            </div>
+          </aside>
+
+          <!-- Right-Hand Question Matrix -->
+          <section class="question-matrix-content">
+            <div class="matrix-header">
+              <h2 id="matrix-tier-heading">Easy Tier Problems</h2>
+              <span id="matrix-tier-summary" class="candidate-pill">Click a problem to open its workspace</span>
+            </div>
+
+            <div id="question-matrix-list" class="question-grid">
+              <!-- Dynamically populated question cards with Status Indicator Tags -->
+            </div>
+          </section>
+        </div>
+
+        <!-- SUB-VIEW B: PROBLEM WORKSPACE SPLIT-SCREEN VIEW -->
+        <div id="competitor-workspace-view" class="workspace-split-container" style="display: none;">
+          <!-- Left Sub-Panel: Problem Statement, Specs, Execution Metrics -->
+          <aside class="left-panel-workspace">
+            <div id="btn-back-to-bank" class="workspace-breadcrumb">
+              ← Return to Question Bank
+            </div>
+
+            <div class="problem-statement-scroll">
+              <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+                <div>
+                  <h1 id="ws-problem-title" style="font-size: 1.25rem; font-weight: 800;">Problem Title</h1>
+                  <span id="ws-problem-tier-tag" class="status-tag status-attempting" style="margin-top: 4px;">Easy Tier</span>
+                </div>
+                <div class="candidate-pill" style="color: var(--color-emerald); font-size: 0.88rem;" id="ws-problem-points">
+                  20 Pts
+                </div>
+              </div>
+
+              <div id="ws-problem-desc" style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6;" class="selectable">
+                Problem description goes here...
+              </div>
+
+              <!-- Sample Test Case Box -->
+              <div class="sample-case-box">
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-cyan); text-transform: uppercase;">
+                  Sample Test Case
+                </div>
+                <div class="sample-grid">
+                  <div>
+                    <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Sample Input</label>
+                    <pre id="ws-sample-input">--</pre>
+                  </div>
+                  <div>
+                    <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Expected Output</label>
+                    <pre id="ws-sample-output">--</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Execution Metrics Bottom Drawer -->
+            <div class="workspace-metrics-drawer">
+              <div>
+                <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Problem Score:</span>
+                <span id="ws-metric-score" style="font-family: var(--font-mono); font-weight: 800; color: var(--color-emerald); margin-left: 6px;">0 / 20</span>
+              </div>
+              <div>
+                <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Tests:</span>
+                <span id="ws-metric-tests" style="font-family: var(--font-mono); font-weight: 700; margin-left: 6px;">0 / 0</span>
+              </div>
+              <div>
+                <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">CPU Time:</span>
+                <span id="ws-metric-cpu" style="font-family: var(--font-mono); font-weight: 700; margin-left: 6px;">0 ms</span>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Right Sub-Panel: Monospace Editor & Green Terminal Sandbox -->
+          <section class="right-panel-workspace">
+            <div class="editor-toolbar">
+              <span style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--color-cyan); font-weight: 700;">
+                C (GCC Native Sandbox)
+              </span>
+              <div style="display: flex; gap: 8px;">
+                <button id="btn-ws-reset-code" class="btn btn-secondary btn-sm">Reset Code</button>
+                <button id="btn-ws-clear-term" class="btn btn-secondary btn-sm">Clear Terminal</button>
+                <button id="btn-ws-run-tests" class="btn btn-success btn-sm" style="font-weight: 700;">
+                  ▶ Run Test Cases (Ctrl+Enter)
+                </button>
+              </div>
+            </div>
+
+            <!-- Monospace Code Editor Area -->
+            <div class="code-editor-area">
+              <div id="editor-gutter" class="line-numbers-gutter">1</div>
+              <textarea id="editor-code" class="code-editor-textarea" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="// Write C solution here..."></textarea>
+              <div id="clipboard-toast" class="clipboard-toast">⚠ CLIPBOARD ACTIONS (CTRL+C / CTRL+V) ARE STRICTLY BLOCKED</div>
+            </div>
+
+            <!-- Bottom-Anchored Green-on-Black Terminal Sandbox -->
+            <div class="terminal-sandbox">
+              <div class="terminal-top">
+                <span id="terminal-top-status">RUNTIME TERMINAL SANDBOX // GCC 6.3.0</span>
+                <span id="ws-autosave-tag" style="color: var(--text-muted); font-size: 0.7rem;">AUTOSAVE ACTIVE</span>
+              </div>
+              <div id="terminal-stream" class="terminal-stream">
+                [MASS-CODE RUNTIME]: Native compiler ready. Press "Run Test Cases" to compile and execute.
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <!-- ====================================================================
+         VIEW 4: "THANK YOU FOR PARTICIPATING" (VALIDATION SCREEN)
+         ==================================================================== -->
+    <main id="view-thankyou" class="app-view">
+      <div class="thankyou-card">
+        <div class="thankyou-icon">✓</div>
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main);">
+          Thank You for Participating!
+        </h1>
+        <p style="font-size: 0.95rem; color: var(--text-secondary); max-width: 500px; line-height: 1.6;">
+          Your competitive programming session has ended. All your solutions across Easy, Medium, and Hard tiers have been finalized and recorded into an immutable audit package.
+        </p>
+
+        <!-- Final Summary Cards -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%;">
+          <div class="card-panel" style="padding: 16px; align-items: center;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Total Score</span>
+            <span id="ty-total-score" style="font-size: 1.6rem; font-weight: 900; font-family: var(--font-mono); color: var(--color-emerald);">0 / 100</span>
+          </div>
+          <div class="card-panel" style="padding: 16px; align-items: center;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Contest Duration</span>
+            <span id="ty-duration" style="font-size: 1.6rem; font-weight: 900; font-family: var(--font-mono); color: var(--color-cyan);">00:00:00</span>
+          </div>
+        </div>
+
+        <div class="card-panel" style="width: 100%; padding: 16px; font-family: var(--font-mono); font-size: 0.85rem; text-align: left;">
+          <div>Candidate Identifier: <strong id="ty-candidate-usn">--</strong></div>
+          <div style="margin-top: 6px;">Audit Log Package: <strong id="ty-payload-file">FINAL_USN.json</strong></div>
+          <div style="margin-top: 6px;">Network Synchronization: <span id="ty-sync-status" style="color: var(--color-emerald); font-weight: 700;">Synchronized to Host</span></div>
+        </div>
+
+        <button id="btn-ty-return-home" class="btn btn-primary" style="padding: 12px 28px;">
+          Return to Mode Selection
+        </button>
+      </div>
+    </main>
+
+    <!-- ====================================================================
+         MODALS & OVERLAYS
+         ==================================================================== -->
+    <!-- 1. End Session Warning Modal -->
+    <div id="modal-end-session-warning" class="modal-overlay">
+      <div class="modal-dialog">
+        <h3 style="color: var(--color-rose); font-size: 1.15rem; font-weight: 800;">
+          ⚠ Terminate Contest Session?
+        </h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+          Are you sure you want to end your session? Your code and evaluations will be finalized, kiosk confinement will be lifted, and no further edits will be permitted.
+        </p>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+          <button id="btn-cancel-end-session" class="btn btn-secondary">Resume Contest</button>
+          <button id="btn-confirm-end-session" class="btn btn-danger">Yes, Finalize &amp; End Session</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Supervisor Emergency Key Modal -->
+    <div id="modal-supervisor-override" class="modal-overlay">
+      <div class="modal-dialog">
+        <h3 style="font-size: 1.15rem; font-weight: 800;">Supervisor Emergency Key Override</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">
+          Input the invigilator supervisor key to unlock the station and release kiosk mode.
+        </p>
+        <div class="form-group">
+          <input type="password" id="supervisor-key-input" class="form-control" placeholder="Enter Supervisor Emergency Key" style="font-family: var(--font-mono); text-align: center;">
+        </div>
+        <div id="supervisor-key-error" style="color: var(--color-rose); font-size: 0.8rem; display: none;">
+          Incorrect Supervisor Emergency Key.
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button id="btn-cancel-supervisor-key" class="btn btn-secondary">Cancel</button>
+          <button id="btn-confirm-supervisor-key" class="btn btn-primary">Unlock Station</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Security Violation Blur Alert Modal -->
+    <div id="modal-violation" class="modal-overlay">
+      <div class="modal-dialog" style="border: 2px solid var(--color-rose);">
+        <h3 style="color: var(--color-rose); font-size: 1.15rem; font-weight: 800;">
+          ⚠ SECURITY ALERT // WINDOW FOCUS LOST
+        </h3>
+        <p style="font-size: 0.9rem; color: var(--text-main);">
+          The application window lost focus. Navigating away or attempting to toggle outside the active workspace is strictly monitored and recorded in your final audit log.
+        </p>
+        <div class="candidate-pill" style="color: var(--color-rose); border-color: var(--color-rose); width: fit-content;">
+          Strike <span id="violation-count-label">1</span> Logged
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+          <button id="btn-acknowledge-violation" class="btn btn-danger">I Acknowledge &amp; Resume Contest</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Host Inspector Modal -->
+    <div id="modal-inspector" class="modal-overlay">
+      <div class="modal-dialog" style="max-width: 800px; max-height: 85vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+          <h3 id="inspect-title" style="font-size: 1.15rem; font-weight: 800;">Candidate Submission Details</h3>
+          <button id="btn-close-inspector" class="btn btn-secondary btn-sm">✕</button>
+        </div>
+        <div style="display: flex; gap: 16px; font-family: var(--font-mono); font-size: 0.85rem; margin-top: 12px;">
+          <div>Candidate: <strong id="inspect-usn">--</strong> (<span id="inspect-name">--</span>)</div>
+          <div>Total Score: <strong id="inspect-score" style="color: var(--color-emerald);">0</strong></div>
+        </div>
+        <div style="margin-top: 14px;">
+          <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">SOURCE CODE LOGS</label>
+          <pre id="inspect-code-area" style="background-color: #070a10; border: 1px solid var(--border-subtle); padding: 14px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-code); max-height: 350px; overflow-y: auto;"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-box"></div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

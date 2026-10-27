@@ -2,27 +2,27 @@
 setlocal EnableDelayedExpansion
 
 :: ============================================================================
-:: BUG BUSTERS // AUTOMATED LAB ENVIRONMENT DEPLOYMENT SCRIPT (WINDOWS)
+:: MASS-CODE // AUTOMATED LAB ENVIRONMENT DEPLOYMENT SCRIPT (WINDOWS)
 :: Universal Offline Competitive Programming Setup
 :: Designed to execute from central USB drive to configure student lab machines.
 :: ============================================================================
 
-title "Bug Busters - Lab Environment Setup & Verification"
+title "Mass-Code - Lab Environment Setup & Verification"
 color 0F
 
 echo ===============================================================================
-echo   ____  _   _  ____   ____  _   _ ____ _____ _____ ____  ____  
-echo  ^| __ )^| ^| ^| ^|^|  _ \ ^| __ )^| ^| ^| / ___^|_   _^| ____^|  _ \/ ___^| 
-echo  ^|  _ \^| ^| ^| ^|^| ^|_^| ^|^|  _ \^| ^| ^| \___ \ ^| ^| ^|  _^| ^| ^|_) \___ \ 
-echo  ^| ^|_) ^| ^|_^| ^|^|  _ ^< ^| ^|_) ^| ^|_^| ^|___) ^|^| ^| ^| ^|___^|  _ ^< ___) ^|
-echo  ^|____/ \___/ ^|_^| \_\^|____/ \___/^|____/ ^|_^| ^|_____^|_^| \_\____/ 
+echo   __  __    _    ____ ____         ____ ___  ____  _____ 
+echo  ^|  \/  ^|  / \  / ___/ ___^|       / ___/ _ \^|  _ \^| ____^|
+echo  ^| ^|\/^| ^| / _ \ \___ \___ \  _____^| ^|  ^| ^| ^| ^| ^| ^| ^|  _^|  
+echo  ^| ^|  ^| ^|/ ___ \ ___) ^|__) ^|_____^| ^|__^| ^|_^| ^| ^|_^| ^| ^|___ 
+echo  ^|_^|  ^|_/_/   \_\____/____/       \____\___/^|____/^|_____^|
 echo.
 echo   AUTOMATED LAB ENVIRONMENT VERIFICATION ^& DEPLOYMENT UTILITY
 echo ===============================================================================
 echo.
 
 set "USB_SOURCE=%~dp0"
-set "TARGET_DIR=%USERPROFILE%\Desktop\BugBusters_Local"
+set "TARGET_DIR=%USERPROFILE%\Desktop\MassCode_Local"
 set "REPORT_FILE=%TARGET_DIR%\env_report.txt"
 set "APP_READY=READY"
 set "GCC_STATUS=NOT_FOUND"
@@ -85,7 +85,6 @@ if "%FOUND_GCC_DIR%"=="" (
 echo [SUCCESS] Discovered local GCC compiler binary at: "%FOUND_GCC_DIR%"
 echo [INFO] Registering "%FOUND_GCC_DIR%" into persistent user PATH environment...
 
-:: Programmatically append to persistent user PATH via setx
 setx PATH "%PATH%;%FOUND_GCC_DIR%" >nul 2>nul
 set "PATH=%PATH%;%FOUND_GCC_DIR%"
 
@@ -119,7 +118,7 @@ if %errorlevel% equ 0 (
     )
 ) else (
     echo [INFO] Node.js not detected in global PATH.
-    echo        [Optional if running pre-packaged standalone Bug Busters executable]
+    echo        [Optional if running pre-packaged standalone Mass-Code executable]
     set "NODE_STATUS=NOT_INSTALLED_OPTIONAL"
 )
 
@@ -140,7 +139,6 @@ if not exist "%TARGET_DIR%" (
 )
 
 echo [INFO] Transferring application package assets from USB storage...
-:: Exclude version control, temporary compiler cache, and heavy dev directories
 where robocopy >nul 2>nul
 if %errorlevel% equ 0 (
     robocopy "%USB_SOURCE%\" "%TARGET_DIR%\" /E /NFL /NDL /NJH /NJS /XD node_modules temp .git .agents .agent sessions submissions /XF setup_env.bat setup_env.sh *.log >nul
@@ -156,22 +154,16 @@ echo [SUCCESS] Application payload localized to student desktop.
 echo.
 echo [INFO] Step 4/4: Generating student desktop launcher shortcut...
 
-set "RUNNER_BAT=%TARGET_DIR%\run_bugbusters.bat"
-(
-    echo @echo off
-    echo cd /d "%TARGET_DIR%"
-    echo start "" npm start
-) > "%RUNNER_BAT%"
+set "RUNNER_BAT=%TARGET_DIR%\launch_masscode.bat"
+set "SHORTCUT_PATH=%USERPROFILE%\Desktop\Mass-Code Platform.lnk"
+set "ICON_PATH=%TARGET_DIR%\assets\logo.png"
 
-set "SHORTCUT_PATH=%USERPROFILE%\Desktop\Bug Busters Platform.lnk"
-
-:: Use PowerShell COM automation to safely generate .lnk desktop shortcut
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
     "$ws = New-Object -ComObject WScript.Shell; " ^
     "$s = $ws.CreateShortcut('%SHORTCUT_PATH%'); " ^
     "$s.TargetPath = '%RUNNER_BAT%'; " ^
     "$s.WorkingDirectory = '%TARGET_DIR%'; " ^
-    "$s.Description = 'Bug Busters Offline Competitive Programming & Exam Platform'; " ^
+    "$s.Description = 'Mass-Code Offline Competitive Programming Platform'; " ^
     "$s.Save()" >nul 2>nul
 
 if exist "%SHORTCUT_PATH%" (
@@ -188,7 +180,7 @@ if exist "%SHORTCUT_PATH%" (
 :write_report
 (
     echo ===============================================================================
-    echo BUG BUSTERS LAB ENVIRONMENT HEALTH REPORT [WINDOWS]
+    echo MASS-CODE LAB ENVIRONMENT HEALTH REPORT [WINDOWS]
     echo Timestamp              : !DATE! !TIME!
     echo ===============================================================================
     echo Student PC Name        : !COMPUTERNAME!

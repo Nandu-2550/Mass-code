@@ -1,21 +1,20 @@
 {
-  "name": "mass_code",
+  "name": "mass-code",
+  "productName": "Mass-Code",
   "version": "1.0.0",
-  "description": "Universal Offline-First Competitive Programming & Exam Platform",
+  "description": "Mass-Code: Production-Grade Offline-First Competitive Programming & Exam Platform",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "test:compiler": "node test-compiler.js"
+    "start": "electron ."
   },
   "keywords": [
-    "hackerrank",
+    "mass-code",
     "offline-first",
     "competitive-programming",
     "electron",
-    "anti-cheat",
-    "exam-platform"
+    "kiosk-security"
   ],
-  "author": "Antigravity Engineering",
+  "author": "Mass-Code Systems Architecture",
   "license": "ISC",
   "devDependencies": {
     "electron": "^45.0.0"
