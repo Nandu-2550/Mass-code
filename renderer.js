@@ -74,6 +74,9 @@ class MassCodeApp {
     this.btnHostLoadSample = document.getElementById('btn-host-load-sample');
     this.btnHostImport = document.getElementById('btn-host-import');
     this.btnHostExport = document.getElementById('btn-host-export');
+    this.btnHostDeployTop = document.getElementById('btn-host-deploy-top');
+    this.btnHostDeployBottom = document.getElementById('btn-host-deploy-bottom');
+    this.serverGuidePin = document.getElementById('server-guide-pin');
     this.btnHostToggleServer = document.getElementById('btn-host-toggle-server');
     this.serverPortVal = document.getElementById('server-port-val');
     this.serverContestVal = document.getElementById('server-contest-val');
@@ -188,6 +191,9 @@ class MassCodeApp {
     this.btnHostLoadSample.addEventListener('click', () => this._loadDefaultContestTemplate());
     this.btnHostImport.addEventListener('click', () => this._importContestDialog());
     this.btnHostExport.addEventListener('click', () => this._exportContestDialog());
+    const handleDeployContest = () => this._deployHostContest();
+    if (this.btnHostDeployTop) this.btnHostDeployTop.addEventListener('click', handleDeployContest);
+    if (this.btnHostDeployBottom) this.btnHostDeployBottom.addEventListener('click', handleDeployContest);
     this.btnHostToggleServer.addEventListener('click', () => this._toggleHostServer());
     this.btnHostScanFolder.addEventListener('click', () => this._scanHostSubmissions());
     this.btnHostExportCsv.addEventListener('click', () => this._exportLeaderboardCsv());
@@ -987,6 +993,32 @@ class MassCodeApp {
     this.serverIpBadges.innerHTML = (status.ips || []).map(ip => `
       <span class="candidate-pill">Endpoint: http://${ip}:${status.port}</span>
     `).join('');
+
+    if (this.serverGuidePin) {
+      this.serverGuidePin.textContent = status.activeContestId || (this.activeContest && this.activeContest.token) || 'MASS2026';
+    }
+  }
+
+  async _deployHostContest() {
+    const config = this._compileHostContest();
+    if (!config.problems || config.problems.length === 0) {
+      this.showToast('Please add at least one question before hosting the contest.', 'warning');
+      return;
+    }
+
+    this.activeContest = config;
+    const startRes = await window.api.startHostServer({ port: 4500, contestConfig: config });
+    await this._refreshHostServerStatus();
+
+    // Switch host tabs to Server & LAN Distribution tab to show live endpoints
+    this.hostTabs.forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.host-content-panel').forEach(p => p.classList.remove('active'));
+    const serverTabBtn = Array.from(this.hostTabs).find(b => b.dataset.tab === 'server');
+    if (serverTabBtn) serverTabBtn.classList.add('active');
+    const serverPanel = document.getElementById('host-panel-server');
+    if (serverPanel) serverPanel.classList.add('active');
+
+    this.showToast(`Contest "${config.title}" is now LIVE on LAN! (${config.problems.length} questions, PIN: ${config.token})`, 'success');
   }
 
   async _toggleHostServer() {

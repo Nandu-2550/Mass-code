@@ -137,7 +137,8 @@
         <div style="display: flex; gap: 8px;">
           <button id="btn-host-load-sample" class="btn btn-secondary btn-sm">Load Default Template</button>
           <button id="btn-host-import" class="btn btn-secondary btn-sm">Import Contest JSON</button>
-          <button id="btn-host-export" class="btn btn-primary btn-sm">Export contest-config.json</button>
+          <button id="btn-host-export" class="btn btn-secondary btn-sm">Export contest-config.json</button>
+          <button id="btn-host-deploy-top" class="btn btn-success btn-sm" style="font-weight: 800;">🚀 Host Test (LAN)</button>
         </div>
       </nav>
 
@@ -175,6 +176,22 @@
               <!-- Dynamically populated problem builder cards -->
             </div>
           </div>
+
+          <!-- Host Test Action Banner (Deploy after adding questions) -->
+          <div class="card-panel" style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, rgba(0, 229, 255, 0.08), rgba(0, 200, 83, 0.08)); border: 1px solid rgba(0, 200, 83, 0.4); padding: 20px 24px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">Ready to Conduct the Test?</h3>
+                <span class="candidate-pill" style="color: var(--color-emerald); border-color: var(--color-emerald);">Host Broadcast</span>
+              </div>
+              <p style="font-size: 0.86rem; color: var(--text-secondary); margin: 6px 0 0 0;">
+                Click below to start broadcasting this test live across the lab LAN. Competitor PCs can pull the questions immediately.
+              </p>
+            </div>
+            <button id="btn-host-deploy-bottom" class="btn btn-success" style="padding: 12px 28px; font-weight: 800; font-size: 1rem; box-shadow: 0 0 15px rgba(0, 200, 83, 0.35); white-space: nowrap;">
+              🚀 Host Test (Start LAN Server)
+            </button>
+          </div>
         </div>
       </section>
 
@@ -197,6 +214,19 @@
                   style="color: var(--color-emerald);">Running</span></div>
             </div>
             <div id="server-ip-badges" style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;"></div>
+          </div>
+
+          <!-- Student Connection Guide Card -->
+          <div class="card-panel">
+            <div class="card-panel-header">
+              <h2>Student Lab Connection Instructions</h2>
+            </div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
+              <div>1. Instruct students on lab PCs to launch <strong>Mass-Code</strong> and select <strong>Competitor Mode</strong>.</div>
+              <div>2. In the <strong>Host Server URL</strong> field, enter one of the Endpoint URLs shown above (e.g., <code style="color: var(--color-cyan);">http://&lt;HOST_IP&gt;:4500</code>).</div>
+              <div>3. In the <strong>Contest PIN</strong> field, enter: <strong id="server-guide-pin" style="color: var(--color-cyan); font-family: var(--font-mono); font-size: 1rem;">MASS2026</strong>.</div>
+              <div>4. Students click <strong>"Pull Config Over LAN"</strong>, enter their USN / Reg No &amp; Name, and click <strong>"Enter Workspace"</strong>.</div>
+            </div>
           </div>
         </div>
       </section>
