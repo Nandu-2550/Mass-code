@@ -1,0 +1,25 @@
+{
+  "usn": "1MS21CS002",
+  "name": "Alan Turing",
+  "contestId": "ALGO26X1",
+  "totalScore": 100,
+  "maxScore": 100,
+  "problemsSolvedCount": 3,
+  "totalProblems": 3,
+  "timeElapsedSeconds": 1800,
+  "totalExecutionTimeMs": 38.1,
+  "submittedAt": "2026-10-27T20:10:26.600Z",
+  "violationStrikes": 0,
+  "violations": [],
+  "problemCodes": {
+    "prob_1": "// Alan solution 1"
+  },
+  "problemEvaluations": {
+    "prob_1": {
+      "passedCount": 4,
+      "totalCount": 4,
+      "totalScore": 30,
+      "totalExecutionTimeMs": 10.2
+    }
+  }
+}

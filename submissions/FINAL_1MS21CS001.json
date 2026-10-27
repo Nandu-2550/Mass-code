@@ -1,0 +1,25 @@
+{
+  "usn": "1MS21CS001",
+  "name": "Grace Hopper",
+  "contestId": "ALGO26X1",
+  "totalScore": 95,
+  "maxScore": 100,
+  "problemsSolvedCount": 3,
+  "totalProblems": 3,
+  "timeElapsedSeconds": 2400,
+  "totalExecutionTimeMs": 45.2,
+  "submittedAt": "2026-10-27T20:10:26.600Z",
+  "violationStrikes": 0,
+  "violations": [],
+  "problemCodes": {
+    "prob_1": "// Grace solution 1"
+  },
+  "problemEvaluations": {
+    "prob_1": {
+      "passedCount": 4,
+      "totalCount": 4,
+      "totalScore": 30,
+      "totalExecutionTimeMs": 12.5
+    }
+  }
+}

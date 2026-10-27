@@ -1,0 +1,95 @@
+{
+  "usn": "CS034",
+  "name": "Nandeesh",
+  "contestId": "GECM-8123",
+  "timeElapsedSeconds": 27,
+  "currentProblemIndex": 0,
+  "problemCodes": {
+    "prob_1": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    \n    long long evenSum = 0, oddSum = 0;\n    for (int i = 0; i < n; i++) {\n        long long val;\n        scanf(\"%lld\", &val);\n        if (val % 2 == 0) {\n            evenSum += val;\n        } else {\n            oddSum += val;\n        }\n    }\n    \n    long long diff = llabs(evenSum - oddSum);\n    printf(\"%lld\\n\", diff);\n    return 0;\n}\n",
+    "prob_2": "#include <stdio.h>\n#include <string.h>\n\n// Write your solution here\nint main() {\n    char s[300];\n    if (scanf(\"%s\", s) != 1) return 0;\n    int len = strlen(s);\n    int count = 0;\n    \n    for (int i = 0; i < len; i++) {\n        // Odd length palindromes\n        int l = i - 1, r = i + 1;\n        while (l >= 0 && r < len && s[l] == s[r]) {\n            count++;\n            l--;\n            r++;\n        }\n        // Even length palindromes\n        l = i; r = i + 1;\n        while (l >= 0 && r < len && s[l] == s[r]) {\n            count++;\n            l--;\n            r++;\n        }\n    }\n    \n    printf(\"%d\\n\", count);\n    return 0;\n}\n",
+    "prob_3": "#include <stdio.h>\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int mat[55][55];\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < n; j++) {\n            scanf(\"%d\", &mat[i][j]);\n        }\n    }\n    \n    int layers = (n + 1) / 2;\n    for (int l = 0; l < layers; l++) {\n        int maxVal = -1000000;\n        int r1 = l, c1 = l, r2 = n - 1 - l, c2 = n - 1 - l;\n        \n        for (int c = c1; c <= c2; c++) {\n            if (mat[r1][c] > maxVal) maxVal = mat[r1][c];\n            if (mat[r2][c] > maxVal) maxVal = mat[r2][c];\n        }\n        for (int r = r1; r <= r2; r++) {\n            if (mat[r][c1] > maxVal) maxVal = mat[r][c1];\n            if (mat[r][c2] > maxVal) maxVal = mat[r][c2];\n        }\n        if (l > 0) printf(\" \");\n        printf(\"%d\", maxVal);\n    }\n    printf(\"\\n\");\n    return 0;\n}\n"
+  },
+  "problemEvaluations": {
+    "prob_1": {
+      "totalScore": 0,
+      "maxScore": 30,
+      "passedCount": 0,
+      "totalCount": 4,
+      "totalExecutionTimeMs": 0,
+      "testResults": [
+        {
+          "index": 1,
+          "id": "tc_1_1",
+          "isSample": true,
+          "passed": false,
+          "timedOut": false,
+          "crashed": true,
+          "exitCode": -1,
+          "executionTimeMs": 0,
+          "input": "5\n1 2 3 4 5\n",
+          "expectedOutput": "3\n",
+          "actualOutput": "",
+          "stderr": "Process spawn failure: spawn UNKNOWN"
+        },
+        {
+          "index": 2,
+          "id": "tc_1_2",
+          "isSample": true,
+          "passed": false,
+          "timedOut": false,
+          "crashed": true,
+          "exitCode": -1,
+          "executionTimeMs": 0,
+          "input": "4\n2 4 6 8\n",
+          "expectedOutput": "20\n",
+          "actualOutput": "",
+          "stderr": "Process spawn failure: spawn UNKNOWN"
+        },
+        {
+          "index": 3,
+          "id": "tc_1_3",
+          "isSample": false,
+          "passed": false,
+          "timedOut": false,
+          "crashed": true,
+          "exitCode": -1,
+          "executionTimeMs": 0,
+          "input": "[HIDDEN PARAMETERS]",
+          "expectedOutput": "[HIDDEN]",
+          "actualOutput": "[INCORRECT MATCH]",
+          "stderr": "Process spawn failure: spawn UNKNOWN"
+        },
+        {
+          "index": 4,
+          "id": "tc_1_4",
+          "isSample": false,
+          "passed": false,
+          "timedOut": false,
+          "crashed": true,
+          "exitCode": -1,
+          "executionTimeMs": 0,
+          "input": "[HIDDEN PARAMETERS]",
+          "expectedOutput": "[HIDDEN]",
+          "actualOutput": "[INCORRECT MATCH]",
+          "stderr": "Process spawn failure: spawn UNKNOWN"
+        }
+      ],
+      "evaluatedAt": "2026-10-27T20:19:17.652Z"
+    }
+  },
+  "violations": [
+    {
+      "incident": "WINDOW_BLUR",
+      "source": "DOM Window Blur",
+      "timestamp": "2026-10-27T20:19:16.281Z",
+      "strike": 1
+    },
+    {
+      "incident": "WINDOW_BLUR",
+      "source": "Electron Window Blur",
+      "timestamp": "2026-10-27T20:19:16.288Z",
+      "strike": 2
+    }
+  ],
+  "savedAt": "2026-10-27T20:19:29.229Z"
+}

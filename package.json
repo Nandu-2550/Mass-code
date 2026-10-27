@@ -1,0 +1,23 @@
+{
+  "name": "mass_code",
+  "version": "1.0.0",
+  "description": "Universal Offline-First Competitive Programming & Exam Platform",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test:compiler": "node test-compiler.js"
+  },
+  "keywords": [
+    "hackerrank",
+    "offline-first",
+    "competitive-programming",
+    "electron",
+    "anti-cheat",
+    "exam-platform"
+  ],
+  "author": "Antigravity Engineering",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^45.0.0"
+  }
+}
