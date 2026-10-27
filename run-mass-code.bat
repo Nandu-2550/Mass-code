@@ -25,18 +25,22 @@ if not exist "node_modules\" (
 
 :: 2. Launch the Electron application instantly
 echo [BOOT] Launching Mass-Code Platform...
-where npx >nul 2>nul
-if %errorlevel% equ 0 (
-    start "" npx electron .
+if exist "node_modules\.bin\electron.cmd" (
+    start "" "node_modules\.bin\electron.cmd" .
 ) else (
-    where npm >nul 2>nul
+    where npx >nul 2>nul
     if %errorlevel% equ 0 (
-        start "" npm start
+        start "" npx electron .
     ) else (
-        echo [ERROR] Neither npx nor npm found in system PATH.
-        echo Please ensure Node.js is installed on this machine.
-        pause
-        exit /b 1
+        where npm >nul 2>nul
+        if %errorlevel% equ 0 (
+            start "" npm start
+        ) else (
+            echo [ERROR] Neither local Electron, npx, nor npm found.
+            echo Please ensure Node.js is installed on this machine.
+            pause
+            exit /b 1
+        )
     )
 )
 
