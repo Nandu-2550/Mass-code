@@ -314,6 +314,7 @@ class MassCodeApp {
       this.navKioskBadge.style.display = 'none';
       this.btnEndSession.style.display = 'none';
       this.btnExitHost.style.display = 'none';
+      this.btnSupervisorKey.style.display = 'none';
     } else if (viewName === 'host') {
       this.viewHost.classList.add('active');
       this.navCandidatePill.style.display = 'none';
@@ -321,6 +322,7 @@ class MassCodeApp {
       this.navKioskBadge.style.display = 'none';
       this.btnEndSession.style.display = 'none';
       this.btnExitHost.style.display = 'inline-flex';
+      this.btnSupervisorKey.style.display = 'none';
 
       this._refreshHostServerStatus();
       this._scanHostSubmissions();
@@ -335,6 +337,7 @@ class MassCodeApp {
         this.navTimerBox.style.display = 'none';
         this.navKioskBadge.style.display = 'none';
         this.btnEndSession.style.display = 'none';
+        this.btnSupervisorKey.style.display = 'none';
       } else {
         this.compRegOverlay.style.display = 'none';
         this.competitorWorkspace.style.display = 'flex';
@@ -342,6 +345,7 @@ class MassCodeApp {
         this.navTimerBox.style.display = 'inline-flex';
         this.navKioskBadge.style.display = 'inline-flex';
         this.btnEndSession.style.display = 'inline-flex';
+        this.btnSupervisorKey.style.display = 'inline-flex';
       }
     } else if (viewName === 'thankyou') {
       this.viewThankyou.classList.add('active');
@@ -350,6 +354,7 @@ class MassCodeApp {
       this.navKioskBadge.style.display = 'none';
       this.btnEndSession.style.display = 'none';
       this.btnExitHost.style.display = 'none';
+      this.btnSupervisorKey.style.display = 'none';
     }
   }
 
@@ -418,6 +423,7 @@ class MassCodeApp {
     this.navTimerBox.style.display = 'inline-flex';
     this.navKioskBadge.style.display = 'inline-flex';
     this.btnEndSession.style.display = 'inline-flex';
+    this.btnSupervisorKey.style.display = 'inline-flex';
 
     // Start Isolated Monotonic Relative Timer
     this._startRelativeCountdown();
