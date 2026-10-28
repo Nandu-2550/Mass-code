@@ -322,6 +322,17 @@
             <button id="btn-comp-load-local" class="btn btn-secondary btn-sm" style="flex: 1;">Load Config File</button>
           </div>
 
+          <!-- Active Contest Sync Status Display -->
+          <div id="comp-contest-status-box" style="background: rgba(255, 255, 255, 0.03); border: 1px dashed var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 0.70rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Contest Questions Status</div>
+              <div id="comp-contest-status-text" style="font-size: 0.85rem; font-weight: 700; color: var(--color-amber);">
+                🟡 Waiting to sync questions from Host...
+              </div>
+            </div>
+            <span id="comp-contest-count-badge" class="candidate-pill" style="font-size: 0.72rem;">0 Questions</span>
+          </div>
+
           <div style="border-top: 1px solid var(--border-subtle); padding-top: 16px;">
             <div class="form-group">
               <label>Student Institutional USN / Reg No <span style="color: var(--color-rose);">*</span></label>

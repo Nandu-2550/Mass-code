@@ -101,6 +101,9 @@ class MassCodeApp {
     this.btnCompPullLan = document.getElementById('btn-comp-pull-lan');
     this.btnCompLoadLocal = document.getElementById('btn-comp-load-local');
     this.btnCompStartContest = document.getElementById('btn-comp-start-contest');
+    this.compContestStatusBox = document.getElementById('comp-contest-status-box');
+    this.compContestStatusText = document.getElementById('comp-contest-status-text');
+    this.compContestCountBadge = document.getElementById('comp-contest-count-badge');
 
     // Competitor Multi-Tier Question Bank
     this.competitorWorkspace = document.getElementById('competitor-workspace');
@@ -205,14 +208,13 @@ class MassCodeApp {
     this.btnCloseInspector.addEventListener('click', () => this.modalInspector.classList.remove('active'));
 
     // Competitor Overlay Triggers
-    this.compUsnInput.addEventListener('input', () => {
-      const ok = this.compUsnInput.value.trim().length >= 3 && !!this.activeContest;
-      this.btnCompStartContest.disabled = !ok;
-    });
+    this.compUsnInput.addEventListener('input', () => this._checkCompStartButton());
+    this.compPinInput.addEventListener('input', () => this._checkCompStartButton());
+    this.compHostUrl.addEventListener('input', () => this._checkCompStartButton());
     if (this.btnLanAutoConnect) {
-      this.btnLanAutoConnect.addEventListener('click', () => this._pullContestOverLan());
+      this.btnLanAutoConnect.addEventListener('click', () => this._pullContestOverLan(false));
     }
-    this.btnCompPullLan.addEventListener('click', () => this._pullContestOverLan());
+    this.btnCompPullLan.addEventListener('click', () => this._pullContestOverLan(false));
     this.btnCompLoadLocal.addEventListener('click', () => this._loadContestLocalForCompetitor());
     this.btnCompStartContest.addEventListener('click', () => this._startCompetitorSession());
 
@@ -308,10 +310,10 @@ class MassCodeApp {
     this.welcomeArchStatus.textContent = `${diag.os} (${diag.arch})`;
     this.welcomeIpStatus.textContent = diag.serverIps ? diag.serverIps.join(', ') : '127.0.0.1';
 
-    // Auto-load default contest template
+    // Auto-load default contest template for Host Builder
     const def = await window.api.getDefaultContest();
     if (def.success) {
-      this.activeContest = def.contest;
+      this.defaultContest = def.contest;
       this._populateHostContest(def.contest);
     }
   }
@@ -352,6 +354,8 @@ class MassCodeApp {
         if (window.api && window.api.startLanListening) {
           window.api.startLanListening();
         }
+        this._updateCompetitorContestStatus(this.activeContest, this.activeContestSource || '');
+        this._checkCompStartButton();
         this.compRegOverlay.style.display = 'flex';
         this.competitorWorkspace.style.display = 'none';
         this.navCandidatePill.style.display = 'none';
@@ -379,7 +383,7 @@ class MassCodeApp {
     }
   }
 
-  _handleLanHostDiscovered(data) {
+  async _handleLanHostDiscovered(data) {
     if (!this.lanDiscoveryBox) return;
 
     this.lanDiscoveryBox.style.background = 'rgba(0, 200, 83, 0.08)';
@@ -389,39 +393,95 @@ class MassCodeApp {
       this.lanDiscoveryDot.style.boxShadow = '0 0 10px var(--color-emerald)';
     }
     if (this.lanDiscoveryTitle) {
-      this.lanDiscoveryTitle.textContent = `🟢 Active Contest Discovered: ${data.contestTitle || 'Mass-Code Contest'}`;
+      this.lanDiscoveryTitle.textContent = `🟢 Host Active: ${data.contestTitle || 'Mass-Code Contest'}`;
     }
     if (this.lanDiscoverySub) {
-      this.lanDiscoverySub.textContent = `Host: ${data.url} | PIN: ${data.contestToken || 'MASS2026'}`;
+      this.lanDiscoverySub.textContent = `Host: ${data.url} | PIN: ${data.contestToken || 'MASS2026'} (${data.problemCount || 0} Questions)`;
     }
 
-    if (!this.compHostUrl.value || this.compHostUrl.value.includes('localhost') || this.compHostUrl.value.includes('4500')) {
+    if (data.url) {
       this.compHostUrl.value = data.url;
     }
-    if (data.contestToken && (!this.compPinInput.value || this.compPinInput.value === 'MASS2026')) {
+    if (data.contestToken) {
       this.compPinInput.value = data.contestToken;
     }
 
     if (this.btnLanAutoConnect) {
       this.btnLanAutoConnect.style.display = 'inline-flex';
     }
+
+    // AUTOMATIC SYNC: Download the host's actual contest questions immediately!
+    await this._pullContestOverLan(true);
+  }
+
+  _updateCompetitorContestStatus(contest, source = '') {
+    if (!this.compContestStatusBox || !this.compContestStatusText || !this.compContestCountBadge) return;
+
+    if (contest && contest.problems && contest.problems.length > 0) {
+      this.compContestStatusBox.style.background = 'rgba(0, 200, 83, 0.06)';
+      this.compContestStatusBox.style.borderColor = 'rgba(0, 200, 83, 0.4)';
+      this.compContestStatusText.innerHTML = `🟢 <strong>${this._escape(contest.title || 'Contest')}</strong> <span style="color: var(--text-muted); font-size: 0.75rem;">(${source || 'Synced'})</span>`;
+      this.compContestCountBadge.textContent = `${contest.problems.length} Questions Ready`;
+      this.compContestCountBadge.style.borderColor = 'var(--color-emerald)';
+      this.compContestCountBadge.style.color = 'var(--color-emerald)';
+    } else {
+      this.compContestStatusBox.style.background = 'rgba(255, 255, 255, 0.03)';
+      this.compContestStatusBox.style.borderColor = 'var(--border-subtle)';
+      this.compContestStatusText.textContent = '🟡 Waiting to sync questions from Host...';
+      this.compContestCountBadge.textContent = '0 Questions';
+      this.compContestCountBadge.style.borderColor = 'var(--color-amber)';
+      this.compContestCountBadge.style.color = 'var(--color-amber)';
+    }
+  }
+
+  _checkCompStartButton() {
+    const hasUsn = this.compUsnInput && this.compUsnInput.value.trim().length >= 3;
+    const hasContest = !!this.activeContest && (this.activeContest.problems || []).length > 0;
+    if (this.btnCompStartContest) {
+      this.btnCompStartContest.disabled = !hasUsn;
+      if (hasContest) {
+        this.btnCompStartContest.textContent = 'Lock Down Station & Start Contest';
+        this.btnCompStartContest.className = 'btn btn-success';
+      } else {
+        this.btnCompStartContest.textContent = '⚡ Sync Contest from Host & Start';
+        this.btnCompStartContest.className = 'btn btn-primary';
+      }
+    }
   }
 
   // --------------------------------------------------------------------------
   // COMPETITOR WORKFLOW & MULTI-TIER QUESTION BANK
   // --------------------------------------------------------------------------
-  async _pullContestOverLan() {
+  async _pullContestOverLan(silent = false) {
     const code = this.compPinInput.value.trim();
     const hostUrl = this.compHostUrl.value.trim() || 'http://localhost:8080';
-    if (!code) return this.showToast('Please enter Contest Code.', 'warning');
+    if (!code) {
+      if (!silent) this.showToast('Please enter Contest Code / PIN.', 'warning');
+      return false;
+    }
 
+    if (!silent) this.showToast(`Connecting to Host at ${hostUrl}...`, 'info');
     const res = await window.api.fetchRemoteContest({ hostUrl, contestCode: code });
     if (res.success && res.contest) {
       this.activeContest = res.contest;
-      this.showToast(`Contest "${res.contest.title}" pulled from Host.`, 'success');
-      this.btnCompStartContest.disabled = this.compUsnInput.value.trim().length < 3;
+      this.activeContestSource = `Host: ${hostUrl}`;
+      const count = (res.contest.problems || []).length;
+      this._updateCompetitorContestStatus(res.contest, `Host: ${hostUrl}`);
+      this._checkCompStartButton();
+      if (!silent) {
+        this.showToast(`✓ Contest "${res.contest.title}" (${count} questions) successfully synced from Host!`, 'success');
+      }
+      return true;
     } else {
-      this.showToast('Failed to pull contest: ' + (res.error || 'Server offline'), 'error');
+      if (res.expectedPin && res.expectedPin !== code) {
+        this.compPinInput.value = res.expectedPin;
+        this.showToast(`PIN mismatch. Auto-filled Host PIN "${res.expectedPin}". Pulling questions...`, 'info');
+        return this._pullContestOverLan(silent);
+      }
+      if (!silent) {
+        this.showToast('Failed to pull contest: ' + (res.error || 'Host server unreachable'), 'error');
+      }
+      return false;
     }
   }
 
@@ -429,23 +489,46 @@ class MassCodeApp {
     const res = await window.api.importContestDialog();
     if (res.success && res.config) {
       this.activeContest = res.config;
-      this.showToast(`Loaded "${res.config.title}".`, 'success');
-      this.btnCompStartContest.disabled = this.compUsnInput.value.trim().length < 3;
+      this.activeContestSource = 'Local USB File';
+      this._updateCompetitorContestStatus(res.config, 'Local File');
+      this._checkCompStartButton();
+      this.showToast(`Loaded "${res.config.title}" (${(res.config.problems || []).length} questions).`, 'success');
     }
   }
 
   async _startCompetitorSession() {
     const usn = this.compUsnInput.value.trim().toUpperCase();
     const name = this.compNameInput.value.trim() || 'Candidate ' + usn;
+    const hostUrl = this.compHostUrl.value.trim() || 'http://localhost:8080';
 
-    if (!usn || !this.activeContest) return;
+    if (!usn || usn.length < 3) {
+      this.showToast('Please enter your valid Student USN / Reg No (min 3 characters).', 'warning');
+      return;
+    }
+
+    // MANDATORY SYNC: If not yet synced, or if hostUrl is reachable, fetch latest questions from Host!
+    if (!this.activeContest || (hostUrl && !hostUrl.includes('offline'))) {
+      this.showToast('Syncing latest contest questions from Host...', 'info');
+      const synced = await this._pullContestOverLan(false);
+      if (!synced && !this.activeContest) {
+        this.showToast(`Cannot start test: Could not load questions from Host (${hostUrl}). Ensure the Host laptop is broadcasting or click "Load Config File".`, 'error');
+        return;
+      }
+    }
+
+    if (!this.activeContest || !this.activeContest.problems || this.activeContest.problems.length === 0) {
+      this.showToast('No contest questions available. Please sync from Host or load a contest file.', 'error');
+      return;
+    }
 
     this.competitor.usn = usn;
     this.competitor.name = name;
-    this.competitor.hostUrl = this.compHostUrl.value.trim() || 'http://localhost:8080';
+    this.competitor.hostUrl = hostUrl;
     this.competitor.durationSeconds = (this.activeContest.durationMinutes || 60) * 60;
     this.competitor.uptimeSeconds = 0;
     this.competitor.isSessionActive = true;
+    this.competitor.problemCodes = {};
+    this.competitor.evaluations = {};
 
     // Check for prior session snapshot for crash/power-cut recovery
     const snap = await window.api.loadSessionSnapshot({ usn });
@@ -455,7 +538,7 @@ class MassCodeApp {
       this.competitor.problemCodes = snap.data.problemCodes || {};
       this.competitor.evaluations = snap.data.evaluations || {};
     } else {
-      // Seed starter codes
+      // Seed starter codes from the active questions
       this.activeContest.problems.forEach(p => {
         this.competitor.problemCodes[p.id] = p.starterCode || '// Write solution here\n';
       });
@@ -467,6 +550,9 @@ class MassCodeApp {
     this.competitorBankView.style.display = 'flex';
     this.competitorWorkspaceView.style.display = 'none';
 
+    // Render questions immediately in the Question Matrix!
+    this._renderQuestionMatrix();
+
     // Update navigation
     this.navCandidateUsn.textContent = `${usn} (${name})`;
     this.navCandidatePill.style.display = 'inline-flex';
@@ -475,12 +561,10 @@ class MassCodeApp {
     this.btnEndSession.style.display = 'inline-flex';
     this.btnSupervisorKey.style.display = 'inline-flex';
 
-    // Start Isolated Monotonic Relative Timer
+    // Start Relative Countdown
     this._startRelativeCountdown();
 
-    // Render Question Bank
-    this._renderTierBadges();
-    this._renderQuestionMatrix();
+    this.showToast(`Test started with ${this.activeContest.problems.length} questions. Station locked down!`, 'success');
   }
 
   /**
@@ -1051,6 +1135,7 @@ class MassCodeApp {
     }
 
     this.activeContest = config;
+    await window.api.saveContestConfig(config);
     const startRes = await window.api.startHostServer({ port: 8080, contestConfig: config });
     await this._refreshHostServerStatus();
 
@@ -1072,6 +1157,8 @@ class MassCodeApp {
       this.showToast('Host Server stopped.', 'warning');
     } else {
       const config = this._compileHostContest();
+      this.activeContest = config;
+      await window.api.saveContestConfig(config);
       await window.api.startHostServer({ port: 8080, contestConfig: config });
       this.showToast('Host Server started on port 8080 (UDP Broadcast Active).', 'success');
     }

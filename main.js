@@ -129,7 +129,8 @@ class LanDiscoveryEngine {
         try {
           const packet = JSON.parse(msg.toString('utf-8'));
           if (packet && packet.type === 'MASSCODE_HOST_ANNOUNCE') {
-            const hostIp = packet.host || rinfo.address;
+            // Prioritize actual physical network address over broadcast payload virtual adapters
+            const hostIp = (rinfo.address && rinfo.address !== '127.0.0.1') ? rinfo.address : (packet.host || rinfo.address);
             const port = packet.port || DEFAULT_HTTP_PORT;
             const payload = {
               ...packet,
@@ -173,14 +174,36 @@ class HostServer {
 
   getLocalIps() {
     const interfaces = os.networkInterfaces();
-    const addresses = [];
+    const ranked = [];
     for (const name of Object.keys(interfaces)) {
+      const lowerName = name.toLowerCase();
+      const isVirtual = lowerName.includes('virtual') || 
+                        lowerName.includes('vethernet') || 
+                        lowerName.includes('wsl') || 
+                        lowerName.includes('pseudo') || 
+                        lowerName.includes('hyper-v') ||
+                        lowerName.includes('vmware') ||
+                        lowerName.includes('loopback');
+      
+      const isPrimary = lowerName.includes('wi-fi') || 
+                        lowerName.includes('wifi') || 
+                        lowerName.includes('wlan') || 
+                        lowerName.includes('ethernet') || 
+                        lowerName.includes('eth') || 
+                        lowerName.includes('lan');
+
       for (const iface of interfaces[name]) {
         if (iface.family === 'IPv4' && !iface.internal) {
-          addresses.push(iface.address);
+          let priority = 1;
+          if (isPrimary && !isVirtual) priority = 3;
+          else if (!isVirtual) priority = 2;
+          else priority = 0;
+          ranked.push({ address: iface.address, priority });
         }
       }
     }
+    ranked.sort((a, b) => b.priority - a.priority);
+    const addresses = ranked.map(r => r.address);
     return addresses.length > 0 ? addresses : ['127.0.0.1'];
   }
 
@@ -234,11 +257,11 @@ class HostServer {
           return;
         }
 
-        // Contest Retrieval: GET /api/contest/:code or GET /contest/:code or GET /contest
+        // Contest Retrieval: GET /api/contest/:code or GET /contest/:code or GET /api/contest or GET /contest
         if (req.method === 'GET' && (pathname.startsWith('/api/contest') || pathname.startsWith('/contest'))) {
           if (!this.activeContest) {
             res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'No active contest configured on Host server.' }));
+            res.end(JSON.stringify({ error: 'No active contest configured on Host server. Please host a contest in Host Mode.' }));
             return;
           }
 
@@ -249,12 +272,18 @@ class HostServer {
             code = pathname.replace('/contest/', '').trim().toLowerCase();
           }
 
-          if (code) {
-            const idMatch = (this.activeContest.id || '').toLowerCase() === code;
-            const tokenMatch = (this.activeContest.token || '').toLowerCase() === code;
+          if (code && code !== 'any') {
+            const expectedToken = (this.activeContest.token || 'MASS2026').trim().toLowerCase();
+            const expectedId = (this.activeContest.id || '').trim().toLowerCase();
+            const idMatch = expectedId === code;
+            const tokenMatch = expectedToken === code;
             if (!idMatch && !tokenMatch) {
-              res.writeHead(400, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ error: `Contest PIN/ID mismatch. Expected: ${this.activeContest.token || this.activeContest.id}` }));
+              res.writeHead(403, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({
+                error: `Contest PIN mismatch. Expected: "${this.activeContest.token || 'MASS2026'}"`,
+                expectedPin: this.activeContest.token || 'MASS2026',
+                contestTitle: this.activeContest.title
+              }));
               return;
             }
           }
@@ -717,7 +746,9 @@ ipcMain.handle('contest:save', async (event, contestConfig) => {
   try {
     const filename = `contest-${contestConfig.id || Date.now()}.json`;
     const localPath = path.join(contestsDir, filename);
+    const activePath = path.join(contestsDir, 'active-contest.json');
     fs.writeFileSync(localPath, JSON.stringify(contestConfig, null, 2), 'utf-8');
+    fs.writeFileSync(activePath, JSON.stringify(contestConfig, null, 2), 'utf-8');
     hostServer.activeContest = contestConfig;
     return { success: true, filePath: localPath };
   } catch (err) {
@@ -870,7 +901,17 @@ ipcMain.handle('sync:fetch-remote-contest', async (event, { hostUrl, contestCode
               resolve({ success: false, error: 'Malformed JSON payload from host.' });
             }
           } else {
-            resolve({ success: false, error: body || `Host returned HTTP ${res.statusCode}` });
+            try {
+              const errObj = JSON.parse(body);
+              resolve({
+                success: false,
+                error: errObj.error || `Host returned HTTP ${res.statusCode}`,
+                expectedPin: errObj.expectedPin,
+                contestTitle: errObj.contestTitle
+              });
+            } catch (_) {
+              resolve({ success: false, error: body || `Host returned HTTP ${res.statusCode}` });
+            }
           }
         });
       });
