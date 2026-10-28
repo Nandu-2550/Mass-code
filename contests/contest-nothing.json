@@ -1,0 +1,164 @@
+{
+  "id": "nothing",
+  "title": "GECM test",
+  "token": "nothing",
+  "durationMinutes": 60,
+  "language": "c",
+  "problems": [
+    {
+      "id": "p_easy_1",
+      "tier": "easy",
+      "title": "do it",
+      "category": "Arrays & Math",
+      "difficulty": "Easy",
+      "maxPoints": 20,
+      "timeLimitMs": 2000,
+      "description": "Given an array of integers of size `N`, compute the absolute difference between the sum of all even integers and the sum of all odd integers.\n\n### Input Format\n- First line: Single integer `N`.\n- Second line: `N` space-separated integers.\n\n### Output Format\n- Print the integer `|Sum(Even) - Sum(Odd)|`.\n\n### Constraints\n- 1 <= N <= 1000",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    long long evenSum = 0, oddSum = 0;\n    for (int i = 0; i < n; i++) {\n        long long v;\n        scanf(\"%lld\", &v);\n        if (v % 2 == 0) evenSum += v;\n        else oddSum += v;\n    }\n    printf(\"%lld\\n\", llabs(evenSum - oddSum));\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_e1_1",
+          "isSample": true,
+          "input": "5\n1 2 3 4 5\n",
+          "expectedOutput": "3\n"
+        },
+        {
+          "id": "tc_e1_2",
+          "isSample": false,
+          "input": "4\n2 4 6 8\n",
+          "expectedOutput": "20\n"
+        },
+        {
+          "id": "tc_e1_3",
+          "isSample": false,
+          "input": "6\n-1 -2 -3 -4 10 20\n",
+          "expectedOutput": "28\n"
+        }
+      ]
+    },
+    {
+      "id": "p_easy_2",
+      "tier": "easy",
+      "title": "dont do it ",
+      "category": "Strings",
+      "difficulty": "Easy",
+      "maxPoints": 20,
+      "timeLimitMs": 2000,
+      "description": "Given a lowercase single-word string `S`, count the total number of vowels (`a, e, i, o, u`) and consonants present.\n\n### Input Format\n- Single string `S` (letters only).\n\n### Output Format\n- Print two space-separated integers: `<vowel_count> <consonant_count>`.\n\n### Constraints\n- 1 <= |S| <= 500",
+      "starterCode": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[600];\n    if (scanf(\"%s\", s) != 1) return 0;\n    int v = 0, c = 0;\n    for (int i = 0; s[i]; i++) {\n        char ch = s[i];\n        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') v++;\n        else if (ch >= 'a' && ch <= 'z') c++;\n    }\n    printf(\"%d %d\\n\", v, c);\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_e2_1",
+          "isSample": true,
+          "input": "masscode\n",
+          "expectedOutput": "3 5\n"
+        },
+        {
+          "id": "tc_e2_2",
+          "isSample": false,
+          "input": "aeiou\n",
+          "expectedOutput": "5 0\n"
+        },
+        {
+          "id": "tc_e2_3",
+          "isSample": false,
+          "input": "rhythm\n",
+          "expectedOutput": "0 6\n"
+        }
+      ]
+    },
+    {
+      "id": "p_med_1",
+      "tier": "medium",
+      "title": "better do it ",
+      "category": "Strings & Pointers",
+      "difficulty": "Medium",
+      "maxPoints": 30,
+      "timeLimitMs": 2000,
+      "description": "Given a single string `S`, count the total number of non-empty palindromic substrings of length >= 2.\n\n### Input Format\n- Single string `S`.\n\n### Output Format\n- Print integer count.\n\n### Constraints\n- 1 <= |S| <= 250",
+      "starterCode": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[300];\n    if (scanf(\"%s\", s) != 1) return 0;\n    int len = strlen(s), count = 0;\n    for (int i = 0; i < len; i++) {\n        int l = i - 1, r = i + 1;\n        while (l >= 0 && r < len && s[l] == s[r]) { count++; l--; r++; }\n        l = i; r = i + 1;\n        while (l >= 0 && r < len && s[l] == s[r]) { count++; l--; r++; }\n    }\n    printf(\"%d\\n\", count);\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_m1_1",
+          "isSample": true,
+          "input": "racecar\n",
+          "expectedOutput": "3\n"
+        },
+        {
+          "id": "tc_m1_2",
+          "isSample": false,
+          "input": "abc\n",
+          "expectedOutput": "0\n"
+        },
+        {
+          "id": "tc_m1_3",
+          "isSample": false,
+          "input": "aaaa\n",
+          "expectedOutput": "6\n"
+        }
+      ]
+    },
+    {
+      "id": "p_med_2",
+      "tier": "medium",
+      "title": "Balanced Bracket Validator",
+      "category": "Stacks & Parsing",
+      "difficulty": "Medium",
+      "maxPoints": 30,
+      "timeLimitMs": 2000,
+      "description": "Given a sequence of brackets containing `()`, `{}`, and `[]`, determine if the string is balanced.\n\n### Input Format\n- A single string of brackets.\n\n### Output Format\n- Print `YES` if balanced, or `NO` if unbalanced.\n\n### Constraints\n- 1 <= |S| <= 1000",
+      "starterCode": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[1100], stack[1100];\n    if (scanf(\"%s\", s) != 1) return 0;\n    int top = -1;\n    for (int i = 0; s[i]; i++) {\n        char c = s[i];\n        if (c == '(' || c == '{' || c == '[') {\n            stack[++top] = c;\n        } else {\n            if (top < 0) { printf(\"NO\\n\"); return 0; }\n            char o = stack[top--];\n            if ((c == ')' && o != '(') || (c == '}' && o != '{') || (c == ']' && o != '[')) {\n                printf(\"NO\\n\"); return 0;\n            }\n        }\n    }\n    printf(\"%s\\n\", top == -1 ? \"YES\" : \"NO\");\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_m2_1",
+          "isSample": true,
+          "input": "{[()]}\n",
+          "expectedOutput": "YES\n"
+        },
+        {
+          "id": "tc_m2_2",
+          "isSample": true,
+          "input": "{[(])}\n",
+          "expectedOutput": "NO\n"
+        },
+        {
+          "id": "tc_m2_3",
+          "isSample": false,
+          "input": "((()))\n",
+          "expectedOutput": "YES\n"
+        }
+      ]
+    },
+    {
+      "id": "p_hard_1",
+      "tier": "hard",
+      "title": "Matrix Spiral Layer Maximums",
+      "category": "Matrix & Geometry",
+      "difficulty": "Hard",
+      "maxPoints": 50,
+      "timeLimitMs": 2500,
+      "description": "Given an `N x N` matrix, output the maximum element found along each concentric square border layer from outer perimeter inward to center.\n\n### Input Format\n- First line: `N`.\n- Next `N` lines: `N` space-separated integers.\n\n### Output Format\n- Space-separated integers representing layer maximums from outer to inner.",
+      "starterCode": "#include <stdio.h>\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int mat[55][55];\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < n; j++) scanf(\"%d\", &mat[i][j]);\n    }\n    int layers = (n + 1) / 2;\n    for (int l = 0; l < layers; l++) {\n        int maxVal = -1000000;\n        int r1 = l, c1 = l, r2 = n - 1 - l, c2 = n - 1 - l;\n        for (int c = c1; c <= c2; c++) {\n            if (mat[r1][c] > maxVal) maxVal = mat[r1][c];\n            if (mat[r2][c] > maxVal) maxVal = mat[r2][c];\n        }\n        for (int r = r1; r <= r2; r++) {\n            if (mat[r][c1] > maxVal) maxVal = mat[r][c1];\n            if (mat[r][c2] > maxVal) maxVal = mat[r][c2];\n        }\n        if (l > 0) printf(\" \");\n        printf(\"%d\", maxVal);\n    }\n    printf(\"\\n\");\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_h1_1",
+          "isSample": true,
+          "input": "3\n1 2 3\n4 5 6\n7 8 9\n",
+          "expectedOutput": "9 5\n"
+        },
+        {
+          "id": "tc_h1_2",
+          "isSample": true,
+          "input": "1\n42\n",
+          "expectedOutput": "42\n"
+        },
+        {
+          "id": "tc_h1_3",
+          "isSample": false,
+          "input": "4\n1 1 1 1\n1 9 9 1\n1 9 9 1\n1 1 1 1\n",
+          "expectedOutput": "1 9\n"
+        }
+      ]
+    }
+  ]
+}

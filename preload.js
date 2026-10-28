@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('api', {
 
   // Environment & Diagnostics
   getDiagnostics: () => ipcRenderer.invoke('env:get-diagnostics'),
+  getLaunchArgs: () => ipcRenderer.invoke('env:get-launch-args'),
 
   // Compiler Sandbox Engine
   compileAndEvaluate: (payload) => ipcRenderer.invoke('compiler:compile-and-evaluate', payload),
@@ -24,6 +25,8 @@ contextBridge.exposeInMainWorld('api', {
   saveContestConfig: (config) => ipcRenderer.invoke('contest:save', config),
   exportContestDialog: (config) => ipcRenderer.invoke('contest:export-dialog', config),
   importContestDialog: () => ipcRenderer.invoke('contest:import-dialog'),
+  listSavedContests: () => ipcRenderer.invoke('contest:list-saved'),
+  loadSavedContest: (filename) => ipcRenderer.invoke('contest:load-saved-by-filename', filename),
 
   // Host Server Controls
   startHostServer: (options) => ipcRenderer.invoke('server:start', options),

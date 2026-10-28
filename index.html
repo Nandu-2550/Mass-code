@@ -58,6 +58,11 @@
         <button id="btn-exit-host" class="btn btn-secondary btn-sm" style="display: none;">
           ← Mode Selection
         </button>
+
+        <!-- Exit to Welcome Button (Competitor Entry Mode) -->
+        <button id="btn-exit-comp" class="btn btn-secondary btn-sm" style="display: none;">
+          ← Mode Selection
+        </button>
       </div>
     </header>
 
@@ -345,9 +350,14 @@
             </div>
           </div>
 
-          <button id="btn-comp-start-contest" class="btn btn-success" style="padding: 12px; font-weight: 700;" disabled>
-            Lock Down Station &amp; Start Contest
-          </button>
+          <div style="display: flex; gap: 10px; margin-top: 4px;">
+            <button id="btn-comp-exit" type="button" class="btn btn-secondary" style="flex: 1; padding: 12px; font-weight: 700;">
+              ← Back / Exit
+            </button>
+            <button id="btn-comp-start-contest" class="btn btn-success" style="flex: 2; padding: 12px; font-weight: 700;" disabled>
+              Lock Down Station &amp; Start Contest
+            </button>
+          </div>
         </div>
       </section>
 

@@ -12,7 +12,7 @@ const { spawn, exec } = require('child_process');
 
 let mainWindow = null;
 let currentSecurityMode = 'welcome'; // 'welcome' | 'host' | 'competitor'
-const SUPERVISOR_EMERGENCY_KEY = 'MASSCODE_EMERGENCY_2026';
+const SUPERVISOR_EMERGENCY_KEY = 'GECM@8123';
 
 // Network Port Standards
 const DEFAULT_HTTP_PORT = 8080;
@@ -642,6 +642,7 @@ function applySecurityMode(mode) {
     mainWindow.setAlwaysOnTop(false);
     mainWindow.setFullScreen(false);
     mainWindow.setResizable(true);
+    mainWindow.setMinimizable(true);
     globalShortcut.unregisterAll();
   }
 }
@@ -686,6 +687,12 @@ ipcMain.handle('env:get-diagnostics', async () => {
     nodeVersion: process.version,
     gcc,
     serverIps: hostServer.getLocalIps()
+  };
+});
+
+ipcMain.handle('env:get-launch-args', () => {
+  return {
+    competitorOnly: process.argv.includes('--competitor-only')
   };
 });
 
@@ -735,6 +742,12 @@ ipcMain.handle('submission:save-final', async (event, payload) => {
 
 // Contest Package Management
 ipcMain.handle('contest:get-default', async () => {
+  const activePath = path.join(contestsDir, 'active-contest.json');
+  if (fs.existsSync(activePath)) {
+    try {
+      return { success: true, contest: JSON.parse(fs.readFileSync(activePath, 'utf-8')) };
+    } catch (_) {}
+  }
   const samplePath = path.join(__dirname, 'sample-contest.json');
   if (fs.existsSync(samplePath)) {
     return { success: true, contest: JSON.parse(fs.readFileSync(samplePath, 'utf-8')) };
@@ -742,13 +755,51 @@ ipcMain.handle('contest:get-default', async () => {
   return { success: false };
 });
 
+ipcMain.handle('contest:list-saved', async () => {
+  try {
+    if (!fs.existsSync(contestsDir)) return { success: true, contests: [] };
+    const files = fs.readdirSync(contestsDir).filter(f => f.endsWith('.json') && f !== 'active-contest.json');
+    const list = [];
+    for (const file of files) {
+      try {
+        const fullPath = path.join(contestsDir, file);
+        const data = JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
+        list.push({
+          filename: file,
+          id: data.id || data.token,
+          title: data.title || file,
+          token: data.token || 'MASS2026',
+          problemCount: (data.problems || []).length
+        });
+      } catch (_) {}
+    }
+    return { success: true, contests: list };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('contest:load-saved-by-filename', async (event, filename) => {
+  try {
+    const safeName = path.basename(filename);
+    const fullPath = path.join(contestsDir, safeName);
+    if (!fs.existsSync(fullPath)) return { success: false, error: 'File not found' };
+    const data = JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
+    return { success: true, contest: data };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
 ipcMain.handle('contest:save', async (event, contestConfig) => {
   try {
     const filename = `contest-${contestConfig.id || Date.now()}.json`;
     const localPath = path.join(contestsDir, filename);
     const activePath = path.join(contestsDir, 'active-contest.json');
+    const samplePath = path.join(__dirname, 'sample-contest.json');
     fs.writeFileSync(localPath, JSON.stringify(contestConfig, null, 2), 'utf-8');
     fs.writeFileSync(activePath, JSON.stringify(contestConfig, null, 2), 'utf-8');
+    try { fs.writeFileSync(samplePath, JSON.stringify(contestConfig, null, 2), 'utf-8'); } catch (_) {}
     hostServer.activeContest = contestConfig;
     return { success: true, filePath: localPath };
   } catch (err) {

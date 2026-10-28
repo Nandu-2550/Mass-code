@@ -13,7 +13,7 @@ class MassCodeApp {
   constructor() {
     this.currentView = 'welcome';
     this.activeContest = null;
-    this.supervisorEmergencyKey = 'MASSCODE_EMERGENCY_2026';
+    this.supervisorEmergencyKey = 'GECM@8123';
 
     // Competitor State
     this.competitor = {
@@ -55,6 +55,7 @@ class MassCodeApp {
     this.navKioskBadge = document.getElementById('nav-kiosk-badge');
     this.btnEndSession = document.getElementById('btn-end-session');
     this.btnExitHost = document.getElementById('btn-exit-host');
+    this.btnExitComp = document.getElementById('btn-exit-comp');
     this.btnSupervisorKey = document.getElementById('btn-supervisor-key');
 
     // Welcome Screen
@@ -101,6 +102,7 @@ class MassCodeApp {
     this.btnCompPullLan = document.getElementById('btn-comp-pull-lan');
     this.btnCompLoadLocal = document.getElementById('btn-comp-load-local');
     this.btnCompStartContest = document.getElementById('btn-comp-start-contest');
+    this.btnCompExit = document.getElementById('btn-comp-exit');
     this.compContestStatusBox = document.getElementById('comp-contest-status-box');
     this.compContestStatusText = document.getElementById('comp-contest-status-text');
     this.compContestCountBadge = document.getElementById('comp-contest-count-badge');
@@ -181,6 +183,9 @@ class MassCodeApp {
     this.cardEnterHost.addEventListener('click', () => this.switchView('host'));
     this.cardEnterCompetitor.addEventListener('click', () => this.switchView('competitor'));
     this.btnExitHost.addEventListener('click', () => this.switchView('welcome'));
+    if (this.btnExitComp) {
+      this.btnExitComp.addEventListener('click', () => this._exitCompetitorEntry());
+    }
     this.btnTyReturnHome.addEventListener('click', () => this.switchView('welcome'));
 
     // Host Tabs
@@ -216,6 +221,9 @@ class MassCodeApp {
     }
     this.btnCompPullLan.addEventListener('click', () => this._pullContestOverLan(false));
     this.btnCompLoadLocal.addEventListener('click', () => this._loadContestLocalForCompetitor());
+    if (this.btnCompExit) {
+      this.btnCompExit.addEventListener('click', () => this._exitCompetitorEntry());
+    }
     this.btnCompStartContest.addEventListener('click', () => this._startCompetitorSession());
 
     // Competitor Multi-Tier Question Bank Buttons
@@ -316,32 +324,64 @@ class MassCodeApp {
       this.defaultContest = def.contest;
       this._populateHostContest(def.contest);
     }
+
+    // Auto-launch directly into competitor mode if --competitor-only was passed
+    if (window.api && window.api.getLaunchArgs) {
+      try {
+        const args = await window.api.getLaunchArgs();
+        if (args && args.competitorOnly) {
+          await this.switchView('competitor');
+        }
+      } catch (_) {}
+    }
+  }
+
+  async _exitCompetitorEntry() {
+    if (window.api && window.api.stopLanListening) {
+      try {
+        await window.api.stopLanListening();
+      } catch (_) {}
+    }
+    await this.switchView('welcome');
   }
 
   async switchView(viewName) {
     this.currentView = viewName;
     document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
 
-    // Apply strict OS window security rules
+    // Apply strict OS window security rules:
+    // Only lock down in kiosk confinement when competitor session is completely entered and questions are visible
+    const securityMode = (viewName === 'competitor' && this.competitor.isSessionActive)
+      ? 'competitor'
+      : (viewName === 'host' ? 'host' : 'welcome');
+
     if (window.api && window.api.setSecurityMode) {
-      await window.api.setSecurityMode({ mode: viewName });
+      await window.api.setSecurityMode({ mode: securityMode });
     }
 
     if (viewName === 'welcome') {
+      if (window.api && window.api.stopLanListening) {
+        try { window.api.stopLanListening(); } catch (_) {}
+      }
       this.viewWelcome.classList.add('active');
       this.navCandidatePill.style.display = 'none';
       this.navTimerBox.style.display = 'none';
       this.navKioskBadge.style.display = 'none';
       this.btnEndSession.style.display = 'none';
       this.btnExitHost.style.display = 'none';
+      if (this.btnExitComp) this.btnExitComp.style.display = 'none';
       this.btnSupervisorKey.style.display = 'none';
     } else if (viewName === 'host') {
+      if (window.api && window.api.stopLanListening) {
+        try { window.api.stopLanListening(); } catch (_) {}
+      }
       this.viewHost.classList.add('active');
       this.navCandidatePill.style.display = 'none';
       this.navTimerBox.style.display = 'none';
       this.navKioskBadge.style.display = 'none';
       this.btnEndSession.style.display = 'none';
       this.btnExitHost.style.display = 'inline-flex';
+      if (this.btnExitComp) this.btnExitComp.style.display = 'none';
       this.btnSupervisorKey.style.display = 'none';
 
       this._refreshHostServerStatus();
@@ -363,6 +403,7 @@ class MassCodeApp {
         this.navKioskBadge.style.display = 'none';
         this.btnEndSession.style.display = 'none';
         this.btnSupervisorKey.style.display = 'none';
+        if (this.btnExitComp) this.btnExitComp.style.display = 'inline-flex';
       } else {
         this.compRegOverlay.style.display = 'none';
         this.competitorWorkspace.style.display = 'flex';
@@ -371,14 +412,19 @@ class MassCodeApp {
         this.navKioskBadge.style.display = 'inline-flex';
         this.btnEndSession.style.display = 'inline-flex';
         this.btnSupervisorKey.style.display = 'inline-flex';
+        if (this.btnExitComp) this.btnExitComp.style.display = 'none';
       }
     } else if (viewName === 'thankyou') {
+      if (window.api && window.api.stopLanListening) {
+        try { window.api.stopLanListening(); } catch (_) {}
+      }
       this.viewThankyou.classList.add('active');
       this.navCandidatePill.style.display = 'none';
       this.navTimerBox.style.display = 'none';
       this.navKioskBadge.style.display = 'none';
       this.btnEndSession.style.display = 'none';
       this.btnExitHost.style.display = 'none';
+      if (this.btnExitComp) this.btnExitComp.style.display = 'none';
       this.btnSupervisorKey.style.display = 'none';
     }
   }
@@ -553,6 +599,11 @@ class MassCodeApp {
     // Render questions immediately in the Question Matrix!
     this._renderQuestionMatrix();
 
+    // Once questions are rendered and visible to candidate, activate strict kiosk lockdown
+    if (window.api && window.api.setSecurityMode) {
+      await window.api.setSecurityMode({ mode: 'competitor' });
+    }
+
     // Update navigation
     this.navCandidateUsn.textContent = `${usn} (${name})`;
     this.navCandidatePill.style.display = 'inline-flex';
@@ -560,6 +611,7 @@ class MassCodeApp {
     this.navKioskBadge.style.display = 'inline-flex';
     this.btnEndSession.style.display = 'inline-flex';
     this.btnSupervisorKey.style.display = 'inline-flex';
+    if (this.btnExitComp) this.btnExitComp.style.display = 'none';
 
     // Start Relative Countdown
     this._startRelativeCountdown();
@@ -985,6 +1037,8 @@ class MassCodeApp {
     if (res.success) {
       this.modalSupervisor.classList.remove('active');
       this.showToast('Supervisor Emergency Key verified. Station unlocked.', 'success');
+      this.competitor.isSessionActive = false;
+      if (this.competitor.timerInterval) clearInterval(this.competitor.timerInterval);
       this.switchView('welcome');
     } else {
       this.supervisorKeyError.style.display = 'block';
