@@ -1,90 +1,132 @@
 {
-  "id": "MASS-2026",
-  "title": "Mass-Code National Competitive Programming Championship",
-  "token": "MASS2026",
+  "id": "MASS6380",
+  "type": "contest",
+  "title": "Mass-Code Championship",
+  "token": "MASS6380",
   "durationMinutes": 60,
   "language": "c",
-  "instructions": "Welcome to Mass-Code. Kiosk lockdown is active. Clipboard actions are blocked. Solve problems across Easy, Medium, and Hard tiers.",
   "problems": [
     {
-      "id": "p_easy_1",
-      "tier": "easy",
-      "title": "Array Parity Partition Sum",
-      "category": "Arrays & Math",
-      "difficulty": "Easy",
-      "maxPoints": 20,
-      "timeLimitMs": 2000,
-      "description": "Given an array of integers of size `N`, compute the absolute difference between the sum of all even integers and the sum of all odd integers.\n\n### Input Format\n- First line: Single integer `N`.\n- Second line: `N` space-separated integers.\n\n### Output Format\n- Print the integer `|Sum(Even) - Sum(Odd)|`.\n\n### Constraints\n- 1 <= N <= 1000",
-      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    long long evenSum = 0, oddSum = 0;\n    for (int i = 0; i < n; i++) {\n        long long v;\n        scanf(\"%lld\", &v);\n        if (v % 2 == 0) evenSum += v;\n        else oddSum += v;\n    }\n    printf(\"%lld\\n\", llabs(evenSum - oddSum));\n    return 0;\n}\n",
-      "testCases": [
-        { "id": "tc_e1_1", "isSample": true, "input": "5\n1 2 3 4 5\n", "expectedOutput": "3\n" },
-        { "id": "tc_e1_2", "isSample": false, "input": "4\n2 4 6 8\n", "expectedOutput": "20\n" },
-        { "id": "tc_e1_3", "isSample": false, "input": "6\n-1 -2 -3 -4 10 20\n", "expectedOutput": "28\n" }
-      ]
-    },
-    {
-      "id": "p_easy_2",
-      "tier": "easy",
-      "title": "Vowel & Consonant Counter",
-      "category": "Strings",
-      "difficulty": "Easy",
-      "maxPoints": 20,
-      "timeLimitMs": 2000,
-      "description": "Given a lowercase single-word string `S`, count the total number of vowels (`a, e, i, o, u`) and consonants present.\n\n### Input Format\n- Single string `S` (letters only).\n\n### Output Format\n- Print two space-separated integers: `<vowel_count> <consonant_count>`.\n\n### Constraints\n- 1 <= |S| <= 500",
-      "starterCode": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[600];\n    if (scanf(\"%s\", s) != 1) return 0;\n    int v = 0, c = 0;\n    for (int i = 0; s[i]; i++) {\n        char ch = s[i];\n        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') v++;\n        else if (ch >= 'a' && ch <= 'z') c++;\n    }\n    printf(\"%d %d\\n\", v, c);\n    return 0;\n}\n",
-      "testCases": [
-        { "id": "tc_e2_1", "isSample": true, "input": "masscode\n", "expectedOutput": "3 5\n" },
-        { "id": "tc_e2_2", "isSample": false, "input": "aeiou\n", "expectedOutput": "5 0\n" },
-        { "id": "tc_e2_3", "isSample": false, "input": "rhythm\n", "expectedOutput": "0 6\n" }
-      ]
-    },
-    {
-      "id": "p_med_1",
+      "id": "p_pdf_1_2490",
       "tier": "medium",
-      "title": "Palindrome Substring Count",
-      "category": "Strings & Pointers",
       "difficulty": "Medium",
-      "maxPoints": 30,
+      "title": "P1: Sum of Array Elements EASY — 5 Marks",
+      "category": "Debugging",
+      "maxPoints": 10,
       "timeLimitMs": 2000,
-      "description": "Given a single string `S`, count the total number of non-empty palindromic substrings of length >= 2.\n\n### Input Format\n- Single string `S`.\n\n### Output Format\n- Print integer count.\n\n### Constraints\n- 1 <= |S| <= 250",
-      "starterCode": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[300];\n    if (scanf(\"%s\", s) != 1) return 0;\n    int len = strlen(s), count = 0;\n    for (int i = 0; i < len; i++) {\n        int l = i - 1, r = i + 1;\n        while (l >= 0 && r < len && s[l] == s[r]) { count++; l--; r++; }\n        l = i; r = i + 1;\n        while (l >= 0 && r < len && s[l] == s[r]) { count++; l--; r++; }\n    }\n    printf(\"%d\\n\", count);\n    return 0;\n}\n",
+      "description": "Problem Description:\nFix the logical and syntax errors in the given C program so that it reads an integer N followed by\nN space-separated integers, and prints their total sum.\n:\n4\n10 20 30 40",
+      "starterCode": "#include <stdio.h>\nint main(void) {\nint n, i, sum;\nscanf(\"%d\", &n);\nint arr[100];\nfor (i = 1; i <= n; i++) {\nscanf(\"%d\", arr[i]);\nsum += arr[i];\n}\nprintf(\"%d\n\", sum)\nreturn 0;\n}\n",
       "testCases": [
-        { "id": "tc_m1_1", "isSample": true, "input": "racecar\n", "expectedOutput": "3\n" },
-        { "id": "tc_m1_2", "isSample": false, "input": "abc\n", "expectedOutput": "0\n" },
-        { "id": "tc_m1_3", "isSample": false, "input": "aaaa\n", "expectedOutput": "6\n" }
+        {
+          "id": "tc_1_1",
+          "isSample": true,
+          "input": "4\n10 20 30 40\n",
+          "expectedOutput": "100\n\n-- 1 of 5 --\n"
+        }
       ]
     },
     {
-      "id": "p_med_2",
+      "id": "p_pdf_2_2490",
       "tier": "medium",
-      "title": "Balanced Bracket Validator",
-      "category": "Stacks & Parsing",
       "difficulty": "Medium",
-      "maxPoints": 30,
+      "title": "P2: Count Even and Odd Numbers EASY — 5 Marks",
+      "category": "Debugging",
+      "maxPoints": 10,
       "timeLimitMs": 2000,
-      "description": "Given a sequence of brackets containing `()`, `{}`, and `[]`, determine if the string is balanced.\n\n### Input Format\n- A single string of brackets.\n\n### Output Format\n- Print `YES` if balanced, or `NO` if unbalanced.\n\n### Constraints\n- 1 <= |S| <= 1000",
-      "starterCode": "#include <stdio.h>\n#include <string.h>\n\nint main() {\n    char s[1100], stack[1100];\n    if (scanf(\"%s\", s) != 1) return 0;\n    int top = -1;\n    for (int i = 0; s[i]; i++) {\n        char c = s[i];\n        if (c == '(' || c == '{' || c == '[') {\n            stack[++top] = c;\n        } else {\n            if (top < 0) { printf(\"NO\\n\"); return 0; }\n            char o = stack[top--];\n            if ((c == ')' && o != '(') || (c == '}' && o != '{') || (c == ']' && o != '[')) {\n                printf(\"NO\\n\"); return 0;\n            }\n        }\n    }\n    printf(\"%s\\n\", top == -1 ? \"YES\" : \"NO\");\n    return 0;\n}\n",
+      "description": "Problem Description:\nRead an integer N followed by N integers. Print the count of even numbers and odd numbers\nseparated by a single space.\n:\n5\n12 7 9 4 10",
+      "starterCode": "#include <stdio.h>\nint main(void) {\n// Write your code here\nreturn 0;\n}\n",
       "testCases": [
-        { "id": "tc_m2_1", "isSample": true, "input": "{[()]}\n", "expectedOutput": "YES\n" },
-        { "id": "tc_m2_2", "isSample": true, "input": "{[(])}\n", "expectedOutput": "NO\n" },
-        { "id": "tc_m2_3", "isSample": false, "input": "((()))\n", "expectedOutput": "YES\n" }
+        {
+          "id": "tc_2_1",
+          "isSample": true,
+          "input": "5\n12 7 9 4 10\n",
+          "expectedOutput": "3 2\n"
+        }
       ]
     },
     {
-      "id": "p_hard_1",
-      "tier": "hard",
-      "title": "Matrix Spiral Layer Maximums",
-      "category": "Matrix & Geometry",
-      "difficulty": "Hard",
-      "maxPoints": 50,
-      "timeLimitMs": 2500,
-      "description": "Given an `N x N` matrix, output the maximum element found along each concentric square border layer from outer perimeter inward to center.\n\n### Input Format\n- First line: `N`.\n- Next `N` lines: `N` space-separated integers.\n\n### Output Format\n- Space-separated integers representing layer maximums from outer to inner.",
-      "starterCode": "#include <stdio.h>\n\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) != 1) return 0;\n    int mat[55][55];\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < n; j++) scanf(\"%d\", &mat[i][j]);\n    }\n    int layers = (n + 1) / 2;\n    for (int l = 0; l < layers; l++) {\n        int maxVal = -1000000;\n        int r1 = l, c1 = l, r2 = n - 1 - l, c2 = n - 1 - l;\n        for (int c = c1; c <= c2; c++) {\n            if (mat[r1][c] > maxVal) maxVal = mat[r1][c];\n            if (mat[r2][c] > maxVal) maxVal = mat[r2][c];\n        }\n        for (int r = r1; r <= r2; r++) {\n            if (mat[r][c1] > maxVal) maxVal = mat[r][c1];\n            if (mat[r][c2] > maxVal) maxVal = mat[r][c2];\n        }\n        if (l > 0) printf(\" \");\n        printf(\"%d\", maxVal);\n    }\n    printf(\"\\n\");\n    return 0;\n}\n",
+      "id": "p_pdf_3_2490",
+      "tier": "medium",
+      "difficulty": "Medium",
+      "title": "Reverse a Number (Debugging) MEDIUM — 10 Marks",
+      "category": "Debugging",
+      "maxPoints": 10,
+      "timeLimitMs": 2000,
+      "description": "Problem Description:\nDebug the program below so that it reverses the digits of a given positive integer N and prints\nthe reversed number.\n:\n12345",
+      "starterCode": "#include <stdio.h>\nint main(void) {\nint n, rev = 0, rem;\nscanf(\"%d\", &n);\nwhile (n = 0) {\nrem = n / 10;\nrev = rev * 10 + rem;\nn %= 10;\n}\nprintf(\"%d\n\", rev);\nreturn 0;\n}\n",
       "testCases": [
-        { "id": "tc_h1_1", "isSample": true, "input": "3\n1 2 3\n4 5 6\n7 8 9\n", "expectedOutput": "9 5\n" },
-        { "id": "tc_h1_2", "isSample": true, "input": "1\n42\n", "expectedOutput": "42\n" },
-        { "id": "tc_h1_3", "isSample": false, "input": "4\n1 1 1 1\n1 9 9 1\n1 9 9 1\n1 1 1 1\n", "expectedOutput": "1 9\n" }
+        {
+          "id": "tc_3_1",
+          "isSample": true,
+          "input": "12345\n",
+          "expectedOutput": "54321\n\n-- 2 of 5 --\n"
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_4_2490",
+      "tier": "medium",
+      "difficulty": "Medium",
+      "title": "Prime Number Range Count MEDIUM — 10 Marks",
+      "category": "Debugging",
+      "maxPoints": 10,
+      "timeLimitMs": 2000,
+      "description": "Problem Description:\nGiven two positive integers L and R (1 <= L <= R <= 1000), count how many prime numbers exist\nbetween L and R inclusive.\n:\n10 20",
+      "starterCode": "#include <stdio.h>\nint main(void) {\n// Write your code here\nreturn 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_4_1",
+          "isSample": true,
+          "input": "10 20\n",
+          "expectedOutput": "4\n\n-- 3 of 5 --\n"
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_5_2490",
+      "tier": "medium",
+      "difficulty": "Medium",
+      "title": "P5: Matrix Row Maximums (Debugging) HARD — 15 Marks",
+      "category": "Debugging",
+      "maxPoints": 10,
+      "timeLimitMs": 2000,
+      "description": "Problem Description:\nFix the bugs in the C code so it reads an R x C integer matrix and prints the maximum element of\neach row separated by spaces.\n:\n3 3\n1 5 3\n9 2 4\n6 8 7",
+      "starterCode": "#include <stdio.h>\nint main(void) {\nint r, c, i, j;\nscanf(\"%d %d\", &r, &c);\nint mat[20][20];\nfor (i = 0; i < r; i++)\nfor (j = 0; j < c; j++)\nscanf(\"%d\", &mat[j][i]);\nfor (i = 0; i < r; i++) {\nint max = 0;\nfor (j = 0; j < c; j++) {\nif (mat[i][j] < max)\nmax = mat[i][j];\n}\nprintf(\"%d \", max);\n}\nreturn 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_5_1",
+          "isSample": true,
+          "input": "3 3\n1 5 3\n9 2 4\n6 8 7\n",
+          "expectedOutput": "5 9 8\n\n-- 4 of 5 --\n"
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_6_2490",
+      "tier": "medium",
+      "difficulty": "Medium",
+      "title": "P6: Second Largest Unique Element HARD — 15 Marks",
+      "category": "Debugging",
+      "maxPoints": 10,
+      "timeLimitMs": 2000,
+      "description": "Problem Description:\nRead an integer N (2 <= N <= 100) followed by N integers. Print the second largest distinct\nelement in the array. If all elements are equal, print -1.\n:\n6\n12 35 1 10 34 35",
+      "starterCode": "#include <stdio.h>\nint main(void) {\n// Write your code here\nreturn 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_6_1",
+          "isSample": true,
+          "input": "6\n12 35 1 10 34 35\n",
+          "expectedOutput": "34\n\n-- 5 of 5 --\n"
+        }
       ]
     }
-  ]
+  ],
+  "batches": [
+    {
+      "id": "batch_1",
+      "name": "Batch 1 (Morning)",
+      "students": []
+    }
+  ],
+  "activeBatchId": "batch_1"
 }

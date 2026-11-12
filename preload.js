@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('api', {
   // Security & Mode Control
   setSecurityMode: (options) => ipcRenderer.invoke('security:set-mode', options),
   verifySupervisorKey: (options) => ipcRenderer.invoke('security:verify-supervisor-key', options),
+  quitApp: () => ipcRenderer.invoke('app:quit'),
   onWindowBlur: (callback) => ipcRenderer.on('window-blur-detected', (e, data) => callback(data)),
   onCompetitorCloseAttempted: (callback) => ipcRenderer.on('competitor-close-attempted', () => callback()),
 
@@ -25,6 +26,8 @@ contextBridge.exposeInMainWorld('api', {
   saveContestConfig: (config) => ipcRenderer.invoke('contest:save', config),
   exportContestDialog: (config) => ipcRenderer.invoke('contest:export-dialog', config),
   importContestDialog: () => ipcRenderer.invoke('contest:import-dialog'),
+  importPdfDialog: () => ipcRenderer.invoke('contest:import-pdf-dialog'),
+  parsePdfBuffer: (options) => ipcRenderer.invoke('contest:parse-pdf-buffer', options),
   listSavedContests: () => ipcRenderer.invoke('contest:list-saved'),
   loadSavedContest: (filename) => ipcRenderer.invoke('contest:load-saved-by-filename', filename),
 
@@ -32,6 +35,8 @@ contextBridge.exposeInMainWorld('api', {
   startHostServer: (options) => ipcRenderer.invoke('server:start', options),
   stopHostServer: () => ipcRenderer.invoke('server:stop'),
   getHostServerStatus: () => ipcRenderer.invoke('server:get-status'),
+  endHostSession: () => ipcRenderer.invoke('host:end-session'),
+  clearHistory: () => ipcRenderer.invoke('host:clear-history'),
 
   // Grading Leaderboard
   scanGradingFolder: (folder) => ipcRenderer.invoke('grading:scan-folder', folder),

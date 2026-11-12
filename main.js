@@ -1,35 +1,43 @@
-const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, globalShortcut } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const http = require('http');
 const dgram = require('dgram');
-const os = require('os');
-const { spawn, exec } = require('child_process');
-
-// ============================================================================
-// MASS-CODE MAIN PROCESS & SECURITY ENGINE
-// ============================================================================
+const { spawn, exec, execSync } = require('child_process');
 
 let mainWindow = null;
-let currentSecurityMode = 'welcome'; // 'welcome' | 'host' | 'competitor'
+let currentSecurityMode = 'entry'; // 'entry' | 'kiosk'
 const SUPERVISOR_EMERGENCY_KEY = 'GECM@8123';
 
-// Network Port Standards
 const DEFAULT_HTTP_PORT = 8080;
 const UDP_BROADCAST_PORT = 45454;
 
-// Persistent Storage Directories
-const submissionsDir = path.join(__dirname, 'submissions');
-const syncedSubmissionsDir = path.join(__dirname, 'synced_submissions');
-const sessionsDir = path.join(__dirname, 'sessions');
-const contestsDir = path.join(__dirname, 'contests');
-const tempDir = path.join(__dirname, 'temp');
+// Runtime Directories
+let sessionsDir = path.join(__dirname, 'sessions');
+let submissionsDir = path.join(__dirname, 'submissions');
+let syncedSubmissionsDir = path.join(__dirname, 'synced_submissions');
+let archivesDir = path.join(__dirname, 'archives');
+let tempDir = path.join(__dirname, 'temp');
+let contestsDir = path.join(__dirname, 'contests');
 
-[submissionsDir, syncedSubmissionsDir, sessionsDir, contestsDir, tempDir].forEach((dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+function initRuntimeDirectories() {
+  if (app && app.isPackaged) {
+    const baseDir = app.getPath('userData');
+    sessionsDir = path.join(baseDir, 'sessions');
+    submissionsDir = path.join(app.getPath('desktop'), 'Mass-Code-Submissions');
+    syncedSubmissionsDir = path.join(app.getPath('desktop'), 'Mass-Code-Synced-Submissions');
+    archivesDir = path.join(app.getPath('desktop'), 'Mass-Code-Archives');
+    tempDir = path.join(app.getPath('temp'), 'mass-code-temp');
   }
-});
+  [sessionsDir, submissionsDir, syncedSubmissionsDir, archivesDir, tempDir, contestsDir].forEach((dir) => {
+    try {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+    } catch (_) { }
+  });
+}
 
 // ----------------------------------------------------------------------------
 // Local LAN UDP Discovery Engine (Host Broadcast & Competitor Discovery)
@@ -59,7 +67,7 @@ class LanDiscoveryEngine {
               const maskParts = iface.netmask.split('.').map(Number);
               const bcastParts = ipParts.map((p, i) => (p | (~maskParts[i] & 255)));
               addresses.add(bcastParts.join('.'));
-            } catch (_) {}
+            } catch (_) { }
           }
         }
       }
@@ -73,9 +81,7 @@ class LanDiscoveryEngine {
 
     try {
       this.broadcastSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
-      this.broadcastSocket.on('error', (err) => {
-        // Non-critical UDP logging
-      });
+      this.broadcastSocket.on('error', () => { });
 
       this.broadcastSocket.bind(0, () => {
         try {
@@ -92,15 +98,17 @@ class LanDiscoveryEngine {
 
             const targets = this.getLocalBroadcastAddresses();
             targets.forEach((addr) => {
-              this.broadcastSocket.send(message, 0, message.length, UDP_BROADCAST_PORT, addr, () => {});
+              try {
+                this.broadcastSocket.send(message, 0, message.length, UDP_BROADCAST_PORT, addr, () => { });
+              } catch (_) { }
             });
           };
 
           broadcastPacket();
           this.broadcastTimer = setInterval(broadcastPacket, 2000);
-        } catch (_) {}
+        } catch (_) { }
       });
-    } catch (_) {}
+    } catch (_) { }
   }
 
   stopBroadcasting() {
@@ -110,7 +118,7 @@ class LanDiscoveryEngine {
       this.broadcastTimer = null;
     }
     if (this.broadcastSocket) {
-      try { this.broadcastSocket.close(); } catch (_) {}
+      try { this.broadcastSocket.close(); } catch (_) { }
       this.broadcastSocket = null;
     }
     this.activeContestData = null;
@@ -121,15 +129,12 @@ class LanDiscoveryEngine {
 
     try {
       this.listenerSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
-      this.listenerSocket.on('error', (err) => {
-        // Non-critical UDP logging
-      });
+      this.listenerSocket.on('error', () => { });
 
       this.listenerSocket.on('message', (msg, rinfo) => {
         try {
           const packet = JSON.parse(msg.toString('utf-8'));
           if (packet && packet.type === 'MASSCODE_HOST_ANNOUNCE') {
-            // Prioritize actual physical network address over broadcast payload virtual adapters
             const hostIp = (rinfo.address && rinfo.address !== '127.0.0.1') ? rinfo.address : (packet.host || rinfo.address);
             const port = packet.port || DEFAULT_HTTP_PORT;
             const payload = {
@@ -141,19 +146,19 @@ class LanDiscoveryEngine {
             };
             if (onDiscovered) onDiscovered(payload);
           }
-        } catch (_) {}
+        } catch (_) { }
       });
 
       this.listenerSocket.bind(UDP_BROADCAST_PORT, '0.0.0.0', () => {
         this.isListening = true;
       });
-    } catch (_) {}
+    } catch (_) { }
   }
 
   stopListening() {
     this.isListening = false;
     if (this.listenerSocket) {
-      try { this.listenerSocket.close(); } catch (_) {}
+      try { this.listenerSocket.close(); } catch (_) { }
       this.listenerSocket = null;
     }
   }
@@ -177,20 +182,20 @@ class HostServer {
     const ranked = [];
     for (const name of Object.keys(interfaces)) {
       const lowerName = name.toLowerCase();
-      const isVirtual = lowerName.includes('virtual') || 
-                        lowerName.includes('vethernet') || 
-                        lowerName.includes('wsl') || 
-                        lowerName.includes('pseudo') || 
-                        lowerName.includes('hyper-v') ||
-                        lowerName.includes('vmware') ||
-                        lowerName.includes('loopback');
-      
-      const isPrimary = lowerName.includes('wi-fi') || 
-                        lowerName.includes('wifi') || 
-                        lowerName.includes('wlan') || 
-                        lowerName.includes('ethernet') || 
-                        lowerName.includes('eth') || 
-                        lowerName.includes('lan');
+      const isVirtual = lowerName.includes('virtual') ||
+        lowerName.includes('vethernet') ||
+        lowerName.includes('wsl') ||
+        lowerName.includes('pseudo') ||
+        lowerName.includes('hyper-v') ||
+        lowerName.includes('vmware') ||
+        lowerName.includes('loopback');
+
+      const isPrimary = lowerName.includes('wi-fi') ||
+        lowerName.includes('wifi') ||
+        lowerName.includes('wlan') ||
+        lowerName.includes('ethernet') ||
+        lowerName.includes('eth') ||
+        lowerName.includes('lan');
 
       for (const iface of interfaces[name]) {
         if (iface.family === 'IPv4' && !iface.internal) {
@@ -221,11 +226,21 @@ class HostServer {
           problemCount: (this.activeContest.problems || []).length
         });
       }
-      return { success: true, port: this.port, ips: this.getLocalIps() };
+      return Promise.resolve({ success: true, port: this.port, ips: this.getLocalIps(), primaryIp: this.getLocalIps()[0] || '127.0.0.1' });
     }
 
     this.port = port || DEFAULT_HTTP_PORT;
-    if (contestConfig) this.activeContest = contestConfig;
+    if (contestConfig) {
+      this.activeContest = contestConfig;
+    } else if (!this.activeContest) {
+      const activePath = path.join(contestsDir, 'active-contest.json');
+      const r1Path = path.join(__dirname, 'round 1.json');
+      if (fs.existsSync(activePath)) {
+        try { this.activeContest = JSON.parse(fs.readFileSync(activePath, 'utf-8')); } catch (_) { }
+      } else if (fs.existsSync(r1Path)) {
+        try { this.activeContest = safeParseContestJson(fs.readFileSync(r1Path, 'utf-8')); } catch (_) { }
+      }
+    }
 
     return new Promise((resolve, reject) => {
       this.server = http.createServer((req, res) => {
@@ -239,7 +254,14 @@ class HostServer {
           return;
         }
 
-        const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+        let parsedUrl;
+        try {
+          parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+        } catch (_) {
+          res.writeHead(400);
+          res.end('Invalid URL');
+          return;
+        }
         const pathname = parsedUrl.pathname;
 
         // Discovery / Health: GET /ping or /api/ping
@@ -259,6 +281,17 @@ class HostServer {
 
         // Contest Retrieval: GET /api/contest/:code or GET /contest/:code or GET /api/contest or GET /contest
         if (req.method === 'GET' && (pathname.startsWith('/api/contest') || pathname.startsWith('/contest'))) {
+          // Fallback auto-load if activeContest was unset
+          if (!this.activeContest) {
+            const activePath = path.join(contestsDir, 'active-contest.json');
+            const r1Path = path.join(__dirname, 'round 1.json');
+            if (fs.existsSync(activePath)) {
+              try { this.activeContest = JSON.parse(fs.readFileSync(activePath, 'utf-8')); } catch (_) { }
+            } else if (fs.existsSync(r1Path)) {
+              try { this.activeContest = safeParseContestJson(fs.readFileSync(r1Path, 'utf-8')); } catch (_) { }
+            }
+          }
+
           if (!this.activeContest) {
             res.writeHead(404, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'No active contest configured on Host server. Please host a contest in Host Mode.' }));
@@ -338,9 +371,20 @@ class HostServer {
 
       this.server.listen(this.port, '0.0.0.0', () => {
         this.isRunning = true;
+        const ips = this.getLocalIps();
+        const primaryIp = ips[0] || '127.0.0.1';
+
+        // Attempt automatic Windows Firewall rule registration
+        if (process.platform === 'win32') {
+          try {
+            exec('netsh advfirewall firewall add rule name="MassCode Host Server (8080)" dir=in action=allow protocol=TCP localport=8080', () => { });
+            exec('netsh advfirewall firewall add rule name="MassCode UDP Discovery (45454)" dir=in action=allow protocol=UDP localport=45454', () => { });
+          } catch (_) { }
+        }
+
         if (this.activeContest) {
           lanDiscovery.startBroadcasting({
-            host: this.getLocalIps()[0] || '127.0.0.1',
+            host: primaryIp,
             port: this.port,
             contestId: this.activeContest.id || this.activeContest.token,
             contestToken: this.activeContest.token || 'MASS2026',
@@ -349,7 +393,7 @@ class HostServer {
             problemCount: (this.activeContest.problems || []).length
           });
         }
-        resolve({ success: true, port: this.port, ips: this.getLocalIps() });
+        resolve({ success: true, port: this.port, ips, primaryIp });
       });
 
       this.server.on('error', (err) => {
@@ -368,7 +412,8 @@ class HostServer {
           resolve({ success: true });
         });
       } else {
-        resolve({ success: true });
+        this.isRunning = false;
+        resolve({ success: true, message: 'Server was not running.' });
       }
     });
   }
@@ -377,18 +422,148 @@ class HostServer {
 const hostServer = new HostServer();
 
 // ----------------------------------------------------------------------------
-// Native C Compiler Sandbox Engine
 // ----------------------------------------------------------------------------
-async function checkGcc() {
-  return new Promise((resolve) => {
-    exec('gcc --version', (err, stdout) => {
-      if (err) {
-        resolve({ available: false, version: null });
-      } else {
-        resolve({ available: true, version: stdout.split('\n')[0].trim() });
+// Compiler & Runtime Resolution Engine (Multi-Version Fallback for GCC + Python)
+// ----------------------------------------------------------------------------
+let cachedGccPath = null;
+
+function findGccExecutable() {
+  if (cachedGccPath) return cachedGccPath;
+
+  const candidates = [
+    'gcc',
+    'C:\\MinGW\\bin\\gcc.exe',
+    'C:\\mingw64\\bin\\gcc.exe',
+    'C:\\Program Files\\CodeBlocks\\MinGW\\bin\\gcc.exe',
+    'C:\\Program Files (x86)\\CodeBlocks\\MinGW\\bin\\gcc.exe',
+    'C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\gcc.exe',
+    'C:\\Dev-Cpp\\MinGW64\\bin\\gcc.exe',
+    'C:\\TDM-GCC-64\\bin\\gcc.exe',
+    'C:\\TDM-GCC-32\\bin\\gcc.exe',
+    'C:\\msys64\\mingw64\\bin\\gcc.exe',
+    'C:\\msys64\\ucrt64\\bin\\gcc.exe',
+    'C:\\Strawberry\\c\\bin\\gcc.exe',
+    'C:\\MinGW-w64\\bin\\gcc.exe'
+  ];
+
+  const userProfile = process.env.USERPROFILE || '';
+  if (userProfile) {
+    candidates.push(
+      path.join(userProfile, 'scoop', 'apps', 'gcc', 'current', 'bin', 'gcc.exe'),
+      path.join(userProfile, 'AppData', 'Local', 'Programs', 'CodeBlocks', 'MinGW', 'bin', 'gcc.exe')
+    );
+  }
+
+  for (const c of candidates) {
+    try {
+      if (c !== 'gcc' && !fs.existsSync(c)) continue;
+      const cmd = c.includes(' ') ? `"${c}"` : c;
+      const out = execSync(`${cmd} --version`, { stdio: 'pipe', timeout: 1500 });
+      if (out && out.toString().toLowerCase().includes('gcc')) {
+        cachedGccPath = c;
+        return c;
       }
+    } catch (_) { }
+  }
+
+  cachedGccPath = 'gcc';
+  return 'gcc';
+}
+
+let cachedPythonInfo = null;
+
+function findPythonExecutable() {
+  if (cachedPythonInfo) return cachedPythonInfo;
+
+  const directCommands = ['py', 'python3', 'python'];
+  const versions = ['314', '313', '312', '311', '310', '39', '38', '37'];
+  const explicitPaths = [];
+
+  for (const v of versions) {
+    explicitPaths.push(
+      `C:\\Python${v}\\python.exe`,
+      `C:\\Program Files\\Python${v}\\python.exe`,
+      `C:\\Program Files (x86)\\Python${v}\\python.exe`
+    );
+  }
+
+  const userProfile = process.env.USERPROFILE || '';
+  if (userProfile) {
+    for (const v of versions) {
+      explicitPaths.push(
+        path.join(userProfile, 'AppData', 'Local', 'Programs', 'Python', `Python${v}`, 'python.exe')
+      );
+    }
+    explicitPaths.push(
+      path.join(userProfile, 'anaconda3', 'python.exe'),
+      path.join(userProfile, 'miniconda3', 'python.exe'),
+      path.join(userProfile, 'scoop', 'apps', 'python', 'current', 'python.exe')
+    );
+  }
+
+  explicitPaths.push(
+    'C:\\ProgramData\\anaconda3\\python.exe',
+    'C:\\ProgramData\\miniconda3\\python.exe'
+  );
+
+  const testScript = 'import sys; print(f"PY_{sys.version_info[0]}_{sys.version_info[1]}")';
+
+  // 1. First test `py -3` (Standard Windows Python Launcher)
+  try {
+    const out = execSync(`py -3 -c "${testScript}"`, { stdio: 'pipe', timeout: 1500 });
+    if (out && out.toString().includes('PY_3')) {
+      cachedPythonInfo = { cmd: 'py', argsPrefix: ['-3'] };
+      return cachedPythonInfo;
+    }
+  } catch (_) { }
+
+  // 2. Test direct commands in PATH (validates that it is not a Microsoft Store stub)
+  for (const cmd of directCommands) {
+    try {
+      const out = execSync(`${cmd} -c "${testScript}"`, { stdio: 'pipe', timeout: 1500 });
+      if (out && out.toString().includes('PY_')) {
+        cachedPythonInfo = { cmd, argsPrefix: [] };
+        return cachedPythonInfo;
+      }
+    } catch (_) { }
+  }
+
+  // 3. Test explicit installed disk locations
+  for (const p of explicitPaths) {
+    try {
+      if (!fs.existsSync(p)) continue;
+      const quoted = `"${p}"`;
+      const out = execSync(`${quoted} -c "${testScript}"`, { stdio: 'pipe', timeout: 1500 });
+      if (out && out.toString().includes('PY_')) {
+        cachedPythonInfo = { cmd: p, argsPrefix: [] };
+        return cachedPythonInfo;
+      }
+    } catch (_) { }
+  }
+
+  cachedPythonInfo = { cmd: 'python', argsPrefix: [] };
+  return cachedPythonInfo;
+}
+
+async function checkDiagnostics() {
+  const gccCmd = findGccExecutable();
+  const gcc = await new Promise((resolve) => {
+    exec(`"${gccCmd}" --version`, (err, stdout, stderr) => {
+      const out = stdout || stderr || '';
+      resolve({ available: !err, version: out ? out.split('\n')[0].trim() : null, command: gccCmd });
     });
   });
+
+  const py = findPythonExecutable();
+  const python = await new Promise((resolve) => {
+    const execTarget = py.argsPrefix.length ? `"${py.cmd}" ${py.argsPrefix.join(' ')}` : `"${py.cmd}"`;
+    exec(`${execTarget} --version`, (err, stdout, stderr) => {
+      const out = stdout || stderr || '';
+      resolve({ available: !err, version: out ? out.split('\n')[0].trim() : null, command: py.cmd });
+    });
+  });
+
+  return { gcc, python, os: process.platform, arch: process.arch };
 }
 
 function normalizeTokens(str) {
@@ -398,28 +573,175 @@ function normalizeTokens(str) {
 
 async function compileAndEvaluate({ code, language = 'c', testCases = [], timeoutMs = 2000, maxPoints = 100 }, onProgress) {
   const sessionId = `eval_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-  const ext = language === 'cpp' ? 'cpp' : 'c';
-  const sourcePath = path.join(tempDir, `${sessionId}.${ext}`);
-  const binaryPath = path.join(tempDir, `${sessionId}.exe`);
 
+  // ---------------------------------------------------------
+  // PYTHON 3 EXECUTION PATH
+  // ---------------------------------------------------------
+  if (language === 'python' || language === 'py') {
+    const py = findPythonExecutable();
+    const scriptPath = path.join(tempDir, `${sessionId}.py`);
+    fs.writeFileSync(scriptPath, code || '', 'utf-8');
+
+    // Syntax validation via py_compile with multi-version fallback
+    if (onProgress) onProgress({ phase: 'compiling', message: `Validating Python syntax (${path.basename(py.cmd)})...` });
+    const syntaxRes = await new Promise((resolve) => {
+      let stderr = '';
+      const proc = spawn(py.cmd, [...py.argsPrefix, '-m', 'py_compile', scriptPath], { cwd: tempDir, windowsHide: true });
+      proc.stderr.on('data', d => { stderr += d.toString(); });
+      proc.on('close', codeVal => resolve({ success: codeVal === 0, stderr }));
+      proc.on('error', err => resolve({ success: false, stderr: err.message }));
+    });
+
+    if (!syntaxRes.success) {
+      try { if (fs.existsSync(scriptPath)) fs.unlinkSync(scriptPath); } catch (_) { }
+      return {
+        success: false,
+        phase: 'compilation',
+        compilerError: syntaxRes.stderr || 'Python syntax error.',
+        testResults: [],
+        totalScore: 0,
+        maxScore: maxPoints,
+        passedCount: 0,
+        totalCount: testCases.length
+      };
+    }
+
+    // Step 2: Test Case Evaluation Stream
+    const testResults = [];
+    let passedCount = 0;
+    let totalCpuMs = 0;
+
+    for (let i = 0; i < testCases.length; i++) {
+      const tc = testCases[i];
+      if (onProgress) onProgress({ phase: 'running_test', index: i + 1, total: testCases.length });
+
+      const evalRes = await new Promise((resolve) => {
+        const startTime = process.hrtime();
+        let stdout = '';
+        let stderr = '';
+        let timedOut = false;
+
+        let proc = null;
+        try {
+          proc = spawn(py.cmd, [...py.argsPrefix, '-u', scriptPath], { cwd: tempDir, windowsHide: true });
+        } catch (e) {
+          return resolve({ exitCode: -1, stdout: '', stderr: e.message, timedOut: false, durationMs: 0 });
+        }
+
+        const timer = setTimeout(() => {
+          timedOut = true;
+          try { proc.kill('SIGKILL'); } catch (_) { }
+        }, timeoutMs);
+
+        proc.stdout.on('data', d => { stdout += d.toString(); });
+        proc.stderr.on('data', d => { stderr += d.toString(); });
+
+        proc.on('close', codeVal => {
+          clearTimeout(timer);
+          const diff = process.hrtime(startTime);
+          const durationMs = Math.round((diff[0] * 1e3 + diff[1] / 1e6) * 10) / 10;
+          resolve({ exitCode: codeVal, stdout, stderr, timedOut, durationMs });
+        });
+
+        proc.on('error', err => {
+          clearTimeout(timer);
+          resolve({ exitCode: -1, stdout: '', stderr: err.message, timedOut: false, durationMs: 0 });
+        });
+
+        try {
+          if (tc.input) proc.stdin.write(tc.input);
+          proc.stdin.end();
+        } catch (_) { }
+      });
+
+      totalCpuMs += evalRes.durationMs;
+      const isPassed = !evalRes.timedOut && evalRes.exitCode === 0 && normalizeTokens(evalRes.stdout) === normalizeTokens(tc.expectedOutput || '');
+      if (isPassed) passedCount++;
+
+      testResults.push({
+        index: i + 1,
+        isSample: !!tc.isSample,
+        passed: isPassed,
+        timedOut: evalRes.timedOut,
+        exitCode: evalRes.exitCode,
+        executionTimeMs: evalRes.durationMs,
+        input: tc.isSample ? tc.input : '[HIDDEN PARAMETERS]',
+        expectedOutput: tc.isSample ? tc.expectedOutput : '[HIDDEN]',
+        actualOutput: tc.isSample ? evalRes.stdout : (isPassed ? '[CORRECT]' : (evalRes.stderr ? `[ERROR: ${evalRes.stderr.trim()}]` : '[INCORRECT MATCH]'))
+      });
+    }
+
+    try { if (fs.existsSync(scriptPath)) fs.unlinkSync(scriptPath); } catch (_) { }
+
+    const earnedScore = testCases.length > 0 ? Math.round((passedCount / testCases.length) * maxPoints * 10) / 10 : 0;
+    return {
+      success: true,
+      phase: 'evaluated',
+      compilerOutput: 'Python execution completed successfully.',
+      testResults,
+      totalScore: earnedScore,
+      maxScore: maxPoints,
+      passedCount,
+      totalCount: testCases.length,
+      totalExecutionTimeMs: Math.round(totalCpuMs * 10) / 10
+    };
+  }
+
+  // ---------------------------------------------------------
+  // C (GCC) EXECUTION PATH
+  // ---------------------------------------------------------
+  const gccCmd = findGccExecutable();
+  const sourcePath = path.join(tempDir, `${sessionId}.c`);
+  const binaryPath = path.join(tempDir, `${sessionId}.exe`);
   fs.writeFileSync(sourcePath, code || '', 'utf-8');
 
-  // Step 1: Compilation Phase
-  const compiler = language === 'cpp' ? 'g++' : 'gcc';
-  if (onProgress) onProgress({ phase: 'compiling', message: `Invoking native compiler: ${compiler} -O2` });
+  if (onProgress) onProgress({ phase: 'compiling', message: `Invoking native compiler: ${path.basename(gccCmd)}` });
 
-  const compileRes = await new Promise((resolve) => {
-    let stdout = '';
-    let stderr = '';
-    const proc = spawn(compiler, [sourcePath, '-o', binaryPath, '-O2'], { windowsHide: true });
-    proc.stdout.on('data', d => { stdout += d.toString(); });
-    proc.stderr.on('data', d => { stderr += d.toString(); });
-    proc.on('close', codeVal => resolve({ success: codeVal === 0, stdout, stderr }));
-    proc.on('error', err => resolve({ success: false, stdout: '', stderr: err.message }));
-  });
+  // Progressive flag fallback: modern gnu11 with static linking -> c99 -> standard -O2 -> bare gcc
+  const flagVariations = [
+    ['-O2', '-static', '-static-libgcc', '-std=gnu11'],
+    ['-O2', '-static', '-static-libgcc', '-std=c99'],
+    ['-O2', '-static', '-std=c99'],
+    ['-O2', '-std=gnu11'],
+    ['-O2', '-std=c99'],
+    ['-O2'],
+    []
+  ];
+
+  const gccDir = path.dirname(gccCmd);
+  const runtimeEnv = {
+    ...process.env,
+    PATH: gccDir && gccDir !== '.' ? `${gccDir};${process.env.PATH || ''}` : (process.env.PATH || '')
+  };
+
+  let compileRes = { success: false, stdout: '', stderr: 'Compilation failed' };
+
+  for (const flags of flagVariations) {
+    compileRes = await new Promise((resolve) => {
+      let stdout = '';
+      let stderr = '';
+      const proc = spawn(gccCmd, [sourcePath, '-o', binaryPath, ...flags], { env: runtimeEnv, windowsHide: true });
+      proc.stdout.on('data', d => { stdout += d.toString(); });
+      proc.stderr.on('data', d => { stderr += d.toString(); });
+      proc.on('close', codeVal => resolve({ success: codeVal === 0, stdout, stderr }));
+      proc.on('error', err => resolve({ success: false, stdout: '', stderr: err.message }));
+    });
+
+    if (compileRes.success) break;
+
+    // If failure was an actual code syntax error (not an invalid compiler flag option), don't retry other flags
+    const errText = (compileRes.stderr || '').toLowerCase();
+    const isCodeSyntaxError = (errText.includes('error:') || errText.includes('fatal error:')) &&
+      !errText.includes('unrecognized') &&
+      !errText.includes('unsupported') &&
+      !errText.includes('invalid option');
+    if (isCodeSyntaxError) {
+      break;
+    }
+  }
 
   if (!compileRes.success) {
-    try { if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath); } catch (_) {}
+    try { if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath); } catch (_) { }
     return {
       success: false,
       phase: 'compilation',
@@ -432,10 +754,8 @@ async function compileAndEvaluate({ code, language = 'c', testCases = [], timeou
     };
   }
 
-  // Grace period to ensure binary file handle is unlocked by linker on Windows
-  await new Promise(r => setTimeout(r, 100));
+  await new Promise(r => setTimeout(r, 150));
 
-  // Step 2: Test Case Evaluation Stream
   const testResults = [];
   let passedCount = 0;
   let totalCpuMs = 0;
@@ -444,57 +764,61 @@ async function compileAndEvaluate({ code, language = 'c', testCases = [], timeou
     const tc = testCases[i];
     if (onProgress) onProgress({ phase: 'running_test', index: i + 1, total: testCases.length });
 
-    const evalRes = await new Promise(async (resolve) => {
-      const startTime = process.hrtime();
-      let stdout = '';
-      let stderr = '';
-      let timedOut = false;
-
-      let proc = null;
+    const evalRes = await new Promise((resolve) => {
       let attempts = 0;
-      while (attempts < 4) {
+      const tryRun = () => {
         attempts++;
+        const startTime = process.hrtime();
+        let stdout = '';
+        let stderr = '';
+        let timedOut = false;
+        let proc = null;
+
         try {
-          proc = spawn(binaryPath, [], { cwd: tempDir, windowsHide: true });
-          break;
-        } catch (_) {
-          await new Promise(r => setTimeout(r, 80));
+          proc = spawn(binaryPath, [], { cwd: tempDir, env: runtimeEnv, windowsHide: true });
+        } catch (e) {
+          if (attempts < 3) {
+            setTimeout(tryRun, 150);
+            return;
+          }
+          return resolve({ exitCode: -1, stdout: '', stderr: e.message, timedOut: false, durationMs: 0 });
         }
-      }
 
-      if (!proc) {
-        return resolve({ exitCode: -1, stdout: '', stderr: 'Spawn failure', timedOut: false, durationMs: 0 });
-      }
+        const timer = setTimeout(() => {
+          timedOut = true;
+          try { proc.kill('SIGKILL'); } catch (_) { }
+        }, timeoutMs);
 
-      const timer = setTimeout(() => {
-        timedOut = true;
-        try { proc.kill('SIGKILL'); } catch (_) {}
-      }, timeoutMs);
+        proc.stdout.on('data', d => { stdout += d.toString(); });
+        proc.stderr.on('data', d => { stderr += d.toString(); });
 
-      proc.stdout.on('data', d => { stdout += d.toString(); });
-      proc.stderr.on('data', d => { stderr += d.toString(); });
+        proc.on('close', codeVal => {
+          clearTimeout(timer);
+          const diff = process.hrtime(startTime);
+          const durationMs = Math.round((diff[0] * 1e3 + diff[1] / 1e6) * 10) / 10;
+          resolve({ exitCode: codeVal, stdout, stderr, timedOut, durationMs });
+        });
 
-      proc.on('close', codeVal => {
-        clearTimeout(timer);
-        const diff = process.hrtime(startTime);
-        const durationMs = Math.round((diff[0] * 1e3 + diff[1] / 1e6) * 10) / 10;
-        resolve({ exitCode: codeVal, stdout, stderr, timedOut, durationMs });
-      });
+        proc.on('error', err => {
+          clearTimeout(timer);
+          if (attempts < 3) {
+            setTimeout(tryRun, 150);
+            return;
+          }
+          resolve({ exitCode: -1, stdout: '', stderr: err.message, timedOut: false, durationMs: 0 });
+        });
 
-      proc.on('error', err => {
-        clearTimeout(timer);
-        resolve({ exitCode: -1, stdout: '', stderr: err.message, timedOut: false, durationMs: 0 });
-      });
+        try {
+          if (tc.input) proc.stdin.write(tc.input);
+          proc.stdin.end();
+        } catch (_) { }
+      };
 
-      try {
-        if (tc.input) proc.stdin.write(tc.input);
-        proc.stdin.end();
-      } catch (_) {}
+      tryRun();
     });
 
     totalCpuMs += evalRes.durationMs;
     const isPassed = !evalRes.timedOut && evalRes.exitCode === 0 && normalizeTokens(evalRes.stdout) === normalizeTokens(tc.expectedOutput || '');
-
     if (isPassed) passedCount++;
 
     testResults.push({
@@ -506,22 +830,23 @@ async function compileAndEvaluate({ code, language = 'c', testCases = [], timeou
       executionTimeMs: evalRes.durationMs,
       input: tc.isSample ? tc.input : '[HIDDEN PARAMETERS]',
       expectedOutput: tc.isSample ? tc.expectedOutput : '[HIDDEN]',
-      actualOutput: tc.isSample ? evalRes.stdout : (isPassed ? '[CORRECT]' : '[INCORRECT MATCH]')
+      actualOutput: tc.isSample
+        ? (evalRes.stdout || (evalRes.stderr ? `[RUNTIME ERROR: ${evalRes.stderr.trim()}]` : (evalRes.exitCode !== 0 ? `[EXIT CODE: ${evalRes.exitCode}]` : '')))
+        : (isPassed ? '[CORRECT]' : (evalRes.stderr ? `[ERROR: ${evalRes.stderr.trim()}]` : (evalRes.exitCode !== 0 ? `[EXIT CODE: ${evalRes.exitCode}]` : '[INCORRECT MATCH]'))),
+      runtimeError: evalRes.stderr ? evalRes.stderr.trim() : (evalRes.exitCode !== 0 ? `Process exited with code ${evalRes.exitCode}` : null)
     });
   }
 
-  // Cleanup binary and source
   try {
     if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath);
     if (fs.existsSync(binaryPath)) fs.unlinkSync(binaryPath);
-  } catch (_) {}
+  } catch (_) { }
 
   const earnedScore = testCases.length > 0 ? Math.round((passedCount / testCases.length) * maxPoints * 10) / 10 : 0;
-
   return {
     success: true,
     phase: 'evaluated',
-    compilerOutput: 'Compilation succeeded.',
+    compilerOutput: 'Compilation and execution succeeded.',
     testResults,
     totalScore: earnedScore,
     maxScore: maxPoints,
@@ -531,8 +856,26 @@ async function compileAndEvaluate({ code, language = 'c', testCases = [], timeou
   };
 }
 
+function setWindowsKioskPolicies(enable) {
+  if (process.platform !== 'win32') return;
+  const key = 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System';
+  try {
+    if (enable) {
+      // Disable Windows Task Manager, Lock Screen, and Change Password while in Kiosk mode
+      exec(`reg add "${key}" /v DisableTaskMgr /t REG_DWORD /d 1 /f`, () => { });
+      exec(`reg add "${key}" /v DisableLockWorkstation /t REG_DWORD /d 1 /f`, () => { });
+      exec(`reg add "${key}" /v DisableChangePassword /t REG_DWORD /d 1 /f`, () => { });
+    } else {
+      // Restore standard user permissions
+      exec(`reg delete "${key}" /v DisableTaskMgr /f`, () => { });
+      exec(`reg delete "${key}" /v DisableLockWorkstation /f`, () => { });
+      exec(`reg delete "${key}" /v DisableChangePassword /f`, () => { });
+    }
+  } catch (_) { }
+}
+
 // ----------------------------------------------------------------------------
-// Window Creation & Security Rules Engine
+// Window Creation & Kiosk Confinement Framework
 // ----------------------------------------------------------------------------
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -541,7 +884,7 @@ function createWindow() {
     minWidth: 1080,
     minHeight: 720,
     backgroundColor: '#090d16',
-    title: 'Mass-Code // Universal Offline Competitive Programming Platform',
+    title: 'Mass-Code (GECM) // Competitor Terminal',
     icon: path.join(__dirname, 'assets', 'logo.png'),
     show: false,
     webPreferences: {
@@ -559,41 +902,77 @@ function createWindow() {
     mainWindow.show();
   });
 
-  // Window Focus / Blur Cheating Detection in Competitor Mode
   mainWindow.on('blur', () => {
-    if (mainWindow && !mainWindow.isDestroyed() && currentSecurityMode === 'competitor') {
+    if (mainWindow && !mainWindow.isDestroyed() && currentSecurityMode === 'kiosk') {
       mainWindow.webContents.send('window-blur-detected', { timestamp: new Date().toISOString() });
+      // Immediately snap window back to front and refocus
+      setTimeout(() => {
+        if (mainWindow && !mainWindow.isDestroyed() && currentSecurityMode === 'kiosk') {
+          mainWindow.restore();
+          mainWindow.show();
+          mainWindow.focus();
+          mainWindow.setAlwaysOnTop(true, 'screen-saver');
+        }
+      }, 60);
     }
   });
 
-  // Strict shortcut interception
+  mainWindow.on('minimize', (e) => {
+    if (currentSecurityMode === 'kiosk') {
+      e.preventDefault();
+      mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+      mainWindow.setAlwaysOnTop(true, 'screen-saver');
+    }
+  });
+
   mainWindow.webContents.on('before-input-event', (event, input) => {
-    const key = (input.key || '').toLowerCase();
-    const ctrl = input.control || input.meta;
-    const alt = input.alt;
-    const shift = input.shift;
+    if (currentSecurityMode === 'kiosk') {
+      const key = (input.key || '').toLowerCase();
+      const ctrl = input.control;
+      const alt = input.alt;
+      const meta = input.meta; // Windows Key
+      const shift = input.shift;
 
-    // In all modes, block DevTools & accidental reloads
-    if (key === 'f12' || (ctrl && shift && (key === 'i' || key === 'j' || key === 'c'))) {
-      event.preventDefault();
-      return;
-    }
-    if (ctrl && (key === 'r' || key === 'f5')) {
-      event.preventDefault();
-      return;
-    }
-    if (key === 'f11') {
-      event.preventDefault();
-      return;
-    }
-
-    // In Competitor Mode, enforce complete OS confinement
-    if (currentSecurityMode === 'competitor') {
-      if (alt && (key === 'tab' || key === 'f4' || key === 'escape')) {
+      // 1. Intercept Ctrl+D, Win+D, Alt+D, and all Desktop/Navigation D triggers
+      if ((ctrl || meta || alt) && key === 'd') {
         event.preventDefault();
         return;
       }
-      if (ctrl && (key === 'w' || key === 'q')) {
+
+      // 2. Intercept Ctrl+Shift+Esc, Ctrl+Esc, Alt+Esc, and Task Manager interruptions
+      if ((ctrl || meta) && (shift || alt) && (key === 'escape' || key === 'esc')) {
+        event.preventDefault();
+        return;
+      }
+
+      // 3. Intercept Ctrl+Alt+Del, Ctrl+Alt+Delete, Alt+Del
+      if ((ctrl || meta) && alt && (key === 'delete' || key === 'del')) {
+        event.preventDefault();
+        return;
+      }
+
+      // 4. Intercept all Windows Meta keys (Win, Win+D, Win+R, Win+E, Win+L, Win+Tab, etc.)
+      if (meta || key === 'meta' || key === 'os') {
+        event.preventDefault();
+        return;
+      }
+
+      // 5. Intercept Alt combos (Alt+Tab, Alt+F4, Alt+Esc, Alt+Space)
+      if (alt && (key === 'tab' || key === 'f4' || key === 'escape' || key === 'esc' || key === ' ' || key === 'space')) {
+        event.preventDefault();
+        return;
+      }
+
+      // 6. Intercept Ctrl system navigation combos (Ctrl+Esc, Ctrl+W, Ctrl+Q)
+      if (ctrl && (key === 'escape' || key === 'esc' || key === 'w' || key === 'q')) {
+        event.preventDefault();
+        return;
+      }
+
+      // 7. Intercept function keys (F1 help, F3 search, F5 refresh, F11 fullscreen, F12 devtools)
+      if (key === 'f1' || key === 'f3' || key === 'f5' || key === 'f11' || key === 'f12') {
         event.preventDefault();
         return;
       }
@@ -601,56 +980,68 @@ function createWindow() {
   });
 
   mainWindow.on('close', (e) => {
-    if (currentSecurityMode === 'competitor') {
+    if (currentSecurityMode === 'kiosk' || currentSecurityMode === 'thankyou') {
       e.preventDefault();
       mainWindow.webContents.send('competitor-close-attempted');
     }
   });
 }
 
-// ----------------------------------------------------------------------------
-// Mode Security Switching Logic
-// ----------------------------------------------------------------------------
 function applySecurityMode(mode) {
   if (!mainWindow) return;
-  currentSecurityMode = mode;
+  const targetMode = (mode === 'competitor' || mode === 'kiosk') ? 'kiosk' : mode;
+  currentSecurityMode = targetMode;
 
-  if (mode === 'host') {
-    // HOST MODE: Full computing freedom. Can minimize, switch tabs, switch desktop apps!
-    mainWindow.setKiosk(false);
-    mainWindow.setAlwaysOnTop(false);
-    mainWindow.setFullScreen(false);
-    mainWindow.setResizable(true);
-    mainWindow.setMinimizable(true);
-    globalShortcut.unregisterAll();
-  } else if (mode === 'competitor') {
-    // COMPETITOR MODE: Strict kiosk window confinement framework
-    mainWindow.setFullScreen(true);
-    mainWindow.setAlwaysOnTop(true, 'screen-saver');
-    mainWindow.setKiosk(true);
-    mainWindow.setResizable(false);
+  if (targetMode === 'kiosk' || targetMode === 'thankyou') {
+    setWindowsKioskPolicies(true);
+    try {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.setResizable(true);
+      mainWindow.setKiosk(true);
+      if (process.platform === 'darwin') {
+        mainWindow.setAlwaysOnTop(true, 'screen-saver');
+      } else {
+        mainWindow.setAlwaysOnTop(true);
+      }
+      mainWindow.setMinimizable(false);
+      mainWindow.focus();
+    } catch (err) {
+      console.error('Kiosk activation error:', err);
+    }
 
     try {
-      globalShortcut.register('Alt+Tab', () => {});
-      globalShortcut.register('Alt+F4', () => {});
-      globalShortcut.register('CommandOrControl+Shift+I', () => {});
-      globalShortcut.register('F12', () => {});
-    } catch (_) {}
+      globalShortcut.register('Alt+Tab', () => { });
+      globalShortcut.register('Alt+F4', () => { });
+      globalShortcut.register('Alt+Escape', () => { });
+      globalShortcut.register('CommandOrControl+Shift+Escape', () => { });
+      globalShortcut.register('CommandOrControl+Alt+Delete', () => { });
+      globalShortcut.register('CommandOrControl+Alt+Del', () => { });
+      globalShortcut.register('CommandOrControl+D', () => { });
+      globalShortcut.register('CommandOrControl+Shift+D', () => { });
+      globalShortcut.register('CommandOrControl+Alt+D', () => { });
+      globalShortcut.register('Alt+D', () => { });
+      globalShortcut.register('CommandOrControl+Shift+I', () => { });
+      globalShortcut.register('F12', () => { });
+      globalShortcut.register('F11', () => { });
+      globalShortcut.register('F5', () => { });
+    } catch (_) { }
   } else {
-    // WELCOME / LANDING MODE
-    mainWindow.setKiosk(false);
-    mainWindow.setAlwaysOnTop(false);
-    mainWindow.setFullScreen(false);
-    mainWindow.setResizable(true);
-    mainWindow.setMinimizable(true);
+    setWindowsKioskPolicies(false);
+    try {
+      mainWindow.setKiosk(false);
+      mainWindow.setAlwaysOnTop(false);
+      mainWindow.setFullScreen(false);
+      mainWindow.setResizable(true);
+      mainWindow.setMinimizable(true);
+    } catch (_) { }
     globalShortcut.unregisterAll();
   }
 }
 
-// ----------------------------------------------------------------------------
-// App Lifecycle
-// ----------------------------------------------------------------------------
+const { Menu } = require('electron');
+
 app.whenReady().then(() => {
+  initRuntimeDirectories();
   createWindow();
 
   app.on('activate', () => {
@@ -659,8 +1050,15 @@ app.whenReady().then(() => {
 });
 
 app.on('will-quit', () => {
+  setWindowsKioskPolicies(false);
   globalShortcut.unregisterAll();
-  try { hostServer.stop(); } catch (_) {}
+  try {
+    hostServer.stop();
+  } catch (_) { }
+});
+
+process.on('exit', () => {
+  setWindowsKioskPolicies(false);
 });
 
 // ----------------------------------------------------------------------------
@@ -674,20 +1072,23 @@ ipcMain.handle('security:set-mode', (event, { mode }) => {
 ipcMain.handle('security:verify-supervisor-key', (event, { key }) => {
   const isMatch = (key || '').trim() === SUPERVISOR_EMERGENCY_KEY;
   if (isMatch) {
-    applySecurityMode('welcome'); // Unlock station
+    applySecurityMode('entry');
   }
   return { success: isMatch };
 });
 
+ipcMain.handle('app:quit', () => {
+  currentSecurityMode = 'quit';
+  setWindowsKioskPolicies(false);
+  if (mainWindow) {
+    try { mainWindow.destroy(); } catch (_) { }
+  }
+  app.quit();
+  return { success: true };
+});
+
 ipcMain.handle('env:get-diagnostics', async () => {
-  const gcc = await checkGcc();
-  return {
-    os: process.platform,
-    arch: process.arch,
-    nodeVersion: process.version,
-    gcc,
-    serverIps: hostServer.getLocalIps()
-  };
+  return await checkDiagnostics();
 });
 
 ipcMain.handle('env:get-launch-args', () => {
@@ -720,7 +1121,8 @@ ipcMain.handle('session:load-snapshot', async (event, { usn }) => {
     const safeUsn = (usn || '').replace(/[^a-zA-Z0-9_-]/g, '_');
     const filePath = path.join(sessionsDir, `SESSION_${safeUsn}.json`);
     if (fs.existsSync(filePath)) {
-      return { success: true, found: true, data: JSON.parse(fs.readFileSync(filePath, 'utf-8')) };
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      return { success: true, found: true, data };
     }
     return { success: true, found: false };
   } catch (err) {
@@ -730,29 +1132,482 @@ ipcMain.handle('session:load-snapshot', async (event, { usn }) => {
 
 ipcMain.handle('submission:save-final', async (event, payload) => {
   try {
-    const safeUsn = (payload.usn || 'anonymous').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const safeUsn = (payload.usn || 'candidate').replace(/[^a-zA-Z0-9_-]/g, '_');
     const filename = `FINAL_${safeUsn}.json`;
     const filePath = path.join(submissionsDir, filename);
     fs.writeFileSync(filePath, JSON.stringify(payload, null, 2), 'utf-8');
+    try {
+      const syncedPath = path.join(syncedSubmissionsDir, filename);
+      fs.writeFileSync(syncedPath, JSON.stringify(payload, null, 2), 'utf-8');
+    } catch (_) { }
     return { success: true, filename, filePath };
   } catch (err) {
     return { success: false, error: err.message };
   }
 });
 
-// Contest Package Management
 ipcMain.handle('contest:get-default', async () => {
   const activePath = path.join(contestsDir, 'active-contest.json');
   if (fs.existsSync(activePath)) {
     try {
-      return { success: true, contest: JSON.parse(fs.readFileSync(activePath, 'utf-8')) };
-    } catch (_) {}
+      const activeRaw = JSON.parse(fs.readFileSync(activePath, 'utf-8'));
+      if (activeRaw && (activeRaw.problems || []).length > 0) {
+        return { success: true, contest: activeRaw, round: 1 };
+      }
+    } catch (_) { }
   }
-  const samplePath = path.join(__dirname, 'sample-contest.json');
-  if (fs.existsSync(samplePath)) {
-    return { success: true, contest: JSON.parse(fs.readFileSync(samplePath, 'utf-8')) };
+  // Start with a clean, empty contest template for new contests
+  return {
+    success: true,
+    contest: {
+      id: 'MASS-' + Date.now(),
+      type: 'contest',
+      title: 'Mass-Code Championship',
+      token: 'MASS' + Math.floor(1000 + Math.random() * 9000),
+      durationMinutes: 60,
+      language: 'c',
+      problems: [],
+      batches: [
+        {
+          id: 'batch_1',
+          name: 'Batch 1 (Morning)',
+          students: []
+        }
+      ],
+      activeBatchId: 'batch_1'
+    },
+    round: 1
+  };
+});
+
+ipcMain.handle('contest:get-round', async (event, { round }) => {
+  const filename = Number(round) === 2 ? 'round 2.json' : 'round 1.json';
+  const candidates = [
+    path.join(__dirname, filename),
+    path.join(contestsDir, filename),
+    path.join(__dirname, '..', 'contests', filename)
+  ];
+  for (const filePath of candidates) {
+    if (fs.existsSync(filePath)) {
+      try {
+        const raw = fs.readFileSync(filePath, 'utf-8');
+        const contest = safeParseContestJson(raw);
+        return { success: true, contest, round: Number(round), filePath };
+      } catch (err) {
+        return { success: false, error: err.message };
+      }
+    }
   }
-  return { success: false };
+  return { success: false, error: `Contest file ${filename} not found` };
+});
+
+function safeParseContestJson(raw) {
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    // Attempt automatic repair for unescaped quotes in starterCode
+    try {
+      const repaired = raw.replace(/"starterCode":\s*"([\s\S]*?)"\s*,\s*"(testCases|starterCodePython)"/g, (match, code, nextKey) => {
+        const fixedCode = code
+          .replace(/printf\("([^"]*)"\)/g, 'printf(\\"$1\\")')
+          .replace(/printf\("([^"]*)",/g, 'printf(\\"$1\\",')
+          .replace(/scanf\("([^"]*)",/g, 'scanf(\\"$1\\",');
+        return `"starterCode": "${fixedCode}",\n"${nextKey}"`;
+      });
+      return JSON.parse(repaired);
+    } catch (_) { }
+    throw err;
+  }
+}
+
+ipcMain.handle('contest:import-dialog', async () => {
+  const { filePaths, canceled } = await dialog.showOpenDialog(mainWindow, {
+    title: 'Load Question Paper Configuration (JSON)',
+    filters: [{ name: 'JSON Contest Package', extensions: ['json'] }],
+    properties: ['openFile']
+  });
+  if (canceled || !filePaths || filePaths.length === 0) return { canceled: true };
+  try {
+    const raw = fs.readFileSync(filePaths[0], 'utf-8');
+    const config = safeParseContestJson(raw);
+    return { success: true, config, filePath: filePaths[0] };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// ----------------------------------------------------------------------------
+// Offline PDF Question Paper Auto-Importer & Parser Engine
+// ----------------------------------------------------------------------------
+async function extractTextFromPdf(buffer) {
+  try {
+    const pdfModule = require('pdf-parse');
+    if (pdfModule.PDFParse) {
+      const parser = new pdfModule.PDFParse({ data: buffer });
+      const res = await parser.getText();
+      const txt = res.text || (res.pages ? res.pages.map(p => p.text).join('\n') : '');
+      try { await parser.destroy(); } catch (_) { }
+      return txt;
+    } else if (typeof pdfModule === 'function') {
+      const data = await pdfModule(buffer);
+      return data.text || '';
+    } else {
+      throw new Error('Unsupported pdf-parse module format');
+    }
+  } catch (err) {
+    throw new Error('PDF extraction failed: ' + err.message);
+  }
+}
+
+function parseQuestionsFromText(rawText, mode = 'auto') {
+  if (!rawText || !rawText.trim()) {
+    return [];
+  }
+
+  // Determine effective mode: 'exam' (lab experiments) or 'contest' (multi-tier easy/med/hard)
+  let effectiveMode = mode;
+  if (!effectiveMode || effectiveMode === 'auto') {
+    const isExamSignal = /(?:Experiment|Exp\s*\d+|Lab\s*Exam|Laboratory|VTU|Program\s*\d+|Lab\s*Manual)/i.test(rawText);
+    const isContestSignal = /(?:Easy\s*Tier|Medium\s*Tier|Hard\s*Tier|Round\s*1|Round\s*2|Round\s*3)/i.test(rawText);
+    effectiveMode = (isExamSignal && !isContestSignal) ? 'exam' : 'contest';
+  }
+
+  const text = rawText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = text.split('\n');
+  let currentTier = effectiveMode === 'exam' ? 'lab' : 'easy';
+
+  // Question boundary markers:
+  // In Exam Mode: matches Experiment 1, Exp 1, Program 1, Lab 1, Exercise 1, Part A: Q1, etc.
+  // In Contest Mode: matches Question 1, Problem 1, Q1, etc.
+  let questionRegex;
+  if (effectiveMode === 'exam') {
+    questionRegex = /^(?:(?:Experiment|Exp\.?|Program|Prog\.?|Lab\s*Experiment|Lab|Exercise|Part\s*[A-B]\s*[-–—:]?\s*(?:Q|Prog|Exp)?)\s*(\d+)[\s:.)\-—]+|(?:\[\s*(?:Experiment|Exp|Program|Lab|Part\s*[A-B])\s*(\d+)\s*\])|(?:\b(\d+)[\.)]\s+([A-Z0-9].*))|(?:(?:Question|Problem|Q\.?)\s*(\d+)[\s:.)\-—]+))/i;
+  } else {
+    questionRegex = /^(?:(?:Question|Problem|Q\.?)\s*(\d+)[\s:.)\-—]+|(?:\[\s*(?:Question|Problem|Q)\s*(\d+)\s*\])|(?:\b(\d+)[\.)]\s+([A-Z0-9].*)))/i;
+  }
+  const sectionRegex = /(?:Section|Round|Part|Tier)\s*([A-Za-z0-9]+)?[\s:.\-—]*(Easy|Medium|Hard)/i;
+
+  const chunks = [];
+  let currentChunk = null;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    const secMatch = trimmed.match(sectionRegex);
+    if (secMatch) {
+      currentTier = secMatch[2].toLowerCase();
+      continue;
+    }
+
+    const qMatch = trimmed.match(questionRegex);
+    if (qMatch) {
+      if (currentChunk) {
+        chunks.push(currentChunk);
+      }
+      currentChunk = {
+        headerLine: trimmed,
+        defaultTier: currentTier,
+        lines: [trimmed]
+      };
+    } else {
+      if (currentChunk) {
+        currentChunk.lines.push(line);
+      } else {
+        const preMatch = trimmed.match(/(Easy|Medium|Hard)\s*(?:Tier|Questions|Section)?/i);
+        if (preMatch) {
+          const t = preMatch[1].toLowerCase();
+          if (['easy', 'medium', 'hard'].includes(t)) {
+            currentTier = t;
+          }
+        }
+      }
+    }
+  }
+
+  if (currentChunk) {
+    chunks.push(currentChunk);
+  }
+
+  if (chunks.length === 0) {
+    chunks.push({
+      headerLine: effectiveMode === 'exam' ? 'Experiment 1' : 'Problem 1',
+      defaultTier: effectiveMode === 'exam' ? 'lab' : 'easy',
+      lines: lines
+    });
+  }
+
+  const parsedProblems = [];
+
+  chunks.forEach((chunk, idx) => {
+    const chunkText = chunk.lines.join('\n');
+    const qNum = idx + 1;
+
+    let tier = effectiveMode === 'exam' ? 'lab' : (chunk.defaultTier || 'easy');
+    let difficulty = effectiveMode === 'exam' ? 'Lab' : 'Easy';
+
+    if (effectiveMode === 'contest') {
+      const tierMatch = chunkText.match(/\b(?:tier|difficulty|level)[\s:.\-—]+(easy|medium|hard)\b/i) ||
+        chunkText.match(/\[\s*(easy|medium|hard)\s*\]/i) ||
+        chunkText.match(/\b(easy|medium|hard)\s+(?:tier|level)\b/i);
+
+      if (tierMatch) {
+        const found = (tierMatch[2] || tierMatch[1]).toLowerCase();
+        if (['easy', 'medium', 'hard'].includes(found)) {
+          tier = found;
+        }
+      }
+      difficulty = tier.charAt(0).toUpperCase() + tier.slice(1);
+    }
+
+    // 2. Max Points: default 50 for Lab Exam, 5 for Easy, 10 for Medium, 15 for Hard
+    let maxPoints = effectiveMode === 'exam' ? 50 : (tier === 'hard' ? 15 : (tier === 'medium' ? 10 : 5));
+    const ptsMatch = chunkText.match(/(?:max\s*points?|points?|marks?)\s*[:=\-—]?\s*(\d+)/i) ||
+      chunkText.match(/\[\s*(\d+)\s*(?:marks?|points?|pts)\s*\]/i) ||
+      chunkText.match(/\(\s*(\d+)\s*(?:marks?|points?|pts)\s*\)/i);
+    if (ptsMatch) {
+      const parsedPts = parseInt(ptsMatch[1], 10);
+      if (parsedPts > 0 && parsedPts <= 100) {
+        maxPoints = parsedPts;
+      }
+    }
+
+    // 3. Title
+    let title = '';
+    const titleMatch = chunkText.match(/Title\s*[:=\-—]\s*([^\n]+)/i);
+    if (titleMatch) {
+      title = titleMatch[1].trim();
+    } else {
+      let h = chunk.headerLine
+        .replace(/^(?:Experiment|Exp\.?|Program|Prog\.?|Lab|Exercise|Question|Problem|Q\.?)\s*\d+[\s:.)\-—]*/i, '')
+        .replace(/^\d+[\.)]\s*/, '')
+        .replace(/\[\s*(?:Easy|Medium|Hard|Lab|\d+\s*Marks?|\d+\s*Pts)\s*\]/gi, '')
+        .replace(/\(\s*(?:Easy|Medium|Hard|Lab|\d+\s*Marks?|\d+\s*Pts)\s*\)/gi, '')
+        .trim();
+      if (h.length > 3) {
+        title = h;
+      } else {
+        const secondLine = (chunk.lines[1] || '').trim();
+        if (secondLine && !secondLine.match(/^(?:Points|Marks|Tier|Difficulty|Description)/i)) {
+          title = secondLine;
+        } else {
+          title = effectiveMode === 'exam' ? `Experiment ${qNum}: Lab Program` : `Problem ${qNum}: Algorithmic Challenge`;
+        }
+      }
+    }
+
+    title = title.replace(/^[:\-—\s]+/, '').replace(/[:\-—\s]+$/, '');
+    if (effectiveMode === 'exam') {
+      if (!title.toLowerCase().startsWith('exp') && !title.toLowerCase().startsWith('prog') && !title.toLowerCase().startsWith('part')) {
+        title = `Exp ${qNum}: ${title}`;
+      }
+    } else {
+      if (!title.toLowerCase().startsWith('r') && !title.toLowerCase().startsWith('problem') && !title.toLowerCase().startsWith('q') && !title.toLowerCase().startsWith('p')) {
+        title = `P${qNum}: ${title}`;
+      }
+    }
+
+    // 4. Starter Code
+    let starterCode = '';
+    const codeBlockMatch = chunkText.match(/(?:Starter\s*Code|Buggy\s*Code|Faulty\s*Code|Code(?:\s*Template)?)\s*[:=\-—]?\s*(?:```[a-z]*\s*)?\n([\s\S]*?)(?:```|\n\s*(?:Sample\s+Input|Test\s*Case|Input\s*:)|$)/i);
+    if (codeBlockMatch) {
+      starterCode = codeBlockMatch[1].trim();
+    } else {
+      const fencedMatch = chunkText.match(/```(?:c|cpp|python)?\n([\s\S]*?)```/i);
+      if (fencedMatch) {
+        starterCode = fencedMatch[1].trim();
+      } else {
+        const includeMatch = chunkText.match(/(#include\s*<[\s\S]*?int\s+main[\s\S]*?\n\})/i);
+        if (includeMatch) {
+          starterCode = includeMatch[1].trim();
+        }
+      }
+    }
+
+    if (!starterCode) {
+      starterCode = '#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n';
+    } else {
+      if (!starterCode.endsWith('\n')) starterCode += '\n';
+    }
+
+    // 5. Test Cases
+    const testCases = [];
+    const tcRegex = /(?:Sample\s+Input(?:\s*\d+)?|Test\s*Case\s*\d*\s*Input|Input\s*\d*)\s*[:=\-—]?\s*\n?([\s\S]*?)(?:(?:Sample\s+Output(?:\s*\d+)?|Expected\s*Output(?:\s*\d+)?|Output\s*\d*)\s*[:=\-—]?\s*\n?([\s\S]*?))(?=(?:\b(?:Sample\s+Input|Test\s*Case|Input\s*\d*|Question|Problem|Experiment|Exp)\b|\n\n\n|$))/gi;
+    let tcMatch;
+    let tcCount = 1;
+
+    while ((tcMatch = tcRegex.exec(chunkText)) !== null) {
+      let rawIn = tcMatch[1].trim();
+      let rawOut = tcMatch[2].trim();
+
+      rawIn = rawIn.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
+      rawOut = rawOut.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim();
+
+      if (rawIn.length > 0 && !rawIn.endsWith('\n')) rawIn += '\n';
+      if (rawOut.length > 0 && !rawOut.endsWith('\n')) rawOut += '\n';
+
+      testCases.push({
+        id: `tc_p${qNum}_${tcCount}`,
+        isSample: tcCount === 1,
+        input: rawIn,
+        expectedOutput: rawOut
+      });
+      tcCount++;
+    }
+
+    if (testCases.length === 0) {
+      testCases.push({
+        id: `tc_p${qNum}_1`,
+        isSample: true,
+        input: '',
+        expectedOutput: ''
+      });
+    }
+
+    // 6. Description
+    let desc = chunkText;
+    desc = desc.replace(chunk.headerLine, '');
+    desc = desc.replace(/(?:tier|difficulty|level|points?|marks?)\s*[:=\-—][^\n]+/gi, '');
+    desc = desc.replace(/\[\s*(?:easy|medium|hard|lab|\d+\s*marks?|\d+\s*pts)\s*\]/gi, '');
+    desc = desc.replace(/\(\s*(?:easy|medium|hard|lab|\d+\s*marks?|\d+\s*pts)\s*\)/gi, '');
+    if (titleMatch) desc = desc.replace(titleMatch[0], '');
+    if (codeBlockMatch) desc = desc.replace(codeBlockMatch[0], '');
+    desc = desc.replace(/(?:\bSample\s+Input|\bSample\s+Output|\bExpected\s+Output|\bInput\s*\d*|\bOutput\s*\d*|\bTest\s*Case)[\s\S]*/gi, '');
+    desc = desc.replace(/^(?:Description|Problem\s*Statement|Experiment\s*Aim|Aim)\s*[:=\-—]?\s*/gim, '');
+
+    desc = desc.replace(/:\s*$/, '').trim();
+    if (!desc) {
+      desc = effectiveMode === 'exam'
+        ? 'Implement the lab experiment as per specification, handle all edge cases, and pass the test cases.'
+        : 'Implement the solution according to specifications and pass all test cases.';
+    }
+
+    parsedProblems.push({
+      id: `p_pdf_${qNum}_${Date.now() % 10000}`,
+      tier: tier,
+      difficulty: difficulty,
+      title: title,
+      category: effectiveMode === 'exam' ? 'Lab Experiment' : 'Debugging',
+      maxPoints: maxPoints,
+      timeLimitMs: 2000,
+      description: desc,
+      starterCode: starterCode,
+      testCases: testCases
+    });
+  });
+
+  return parsedProblems;
+}
+
+ipcMain.handle('contest:import-pdf-dialog', async (event, options = {}) => {
+  const mode = (options && options.mode) || 'auto';
+  const { filePaths, canceled } = await dialog.showOpenDialog(mainWindow, {
+    title: mode === 'exam' ? 'Select Lab Exam Question Paper PDF' : 'Select Contest Question Paper PDF',
+    filters: [{ name: 'PDF Document (*.pdf)', extensions: ['pdf'] }],
+    properties: ['openFile']
+  });
+  if (canceled || !filePaths || filePaths.length === 0) return { canceled: true };
+  const filePath = filePaths[0];
+  try {
+    const buffer = fs.readFileSync(filePath);
+    const rawText = await extractTextFromPdf(buffer);
+    if (!rawText || !rawText.trim()) {
+      return {
+        success: false,
+        error: 'The PDF has no selectable text (scanned image-only document). Please use a digital text PDF or enter questions manually.'
+      };
+    }
+    const problems = parseQuestionsFromText(rawText, mode);
+    if (!problems || problems.length === 0) {
+      return {
+        success: false,
+        error: 'Could not detect any questions in the PDF. Please check the document structure or format.'
+      };
+    }
+    return {
+      success: true,
+      filename: path.basename(filePath),
+      filePath,
+      problems,
+      count: problems.length,
+      mode
+    };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('contest:parse-pdf-buffer', async (event, { base64Data, filename, mode = 'auto' }) => {
+  try {
+    if (!base64Data) {
+      return { success: false, error: 'No PDF data received.' };
+    }
+    const buffer = Buffer.from(base64Data, 'base64');
+    const rawText = await extractTextFromPdf(buffer);
+    if (!rawText || !rawText.trim()) {
+      return {
+        success: false,
+        error: 'The PDF has no selectable text (scanned image-only document). Please use a digital text PDF.'
+      };
+    }
+    const problems = parseQuestionsFromText(rawText, mode);
+    if (!problems || problems.length === 0) {
+      return {
+        success: false,
+        error: 'No questions detected in the uploaded PDF.'
+      };
+    }
+    return {
+      success: true,
+      filename: filename || 'uploaded.pdf',
+      problems,
+      count: problems.length,
+      mode
+    };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('contest:save', async (event, contestConfig) => {
+  try {
+    const safeId = (contestConfig.id || contestConfig.token || `contest_${Date.now()}`).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const filename = `contest-${safeId}.json`;
+    const localPath = path.join(contestsDir, filename);
+    const activePath = path.join(contestsDir, 'active-contest.json');
+    const samplePath = path.join(__dirname, 'sample-contest.json');
+    const jsonStr = JSON.stringify(contestConfig, null, 2);
+
+    fs.writeFileSync(localPath, jsonStr, 'utf-8');
+    fs.writeFileSync(activePath, jsonStr, 'utf-8');
+    try { fs.writeFileSync(samplePath, jsonStr, 'utf-8'); } catch (_) { }
+
+    if (hostServer) {
+      hostServer.activeContest = contestConfig;
+    }
+    return { success: true, filePath: localPath };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('contest:export-dialog', async (event, contestConfig) => {
+  const safeId = (contestConfig.id || contestConfig.token || 'config').replace(/[^a-zA-Z0-9_-]/g, '_');
+  const { filePath, canceled } = await dialog.showSaveDialog(mainWindow, {
+    title: 'Export Mass-Code Contest Package',
+    defaultPath: `contest-${safeId}.json`,
+    filters: [{ name: 'JSON Contest Package', extensions: ['json'] }]
+  });
+  if (canceled || !filePath) return { canceled: true };
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(contestConfig, null, 2), 'utf-8');
+    if (hostServer) {
+      hostServer.activeContest = contestConfig;
+    }
+    return { success: true, filePath };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 });
 
 ipcMain.handle('contest:list-saved', async () => {
@@ -771,7 +1626,7 @@ ipcMain.handle('contest:list-saved', async () => {
           token: data.token || 'MASS2026',
           problemCount: (data.problems || []).length
         });
-      } catch (_) {}
+      } catch (_) { }
     }
     return { success: true, contests: list };
   } catch (err) {
@@ -791,140 +1646,6 @@ ipcMain.handle('contest:load-saved-by-filename', async (event, filename) => {
   }
 });
 
-ipcMain.handle('contest:save', async (event, contestConfig) => {
-  try {
-    const filename = `contest-${contestConfig.id || Date.now()}.json`;
-    const localPath = path.join(contestsDir, filename);
-    const activePath = path.join(contestsDir, 'active-contest.json');
-    const samplePath = path.join(__dirname, 'sample-contest.json');
-    fs.writeFileSync(localPath, JSON.stringify(contestConfig, null, 2), 'utf-8');
-    fs.writeFileSync(activePath, JSON.stringify(contestConfig, null, 2), 'utf-8');
-    try { fs.writeFileSync(samplePath, JSON.stringify(contestConfig, null, 2), 'utf-8'); } catch (_) {}
-    hostServer.activeContest = contestConfig;
-    return { success: true, filePath: localPath };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
-});
-
-ipcMain.handle('contest:export-dialog', async (event, contestConfig) => {
-  const { filePath, canceled } = await dialog.showSaveDialog(mainWindow, {
-    title: 'Export Mass-Code Contest Package',
-    defaultPath: `contest-${contestConfig.id || 'config'}.json`,
-    filters: [{ name: 'JSON Contest File', extensions: ['json'] }]
-  });
-  if (canceled || !filePath) return { canceled: true };
-  fs.writeFileSync(filePath, JSON.stringify(contestConfig, null, 2), 'utf-8');
-  hostServer.activeContest = contestConfig;
-  return { success: true, filePath };
-});
-
-ipcMain.handle('contest:import-dialog', async () => {
-  const { filePaths, canceled } = await dialog.showOpenDialog(mainWindow, {
-    title: 'Import Mass-Code Contest Configuration',
-    filters: [{ name: 'JSON Contest File', extensions: ['json'] }],
-    properties: ['openFile']
-  });
-  if (canceled || !filePaths || filePaths.length === 0) return { canceled: true };
-  const config = JSON.parse(fs.readFileSync(filePaths[0], 'utf-8'));
-  return { success: true, config, filePath: filePaths[0] };
-});
-
-// Host Server Management
-ipcMain.handle('server:start', async (event, { port = DEFAULT_HTTP_PORT, contestConfig = null }) => {
-  try {
-    const res = await hostServer.start(port, contestConfig);
-    return { success: true, ...res };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
-});
-
-ipcMain.handle('server:stop', async () => {
-  return await hostServer.stop();
-});
-
-ipcMain.handle('server:get-status', () => {
-  return {
-    isRunning: hostServer.isRunning,
-    port: hostServer.port,
-    activeContestId: hostServer.activeContest ? (hostServer.activeContest.id || hostServer.activeContest.token) : null,
-    ips: hostServer.getLocalIps()
-  };
-});
-
-// Grading Leaderboard Scanner (Scans synced_submissions/ and submissions/)
-ipcMain.handle('grading:scan-folder', async (event, customFolder = null) => {
-  try {
-    const foldersToScan = customFolder ? [customFolder] : [syncedSubmissionsDir, submissionsDir];
-    const recordsMap = new Map();
-
-    for (const targetDir of foldersToScan) {
-      if (!fs.existsSync(targetDir)) continue;
-
-      const files = fs.readdirSync(targetDir).filter(f => f.startsWith('FINAL_') && f.endsWith('.json'));
-      for (const file of files) {
-        try {
-          const fullPath = path.join(targetDir, file);
-          const data = JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
-          const usn = data.usn || file.replace('FINAL_', '').replace('.json', '');
-
-          // Keep latest submission if duplicate across folders
-          if (!recordsMap.has(usn) || (data.submittedAt && recordsMap.get(usn).submittedAt < data.submittedAt)) {
-            recordsMap.set(usn, {
-              usn,
-              name: data.name || 'Anonymous',
-              totalScore: data.totalScore || 0,
-              maxScore: data.maxScore || 100,
-              problemsSolvedCount: data.problemsSolvedCount || 0,
-              totalProblems: data.totalProblems || 0,
-              timeElapsedSeconds: data.timeElapsedSeconds || 0,
-              totalExecutionTimeMs: data.totalExecutionTimeMs || 0,
-              violationsCount: data.violationStrikes || (data.violations ? data.violations.length : 0),
-              submittedAt: data.submittedAt || 'N/A',
-              filename: file,
-              fullPayload: data
-            });
-          }
-        } catch (_) {}
-      }
-    }
-
-    const records = Array.from(recordsMap.values());
-
-    // Competitive Grading: 1. Highest Score, 2. Fastest CPU Time, 3. Lowest Elapsed Time
-    records.sort((a, b) => {
-      if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
-      if (a.totalExecutionTimeMs !== b.totalExecutionTimeMs) return a.totalExecutionTimeMs - b.totalExecutionTimeMs;
-      return a.timeElapsedSeconds - b.timeElapsedSeconds;
-    });
-
-    records.forEach((r, idx) => { r.rank = idx + 1; });
-
-    return { success: true, directory: syncedSubmissionsDir, totalCount: records.length, records };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
-});
-
-ipcMain.handle('grading:export-csv', async (event, { records, contestTitle = 'Mass-Code Contest' }) => {
-  const { filePath, canceled } = await dialog.showSaveDialog(mainWindow, {
-    title: 'Export Leaderboard Spreadsheet',
-    defaultPath: `Leaderboard_${contestTitle.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.csv`,
-    filters: [{ name: 'CSV Spreadsheets', extensions: ['csv'] }]
-  });
-  if (canceled || !filePath) return { canceled: true };
-
-  const headers = ['Rank', 'USN', 'Candidate Name', 'Score', 'Max Score', 'Problems Solved', 'Total Problems', 'Contest Time (s)', 'CPU Time (ms)', 'Violations', 'Submitted At'];
-  const rows = records.map(r => [
-    r.rank, `"${r.usn}"`, `"${r.name}"`, r.totalScore, r.maxScore, r.problemsSolvedCount, r.totalProblems, r.timeElapsedSeconds, r.totalExecutionTimeMs, r.violationsCount, `"${r.submittedAt}"`
-  ].join(','));
-
-  fs.writeFileSync(filePath, [headers.join(','), ...rows].join('\n'), 'utf-8');
-  return { success: true, filePath };
-});
-
-// Remote LAN Sync Bridge (Competitor -> Host)
 ipcMain.handle('sync:fetch-remote-contest', async (event, { hostUrl, contestCode }) => {
   return new Promise((resolve) => {
     try {
@@ -941,7 +1662,7 @@ ipcMain.handle('sync:fetch-remote-contest', async (event, { hostUrl, contestCode
       const codePart = contestCode ? encodeURIComponent(contestCode.trim()) : '';
       const targetUrl = new URL(`/api/contest/${codePart}`, parsed.origin);
 
-      const req = http.get(targetUrl, { timeout: 5000 }, (res) => {
+      const req = http.get(targetUrl, { timeout: 10000 }, (res) => {
         let body = '';
         res.on('data', chunk => { body += chunk; });
         res.on('end', () => {
@@ -966,8 +1687,21 @@ ipcMain.handle('sync:fetch-remote-contest', async (event, { hostUrl, contestCode
           }
         });
       });
-      req.on('error', err => resolve({ success: false, error: `Network error: ${err.message}` }));
-      req.on('timeout', () => { req.destroy(); resolve({ success: false, error: 'Connection timed out connecting to Host.' }); });
+      req.on('error', err => {
+        let msg = err.message;
+        if (err.code === 'ECONNREFUSED') {
+          msg = `Connection refused at ${parsed.origin}. Ensure Host server is running and port is correct.`;
+        } else if (err.code === 'ETIMEDOUT') {
+          msg = `Connection timed out to ${parsed.origin}. Ensure Host laptop allows port 8080 through Windows Defender Firewall.`;
+        } else if (err.code === 'EHOSTUNREACH') {
+          msg = `Host unreachable at ${parsed.origin}. Ensure both computers are on the same Wi-Fi / network.`;
+        }
+        resolve({ success: false, error: msg });
+      });
+      req.on('timeout', () => {
+        req.destroy();
+        resolve({ success: false, error: `Connection timed out (10s) connecting to ${parsed.origin}. Check Host IP & Firewall.` });
+      });
     } catch (err) {
       resolve({ success: false, error: err.message });
     }
@@ -987,7 +1721,6 @@ ipcMain.handle('sync:push-submission', async (event, { hostUrl, payload }) => {
         parsed.port = DEFAULT_HTTP_PORT.toString();
       }
 
-      // User requirement: HTTP POST http://[Host-IP]:8080/sync-result
       const url = new URL('/sync-result', parsed.origin);
       const postData = JSON.stringify(payload);
       const req = http.request(url, {
@@ -1014,11 +1747,10 @@ ipcMain.handle('sync:push-submission', async (event, { hostUrl, payload }) => {
   });
 });
 
-// UDP LAN Discovery Handlers
 ipcMain.handle('lan:start-listening', () => {
-  lanDiscovery.startListening((discoveredHost) => {
+  lanDiscovery.startListening((payload) => {
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('lan:host-discovered', discoveredHost);
+      mainWindow.webContents.send('lan:host-discovered', payload);
     }
   });
   return { success: true };
@@ -1027,4 +1759,209 @@ ipcMain.handle('lan:start-listening', () => {
 ipcMain.handle('lan:stop-listening', () => {
   lanDiscovery.stopListening();
   return { success: true };
+});
+
+// ----------------------------------------------------------------------------
+// Host Server Controls
+// ----------------------------------------------------------------------------
+ipcMain.handle('server:start', async (event, { port = DEFAULT_HTTP_PORT, contestConfig = null }) => {
+  try {
+    const res = await hostServer.start(port, contestConfig);
+    return { success: true, ...res };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('server:stop', async () => {
+  return await hostServer.stop();
+});
+
+ipcMain.handle('server:get-status', () => {
+  const ips = hostServer.getLocalIps();
+  return {
+    isRunning: hostServer.isRunning,
+    port: hostServer.port,
+    activeContestId: hostServer.activeContest ? (hostServer.activeContest.id || hostServer.activeContest.token) : null,
+    ips,
+    primaryIp: ips[0] || '127.0.0.1'
+  };
+});
+
+// ----------------------------------------------------------------------------
+// Host Session & History Reset Engine
+// ----------------------------------------------------------------------------
+ipcMain.handle('host:end-session', async () => {
+  try {
+    // 1. Terminate LAN server & UDP broadcast
+    try {
+      await hostServer.stop();
+    } catch (_) {}
+
+    // 2. Prepare timestamped archive folder so records are preserved safely
+    const now = new Date();
+    const ts = now.toISOString().replace(/[:.]/g, '-');
+    const contestTitle = (hostServer.activeContest && hostServer.activeContest.title)
+      ? hostServer.activeContest.title.replace(/[^a-zA-Z0-9_-]/g, '_')
+      : 'Contest';
+    const archiveTarget = path.join(archivesDir, `${contestTitle}_${ts}`);
+
+    if (!fs.existsSync(archiveTarget)) {
+      fs.mkdirSync(archiveTarget, { recursive: true });
+    }
+
+    let archivedCount = 0;
+
+    const archiveAndClean = (sourceDir, subfolderName) => {
+      if (!fs.existsSync(sourceDir)) return;
+      const files = fs.readdirSync(sourceDir);
+      if (files.length === 0) return;
+
+      const destSubfolder = path.join(archiveTarget, subfolderName);
+      if (!fs.existsSync(destSubfolder)) {
+        fs.mkdirSync(destSubfolder, { recursive: true });
+      }
+
+      for (const file of files) {
+        try {
+          const src = path.join(sourceDir, file);
+          const stat = fs.statSync(src);
+          if (stat.isFile()) {
+            const dest = path.join(destSubfolder, file);
+            fs.copyFileSync(src, dest);
+            fs.unlinkSync(src);
+            archivedCount++;
+          }
+        } catch (e) {
+          console.warn(`Could not archive ${file}:`, e.message);
+        }
+      }
+    };
+
+    archiveAndClean(syncedSubmissionsDir, 'synced_submissions');
+    archiveAndClean(submissionsDir, 'submissions');
+    archiveAndClean(sessionsDir, 'sessions');
+
+    // Remove active contest file so previous contest doesn't persist
+    const activeContestPath = path.join(contestsDir, 'active-contest.json');
+    if (fs.existsSync(activeContestPath)) {
+      try {
+        fs.copyFileSync(activeContestPath, path.join(archiveTarget, 'active-contest.json'));
+        fs.unlinkSync(activeContestPath);
+      } catch (_) {}
+    }
+
+    hostServer.activeContest = null;
+
+    return {
+      success: true,
+      archivedCount,
+      archivePath: archiveTarget
+    };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('host:clear-history', async () => {
+  try {
+    let clearedCount = 0;
+    const cleanDir = (sourceDir) => {
+      if (!fs.existsSync(sourceDir)) return;
+      const files = fs.readdirSync(sourceDir);
+      for (const file of files) {
+        try {
+          const src = path.join(sourceDir, file);
+          if (fs.statSync(src).isFile()) {
+            fs.unlinkSync(src);
+            clearedCount++;
+          }
+        } catch (_) {}
+      }
+    };
+    cleanDir(syncedSubmissionsDir);
+    cleanDir(submissionsDir);
+    cleanDir(sessionsDir);
+    return { success: true, clearedCount };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// ----------------------------------------------------------------------------
+// Grading Leaderboard Scanner (Scans synced_submissions/ and submissions/)
+// ----------------------------------------------------------------------------
+ipcMain.handle('grading:scan-folder', async (event, customFolder = null) => {
+  try {
+    const foldersToScan = customFolder ? [customFolder] : [syncedSubmissionsDir, submissionsDir];
+    const recordsMap = new Map();
+
+    for (const targetDir of foldersToScan) {
+      if (!fs.existsSync(targetDir)) continue;
+
+      const files = fs.readdirSync(targetDir).filter(f => f.startsWith('FINAL_') && f.endsWith('.json'));
+      for (const file of files) {
+        try {
+          const fullPath = path.join(targetDir, file);
+          const data = JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
+          const usn = data.usn || file.replace('FINAL_', '').replace('.json', '');
+
+          if (!recordsMap.has(usn) || (data.submittedAt && recordsMap.get(usn).submittedAt < data.submittedAt)) {
+            recordsMap.set(usn, {
+              usn,
+              name: data.name || 'Anonymous',
+              totalScore: data.totalScore || 0,
+              maxScore: data.maxScore || 100,
+              tierScores: data.tierScores || {},
+              roundBreakdown: data.roundBreakdown || [],
+              problemsSolvedCount: data.problemsSolvedCount || 0,
+              totalProblems: data.totalProblems || 0,
+              timeElapsedSeconds: data.timeElapsedSeconds || 0,
+              totalExecutionTimeMs: data.totalExecutionTimeMs || 0,
+              violationsCount: data.violationStrikes || (data.violations ? data.violations.length : 0),
+              submittedAt: data.submittedAt || 'N/A',
+              filename: file,
+              fullPayload: data
+            });
+          }
+        } catch (_) { }
+      }
+    }
+
+    const records = Array.from(recordsMap.values());
+
+    records.sort((a, b) => {
+      if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
+      if (a.totalExecutionTimeMs !== b.totalExecutionTimeMs) return a.totalExecutionTimeMs - b.totalExecutionTimeMs;
+      return a.timeElapsedSeconds - b.timeElapsedSeconds;
+    });
+
+    records.forEach((r, idx) => { r.rank = idx + 1; });
+
+    return { success: true, directory: syncedSubmissionsDir, totalCount: records.length, records };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('grading:export-csv', async (event, { records, contestTitle = 'Mass-Code Contest' }) => {
+  const { filePath, canceled } = await dialog.showSaveDialog(mainWindow, {
+    title: 'Export Leaderboard Spreadsheet',
+    defaultPath: `Leaderboard_${(contestTitle || 'contest').replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.csv`,
+    filters: [{ name: 'CSV Spreadsheets', extensions: ['csv'] }]
+  });
+  if (canceled || !filePath) return { canceled: true };
+
+  const headers = ['Rank', 'USN', 'Candidate Name', 'Easy (R1) Score', 'Medium (R2) Score', 'Hard (R3) Score', 'Total Score', 'Max Score', 'Problems Solved', 'Total Problems', 'Contest Time (s)', 'CPU Time (ms)', 'Violations', 'Submitted At'];
+  const rows = (records || []).map(r => {
+    const easy = (r.tierScores && r.tierScores.easy) ? r.tierScores.easy.score : 0;
+    const med = (r.tierScores && r.tierScores.medium) ? r.tierScores.medium.score : 0;
+    const hard = (r.tierScores && r.tierScores.hard) ? r.tierScores.hard.score : 0;
+    return [
+      r.rank, `"${r.usn}"`, `"${r.name}"`, easy, med, hard, r.totalScore, r.maxScore, r.problemsSolvedCount, r.totalProblems, r.timeElapsedSeconds, r.totalExecutionTimeMs, r.violationsCount, `"${r.submittedAt}"`
+    ].join(',');
+  });
+
+  fs.writeFileSync(filePath, [headers.join(','), ...rows].join('\n'), 'utf-8');
+  return { success: true, filePath };
 });

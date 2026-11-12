@@ -1,11 +1,16 @@
 {
   "name": "mass-code",
-  "productName": "Mass-Code",
+  "productName": "Mass-Code (GECM)",
   "version": "1.0.0",
   "description": "Mass-Code: Production-Grade Offline-First Competitive Programming & Exam Platform",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "repack": "node scripts/repack_unpacked.js",
+    "dist": "electron-builder --win nsis",
+    "dist:portable": "electron-builder --win portable",
+    "dist:all": "electron-builder --win",
+    "dist:dir": "electron-builder --win --dir"
   },
   "keywords": [
     "mass-code",
@@ -17,6 +22,43 @@
   "author": "Mass-Code Systems Architecture",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^45.0.0"
+    "electron": "^45.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.gecm.masscode",
+    "productName": "Mass-Code (GECM)",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "index.html",
+      "styles.css",
+      "contests/**/*",
+      "assets/**/*"
+    ],
+    "win": {
+      "forceCodeSigning": false,
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "pdf-parse": "^2.4.5"
   }
 }

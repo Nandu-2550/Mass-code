@@ -32,8 +32,22 @@ class MassCodeApp {
     };
 
     // Host State
+    this.hostContestType = 'contest'; // 'contest' | 'exam'
     this.hostProblems = [];
+    this.hostBatches = [
+      {
+        id: 'batch_1',
+        name: 'Batch 1 (Morning)',
+        students: []
+      }
+    ];
+    this.activeBatchId = 'batch_1';
     this.hostSubmissions = [];
+
+    // Kiosk & Supervisor Review State
+    this.isKioskUnlocked = false;
+    this.isReviewMode = false;
+    this.supervisorAction = 'kiosk';
 
     this._initElements();
     this._bindEvents();
@@ -53,6 +67,7 @@ class MassCodeApp {
     this.navTimerBox = document.getElementById('nav-timer-box');
     this.navTimerDigits = document.getElementById('nav-timer-digits');
     this.navKioskBadge = document.getElementById('nav-kiosk-badge');
+    this.btnReviewBackToTy = document.getElementById('btn-review-back-to-ty');
     this.btnEndSession = document.getElementById('btn-end-session');
     this.btnExitHost = document.getElementById('btn-exit-host');
     this.btnExitComp = document.getElementById('btn-exit-comp');
@@ -65,6 +80,21 @@ class MassCodeApp {
     this.welcomeArchStatus = document.getElementById('welcome-arch-status');
     this.welcomeIpStatus = document.getElementById('welcome-ip-status');
 
+    // Host Mode Switcher Elements
+    this.btnModeContest = document.getElementById('btn-mode-contest');
+    this.btnModeExam = document.getElementById('btn-mode-exam');
+    this.hostModeIndicatorTag = document.getElementById('host-mode-indicator-tag');
+    this.tabBtnBuilder = document.getElementById('tab-btn-builder');
+    this.tabBtnBatches = document.getElementById('tab-btn-batches');
+    this.tabBtnServer = document.getElementById('tab-btn-server');
+    this.tabBtnGrading = document.getElementById('tab-btn-grading');
+    this.builderConfigHeading = document.getElementById('builder-config-heading');
+    this.builderBankHeading = document.getElementById('builder-bank-heading');
+    this.pdfDropzoneTitleText = document.getElementById('pdf-dropzone-title-text');
+    this.hostPdfDropzoneSubtitle = document.getElementById('host-pdf-dropzone-subtitle');
+    this.lblContestTitle = document.getElementById('lbl-contest-title');
+    this.lblContestToken = document.getElementById('lbl-contest-token');
+
     // Host Screen Elements
     this.hostTabs = document.querySelectorAll('.host-tab-btn');
     this.hostTitleInput = document.getElementById('host-contest-title');
@@ -74,6 +104,14 @@ class MassCodeApp {
     this.btnHostAddProblem = document.getElementById('btn-host-add-problem');
     this.btnHostLoadSample = document.getElementById('btn-host-load-sample');
     this.btnHostImport = document.getElementById('btn-host-import');
+    this.btnHostImportPdf = document.getElementById('btn-host-import-pdf');
+    this.btnHostImportPdfBank = document.getElementById('btn-host-import-pdf-bank');
+    this.hostPdfDropzone = document.getElementById('host-pdf-dropzone');
+    this.btnBrowsePdfZone = document.getElementById('btn-browse-pdf-zone');
+    this.linkBrowsePdf = document.getElementById('link-browse-pdf');
+    this.hostPdfFileInput = document.getElementById('host-pdf-file-input');
+    this.hostPdfStatus = document.getElementById('host-pdf-status');
+    this.hostPdfStatusText = document.getElementById('host-pdf-status-text');
     this.btnHostExport = document.getElementById('btn-host-export');
     this.btnHostDeployTop = document.getElementById('btn-host-deploy-top');
     this.btnHostDeployBottom = document.getElementById('btn-host-deploy-bottom');
@@ -83,10 +121,61 @@ class MassCodeApp {
     this.serverContestVal = document.getElementById('server-contest-val');
     this.serverStateVal = document.getElementById('server-state-val');
     this.serverIpBadges = document.getElementById('server-ip-badges');
+    this.routerHostIp = document.getElementById('router-host-ip');
+    this.routerHostPort = document.getElementById('router-host-port');
+    this.routerHostPin = document.getElementById('router-host-pin');
+    this.routerFullUrl = document.getElementById('router-full-url');
+    this.btnCopyHostUrl = document.getElementById('btn-copy-host-url');
     this.btnHostScanFolder = document.getElementById('btn-host-scan-folder');
     this.btnHostExportCsv = document.getElementById('btn-host-export-csv');
+    this.btnHostClearHistory = document.getElementById('btn-host-clear-history');
+    this.btnHostEndSession = document.getElementById('btn-host-end-session');
     this.hostLeaderboardTbody = document.getElementById('host-leaderboard-tbody');
     this.gradingCountLabel = document.getElementById('grading-count-label');
+
+    // Batch Management Elements
+    this.hostBatchSelect = document.getElementById('host-batch-select');
+    this.batchStatsPill = document.getElementById('batch-stats-pill');
+    this.btnCreateBatch = document.getElementById('btn-create-batch');
+    this.btnRenameBatch = document.getElementById('btn-rename-batch');
+    this.btnDeleteBatch = document.getElementById('btn-delete-batch');
+    this.btnImportUsns = document.getElementById('btn-import-usns');
+    this.btnAddStudentSingle = document.getElementById('btn-add-student-single');
+    this.btnRandomAssignAll = document.getElementById('btn-random-assign-all');
+    this.btnResetBatchAllocations = document.getElementById('btn-reset-batch-allocations');
+    this.btnExportAllocationsCsv = document.getElementById('btn-export-allocations-csv');
+    this.batchStudentsTbody = document.getElementById('batch-students-tbody');
+
+    // Batch & Allocation Modals
+    this.modalImportUsns = document.getElementById('modal-import-usns');
+    this.importUsnsTextarea = document.getElementById('import-usns-textarea');
+    this.btnCloseImportUsns = document.getElementById('btn-close-import-usns');
+    this.btnCancelImportUsns = document.getElementById('btn-cancel-import-usns');
+    this.btnConfirmImportUsns = document.getElementById('btn-confirm-import-usns');
+
+    this.modalChangeOfExp = document.getElementById('modal-change-of-exp');
+    this.coeStudentLabel = document.getElementById('coe-student-label');
+    this.coeCurrentExpTitle = document.getElementById('coe-current-exp-title');
+    this.coeNewExpSelect = document.getElementById('coe-new-exp-select');
+    this.btnCoeRandomRoll = document.getElementById('btn-coe-random-roll');
+    this.coePenaltyMarks = document.getElementById('coe-penalty-marks');
+    this.coeRemarks = document.getElementById('coe-remarks');
+    this.btnCloseChangeOfExp = document.getElementById('btn-close-change-of-exp');
+    this.btnCancelChangeOfExp = document.getElementById('btn-cancel-change-of-exp');
+    this.btnConfirmChangeOfExp = document.getElementById('btn-confirm-change-of-exp');
+    this.currentCoeStudentUsn = null;
+
+    this.modalSingleStudent = document.getElementById('modal-single-student');
+    this.singleStudentUsn = document.getElementById('single-student-usn');
+    this.singleStudentName = document.getElementById('single-student-name');
+    this.singleStudentExpSelect = document.getElementById('single-student-exp-select');
+    this.btnCloseSingleStudent = document.getElementById('btn-close-single-student');
+    this.btnCancelSingleStudent = document.getElementById('btn-cancel-single-student');
+    this.btnConfirmSingleStudent = document.getElementById('btn-confirm-single-student');
+
+    // Competitor Notice Banner
+    this.wsChangeOfExpNotice = document.getElementById('ws-change-of-exp-notice');
+    this.wsChangeOfExpDetails = document.getElementById('ws-change-of-exp-details');
 
     // Competitor Overlay & Registration
     this.compRegOverlay = document.getElementById('competitor-reg-overlay');
@@ -130,6 +219,7 @@ class MassCodeApp {
     this.wsProblemTierTag = document.getElementById('ws-problem-tier-tag');
     this.wsProblemPoints = document.getElementById('ws-problem-points');
     this.wsProblemDesc = document.getElementById('ws-problem-desc');
+    this.wsSampleCasesContainer = document.getElementById('ws-sample-cases-container');
     this.wsSampleInput = document.getElementById('ws-sample-input');
     this.wsSampleOutput = document.getElementById('ws-sample-output');
     this.wsMetricScore = document.getElementById('ws-metric-score');
@@ -143,6 +233,7 @@ class MassCodeApp {
     this.wsAutosaveTag = document.getElementById('ws-autosave-tag');
     this.btnWsResetCode = document.getElementById('btn-ws-reset-code');
     this.btnWsClearTerm = document.getElementById('btn-ws-clear-term');
+    this.btnWsRunSample = document.getElementById('btn-ws-run-sample');
     this.btnWsRunTests = document.getElementById('btn-ws-run-tests');
 
     // Thank You Screen
@@ -151,14 +242,33 @@ class MassCodeApp {
     this.tyCandidateUsn = document.getElementById('ty-candidate-usn');
     this.tyPayloadFile = document.getElementById('ty-payload-file');
     this.tySyncStatus = document.getElementById('ty-sync-status');
+    this.btnTyReviewCode = document.getElementById('btn-ty-review-code');
+    this.btnTyExitApp = document.getElementById('btn-ty-exit-app');
     this.btnTyReturnHome = document.getElementById('btn-ty-return-home');
+    this.tySolvedCount = document.getElementById('ty-solved-count');
+    this.tyRoundCardsContainer = document.getElementById('ty-round-cards-container');
+    this.tyProgramsTbody = document.getElementById('ty-programs-tbody');
 
     // Modals
     this.modalEndSession = document.getElementById('modal-end-session-warning');
     this.btnCancelEndSession = document.getElementById('btn-cancel-end-session');
     this.btnConfirmEndSession = document.getElementById('btn-confirm-end-session');
 
+    this.modalHostEndSession = document.getElementById('modal-host-end-session');
+    this.btnCancelHostEndSession = document.getElementById('btn-cancel-host-end-session');
+    this.btnConfirmHostEndSession = document.getElementById('btn-confirm-host-end-session');
+
+    this.modalEvaluatingAll = document.getElementById('modal-evaluating-all');
+    this.evalProgressStatus = document.getElementById('eval-progress-status');
+    this.evalProgressBar = document.getElementById('eval-progress-bar');
+    this.evalProgressCount = document.getElementById('eval-progress-count');
+    this.evalProgressPercent = document.getElementById('eval-progress-percent');
+
+    this.btnHostGradeAll = document.getElementById('btn-host-grade-all');
+
     this.modalSupervisor = document.getElementById('modal-supervisor-override');
+    this.supervisorModalTitle = document.getElementById('supervisor-modal-title');
+    this.supervisorModalDesc = document.getElementById('supervisor-modal-desc');
     this.supervisorKeyInput = document.getElementById('supervisor-key-input');
     this.supervisorKeyError = document.getElementById('supervisor-key-error');
     this.btnCancelSupervisorKey = document.getElementById('btn-cancel-supervisor-key');
@@ -173,6 +283,9 @@ class MassCodeApp {
     this.inspectUsn = document.getElementById('inspect-usn');
     this.inspectName = document.getElementById('inspect-name');
     this.inspectScore = document.getElementById('inspect-score');
+    this.inspectTime = document.getElementById('inspect-time');
+    this.inspectRoundsContainer = document.getElementById('inspect-rounds-container');
+    this.inspectProgramsTbody = document.getElementById('inspect-programs-tbody');
     this.inspectCodeArea = document.getElementById('inspect-code-area');
 
     this.toastBox = document.getElementById('toast-box');
@@ -186,7 +299,28 @@ class MassCodeApp {
     if (this.btnExitComp) {
       this.btnExitComp.addEventListener('click', () => this._exitCompetitorEntry());
     }
-    this.btnTyReturnHome.addEventListener('click', () => this.switchView('welcome'));
+    if (this.btnTyReturnHome) {
+      this.btnTyReturnHome.addEventListener('click', () => this.switchView('welcome'));
+    }
+    if (this.btnTyReviewCode) {
+      this.btnTyReviewCode.addEventListener('click', () => this._promptSupervisorUnlock('review'));
+    }
+    if (this.btnReviewBackToTy) {
+      this.btnReviewBackToTy.addEventListener('click', () => this._exitSupervisorReviewMode());
+    }
+    if (this.btnTyExitApp) {
+      this.btnTyExitApp.addEventListener('click', () => {
+        this._promptSupervisorUnlock('close');
+      });
+    }
+
+    // Mode Switcher Buttons (Contest Mode vs Exam Mode)
+    if (this.btnModeContest) {
+      this.btnModeContest.addEventListener('click', () => this._setHostMode('contest'));
+    }
+    if (this.btnModeExam) {
+      this.btnModeExam.addEventListener('click', () => this._setHostMode('exam'));
+    }
 
     // Host Tabs
     this.hostTabs.forEach(btn => {
@@ -196,20 +330,173 @@ class MassCodeApp {
         btn.classList.add('active');
         const target = document.getElementById(`host-panel-${btn.dataset.tab}`);
         if (target) target.classList.add('active');
+
+        if (btn.dataset.tab === 'batches') {
+          this._renderBatchSelectOptions();
+          this._renderBatchAllocationsTable();
+        }
       });
     });
 
+    // Batch Management Events
+    if (this.hostBatchSelect) {
+      this.hostBatchSelect.addEventListener('change', (e) => {
+        this.activeBatchId = e.target.value;
+        this._renderBatchAllocationsTable();
+      });
+    }
+    if (this.btnCreateBatch) {
+      this.btnCreateBatch.addEventListener('click', () => this._createBatch());
+    }
+    if (this.btnRenameBatch) {
+      this.btnRenameBatch.addEventListener('click', () => this._renameBatch());
+    }
+    if (this.btnDeleteBatch) {
+      this.btnDeleteBatch.addEventListener('click', () => this._deleteBatch());
+    }
+
+    // Student Import & Add Events
+    if (this.btnImportUsns) {
+      this.btnImportUsns.addEventListener('click', () => {
+        if (this.modalImportUsns) {
+          if (this.importUsnsTextarea) this.importUsnsTextarea.value = '';
+          this.modalImportUsns.classList.add('active');
+        }
+      });
+    }
+    if (this.btnCloseImportUsns) {
+      this.btnCloseImportUsns.addEventListener('click', () => this.modalImportUsns.classList.remove('active'));
+    }
+    if (this.btnCancelImportUsns) {
+      this.btnCancelImportUsns.addEventListener('click', () => this.modalImportUsns.classList.remove('active'));
+    }
+    if (this.btnConfirmImportUsns) {
+      this.btnConfirmImportUsns.addEventListener('click', () => this._handleImportUsnsSubmit());
+    }
+
+    if (this.btnAddStudentSingle) {
+      this.btnAddStudentSingle.addEventListener('click', () => this._openAddSingleStudentModal());
+    }
+    if (this.btnCloseSingleStudent) {
+      this.btnCloseSingleStudent.addEventListener('click', () => this.modalSingleStudent.classList.remove('active'));
+    }
+    if (this.btnCancelSingleStudent) {
+      this.btnCancelSingleStudent.addEventListener('click', () => this.modalSingleStudent.classList.remove('active'));
+    }
+    if (this.btnConfirmSingleStudent) {
+      this.btnConfirmSingleStudent.addEventListener('click', () => this._handleAddSingleStudentSubmit());
+    }
+
+    // Batch Allocation & Export Controls
+    if (this.btnRandomAssignAll) {
+      this.btnRandomAssignAll.addEventListener('click', () => this._randomAssignAllExperiments());
+    }
+    if (this.btnResetBatchAllocations) {
+      this.btnResetBatchAllocations.addEventListener('click', () => this._resetBatchAllocations());
+    }
+    if (this.btnExportAllocationsCsv) {
+      this.btnExportAllocationsCsv.addEventListener('click', () => this._exportAllocationsCsv());
+    }
+
+    // Change of Experiment Modal Events
+    if (this.btnCloseChangeOfExp) {
+      this.btnCloseChangeOfExp.addEventListener('click', () => this.modalChangeOfExp.classList.remove('active'));
+    }
+    if (this.btnCancelChangeOfExp) {
+      this.btnCancelChangeOfExp.addEventListener('click', () => this.modalChangeOfExp.classList.remove('active'));
+    }
+    if (this.btnConfirmChangeOfExp) {
+      this.btnConfirmChangeOfExp.addEventListener('click', () => this._handleConfirmChangeOfExp());
+    }
+    if (this.btnCoeRandomRoll) {
+      this.btnCoeRandomRoll.addEventListener('click', () => this._rollRandomInCoeModal());
+    }
+
     // Host Actions
     this.btnHostAddProblem.addEventListener('click', () => this._addHostProblem());
-    this.btnHostLoadSample.addEventListener('click', () => this._loadDefaultContestTemplate());
-    this.btnHostImport.addEventListener('click', () => this._importContestDialog());
+    if (this.btnHostLoadSample) {
+      this.btnHostLoadSample.addEventListener('click', () => this._loadDefaultContestTemplate());
+    }
+    if (this.btnHostImport) {
+      this.btnHostImport.addEventListener('click', () => this._importContestDialog());
+    }
+    if (this.btnHostImportPdf) {
+      this.btnHostImportPdf.addEventListener('click', () => this._handlePdfImportDialog());
+    }
+    if (this.btnHostImportPdfBank) {
+      this.btnHostImportPdfBank.addEventListener('click', () => this._handlePdfImportDialog());
+    }
+    if (this.btnBrowsePdfZone) {
+      this.btnBrowsePdfZone.addEventListener('click', () => this._handlePdfImportDialog());
+    }
+    if (this.linkBrowsePdf && this.hostPdfFileInput) {
+      this.linkBrowsePdf.addEventListener('click', () => this.hostPdfFileInput.click());
+    }
+    if (this.hostPdfFileInput) {
+      this.hostPdfFileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          this._handlePdfFileObject(e.target.files[0]);
+          e.target.value = '';
+        }
+      });
+    }
+    if (this.hostPdfDropzone) {
+      this.hostPdfDropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.hostPdfDropzone.classList.add('drag-over');
+      });
+      this.hostPdfDropzone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.hostPdfDropzone.classList.remove('drag-over');
+      });
+      this.hostPdfDropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.hostPdfDropzone.classList.remove('drag-over');
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          this._handlePdfFileObject(e.dataTransfer.files[0]);
+        }
+      });
+    }
     this.btnHostExport.addEventListener('click', () => this._exportContestDialog());
     const handleDeployContest = () => this._deployHostContest();
     if (this.btnHostDeployTop) this.btnHostDeployTop.addEventListener('click', handleDeployContest);
     if (this.btnHostDeployBottom) this.btnHostDeployBottom.addEventListener('click', handleDeployContest);
     this.btnHostToggleServer.addEventListener('click', () => this._toggleHostServer());
+    if (this.btnCopyHostUrl) {
+      this.btnCopyHostUrl.addEventListener('click', () => {
+        const url = (this.routerFullUrl && this.routerFullUrl.textContent) || '';
+        if (url) {
+          navigator.clipboard.writeText(url);
+          this.showToast(`Copied ${url} to clipboard!`, 'success');
+        }
+      });
+    }
     this.btnHostScanFolder.addEventListener('click', () => this._scanHostSubmissions());
+    if (this.btnHostGradeAll) {
+      this.btnHostGradeAll.addEventListener('click', () => this._autoGradeAllHostSubmissions());
+    }
     this.btnHostExportCsv.addEventListener('click', () => this._exportLeaderboardCsv());
+    if (this.btnHostClearHistory) {
+      this.btnHostClearHistory.addEventListener('click', () => {
+        if (this.modalHostEndSession) this.modalHostEndSession.classList.add('active');
+      });
+    }
+    if (this.btnHostEndSession) {
+      this.btnHostEndSession.addEventListener('click', () => {
+        if (this.modalHostEndSession) this.modalHostEndSession.classList.add('active');
+      });
+    }
+    if (this.btnCancelHostEndSession) {
+      this.btnCancelHostEndSession.addEventListener('click', () => {
+        if (this.modalHostEndSession) this.modalHostEndSession.classList.remove('active');
+      });
+    }
+    if (this.btnConfirmHostEndSession) {
+      this.btnConfirmHostEndSession.addEventListener('click', () => this._handleHostEndSession());
+    }
     this.btnCloseInspector.addEventListener('click', () => this.modalInspector.classList.remove('active'));
 
     // Competitor Overlay Triggers
@@ -258,19 +545,20 @@ class MassCodeApp {
       this._finalizeSession(false);
     });
 
-    // Supervisor Emergency Key Override
+    // Supervisor Emergency Key Override - Toggles between UNLOCK and LOCK
     this.btnSupervisorKey.addEventListener('click', () => {
-      this.supervisorKeyInput.value = '';
-      this.supervisorKeyError.style.display = 'none';
-      this.modalSupervisor.classList.add('active');
-      this.supervisorKeyInput.focus();
+      if (this.isKioskUnlocked) {
+        this._reLockKiosk();
+      } else {
+        this._promptSupervisorUnlock('kiosk');
+      }
     });
     this.btnCancelSupervisorKey.addEventListener('click', () => {
       this.modalSupervisor.classList.remove('active');
     });
-    this.btnConfirmSupervisorKey.addEventListener('click', () => this._verifySupervisorOverride());
+    this.btnConfirmSupervisorKey.addEventListener('click', () => this._handleSupervisorConfirm());
     this.supervisorKeyInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') this._verifySupervisorOverride();
+      if (e.key === 'Enter') this._handleSupervisorConfirm();
     });
 
     // Violation Warning Modal
@@ -298,6 +586,16 @@ class MassCodeApp {
 
       if (window.api.onHostDiscovered) {
         window.api.onHostDiscovered((data) => this._handleLanHostDiscovered(data));
+      }
+
+      if (window.api.onCompetitorCloseAttempted) {
+        window.api.onCompetitorCloseAttempted(() => {
+          if (this.currentView === 'competitor' && this.competitor.isSessionActive) {
+            this.modalEndSession.classList.add('active');
+          } else if (this.currentView === 'thankyou') {
+            this._promptSupervisorUnlock('close');
+          }
+        });
       }
     }
   }
@@ -352,8 +650,8 @@ class MassCodeApp {
     // Apply strict OS window security rules:
     // Only lock down in kiosk confinement when competitor session is completely entered and questions are visible
     const securityMode = (viewName === 'competitor' && this.competitor.isSessionActive)
-      ? 'competitor'
-      : (viewName === 'host' ? 'host' : 'welcome');
+      ? 'kiosk'
+      : (viewName === 'thankyou' ? 'thankyou' : (viewName === 'host' ? 'host' : 'welcome'));
 
     if (window.api && window.api.setSecurityMode) {
       await window.api.setSecurityMode({ mode: securityMode });
@@ -369,6 +667,7 @@ class MassCodeApp {
       this.navKioskBadge.style.display = 'none';
       this.btnEndSession.style.display = 'none';
       this.btnExitHost.style.display = 'none';
+      if (this.btnHostEndSession) this.btnHostEndSession.style.display = 'none';
       if (this.btnExitComp) this.btnExitComp.style.display = 'none';
       this.btnSupervisorKey.style.display = 'none';
     } else if (viewName === 'host') {
@@ -381,6 +680,7 @@ class MassCodeApp {
       this.navKioskBadge.style.display = 'none';
       this.btnEndSession.style.display = 'none';
       this.btnExitHost.style.display = 'inline-flex';
+      if (this.btnHostEndSession) this.btnHostEndSession.style.display = 'none';
       if (this.btnExitComp) this.btnExitComp.style.display = 'none';
       this.btnSupervisorKey.style.display = 'none';
 
@@ -389,6 +689,7 @@ class MassCodeApp {
     } else if (viewName === 'competitor') {
       this.viewCompetitor.classList.add('active');
       this.btnExitHost.style.display = 'none';
+      if (this.btnHostEndSession) this.btnHostEndSession.style.display = 'none';
 
       if (!this.competitor.isSessionActive) {
         if (window.api && window.api.startLanListening) {
@@ -426,6 +727,7 @@ class MassCodeApp {
       this.btnExitHost.style.display = 'none';
       if (this.btnExitComp) this.btnExitComp.style.display = 'none';
       this.btnSupervisorKey.style.display = 'none';
+      if (this.btnReviewBackToTy) this.btnReviewBackToTy.style.display = 'none';
     }
   }
 
@@ -499,11 +801,24 @@ class MassCodeApp {
   // COMPETITOR WORKFLOW & MULTI-TIER QUESTION BANK
   // --------------------------------------------------------------------------
   async _pullContestOverLan(silent = false) {
-    const code = this.compPinInput.value.trim();
-    const hostUrl = this.compHostUrl.value.trim() || 'http://localhost:8080';
+    let code = this.compPinInput.value.trim();
+    let hostUrl = (this.compHostUrl.value || '').trim();
+
+    // If the input was left empty or as localhost on a remote client, check for discovered host or prompt
+    if (!hostUrl || hostUrl === 'http://localhost:8080' || hostUrl === 'localhost:8080' || hostUrl === 'http://127.0.0.1:8080') {
+      if (this.discoveredHostUrl) {
+        hostUrl = this.discoveredHostUrl;
+        this.compHostUrl.value = hostUrl;
+      } else if (!hostUrl) {
+        if (!silent) {
+          this.showToast('Please enter the Host Laptop IP address (e.g., http://192.168.1.136:8080) shown on the Host screen.', 'warning');
+        }
+        return false;
+      }
+    }
+
     if (!code) {
-      if (!silent) this.showToast('Please enter Contest Code / PIN.', 'warning');
-      return false;
+      code = 'any';
     }
 
     if (!silent) this.showToast(`Connecting to Host at ${hostUrl}...`, 'info');
@@ -521,7 +836,7 @@ class MassCodeApp {
     } else {
       if (res.expectedPin && res.expectedPin !== code) {
         this.compPinInput.value = res.expectedPin;
-        this.showToast(`PIN mismatch. Auto-filled Host PIN "${res.expectedPin}". Pulling questions...`, 'info');
+        this.showToast(`PIN auto-matched from Host: "${res.expectedPin}". Pulling questions...`, 'info');
         return this._pullContestOverLan(silent);
       }
       if (!silent) {
@@ -590,18 +905,50 @@ class MassCodeApp {
       });
     }
 
+    // Check if in Exam Mode and student has an assigned experiment
+    const isExamMode = (this.activeContest.type === 'exam') || (this.activeContest.problems || []).some(p => p.tier === 'lab');
+    let assignedProblemId = null;
+    let foundStudent = null;
+
+    if (isExamMode && this.activeContest.batches) {
+      for (const b of this.activeContest.batches) {
+        const found = (b.students || []).find(s => s.usn && s.usn.trim().toUpperCase() === usn);
+        if (found) {
+          foundStudent = found;
+          if (found.assignedProblemId) {
+            assignedProblemId = found.assignedProblemId;
+          }
+          break;
+        }
+      }
+    }
+
     // Switch to active kiosk workspace
     this.compRegOverlay.style.display = 'none';
     this.competitorWorkspace.style.display = 'flex';
-    this.competitorBankView.style.display = 'flex';
-    this.competitorWorkspaceView.style.display = 'none';
 
-    // Render questions immediately in the Question Matrix!
-    this._renderQuestionMatrix();
+    if (isExamMode && assignedProblemId) {
+      this._openProblemWorkspace(assignedProblemId);
+      this.showToast(`Lab Exam: Welcome ${name}! Opening your allocated experiment (${foundStudent?.assignedProblemTitle || 'Assigned Experiment'}).`, 'success');
+    } else {
+      this.competitorBankView.style.display = 'flex';
+      this.competitorWorkspaceView.style.display = 'none';
+      this._renderQuestionMatrix();
+    }
+
+    // Enforce clean Kiosk lockdown state
+    this.isKioskUnlocked = false;
+    this.isReviewMode = false;
+    this.btnSupervisorKey.textContent = '🔑 Supervisor UNLOCK';
+    this.btnSupervisorKey.className = 'btn btn-secondary btn-sm';
+    this.btnSupervisorKey.title = 'Supervisor Key Override';
+    this.navKioskBadge.textContent = 'KIOSK CONFINEMENT ACTIVE';
+    this.navKioskBadge.style.borderColor = '';
+    this.navKioskBadge.style.color = '';
 
     // Once questions are rendered and visible to candidate, activate strict kiosk lockdown
     if (window.api && window.api.setSecurityMode) {
-      await window.api.setSecurityMode({ mode: 'competitor' });
+      await window.api.setSecurityMode({ mode: 'kiosk' });
     }
 
     // Update navigation
@@ -653,7 +1000,23 @@ class MassCodeApp {
 
   _renderTierBadges() {
     if (!this.activeContest) return;
+    const isExam = this.activeContest.type === 'exam';
     const problems = this.activeContest.problems || [];
+
+    if (isExam) {
+      const assignedProbId = this.competitor.assignedProblemId;
+      const countAssigned = assignedProbId ? 1 : problems.length;
+      const ev = assignedProbId ? this.competitor.evaluations[assignedProbId] : null;
+      const passed = ev && ev.passedCount === ev.totalCount && ev.totalCount > 0 ? 1 : 0;
+
+      this.tierCountEasy.textContent = `${problems.length} Exps`;
+      this.tierStatusEasy.textContent = `${passed} / ${countAssigned} Evaluated`;
+      this.tierCountMedium.textContent = 'Exam Mode';
+      this.tierStatusMedium.textContent = assignedProbId ? 'Assigned' : 'General';
+      this.tierCountHard.textContent = 'Lab Exam';
+      this.tierStatusHard.textContent = 'Autonomous';
+      return;
+    }
 
     const easyList = problems.filter(p => (p.tier || 'easy').toLowerCase() === 'easy');
     const medList = problems.filter(p => (p.tier || '').toLowerCase() === 'medium');
@@ -676,6 +1039,68 @@ class MassCodeApp {
 
   _renderQuestionMatrix() {
     this._renderTierBadges();
+    const isExam = this.activeContest && this.activeContest.type === 'exam';
+
+    if (isExam) {
+      this.matrixTierHeading.textContent = '🎓 Lab Examination Experiment';
+      let problems = this.activeContest.problems || [];
+      const assignedProbId = this.competitor.assignedProblemId;
+      if (assignedProbId) {
+        const assigned = problems.find(p => p.id === assignedProbId);
+        if (assigned) problems = [assigned];
+      }
+
+      this.questionMatrixList.innerHTML = '';
+      if (problems.length === 0) {
+        this.questionMatrixList.innerHTML = `<div style="color: var(--text-muted); padding: 30px;">No lab examination experiments configured.</div>`;
+        return;
+      }
+
+      problems.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        let statusClass = 'status-not-attempted';
+        let statusLabel = 'Not Attempted';
+
+        const ev = this.competitor.evaluations[p.id];
+        const hasCode = this.competitor.problemCodes[p.id] && this.competitor.problemCodes[p.id].trim() !== (p.starterCode || '').trim();
+
+        if (ev && ev.passedCount === ev.totalCount && ev.totalCount > 0) {
+          statusClass = 'status-passed';
+          statusLabel = 'Passed Verification';
+        } else if (hasCode || ev) {
+          statusClass = 'status-attempting';
+          statusLabel = 'Attempting / Saved';
+        }
+
+        const isAssigned = p.id === assignedProbId;
+
+        card.innerHTML = `
+          <div class="question-card-left">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <div class="question-card-title">${this._escape(p.title)}</div>
+              ${isAssigned ? '<span class="candidate-pill" style="color: var(--color-cyan); border-color: var(--color-cyan); font-size: 0.72rem;">★ Your Assigned Experiment</span>' : ''}
+              ${this.competitor.isChangeOfExperiment && isAssigned ? '<span class="badge-change-of-exp">🔄 Change of Exp (-' + (this.competitor.changeOfExpPenalty || 5) + ' Marks)</span>' : ''}
+            </div>
+            <span class="status-tag ${statusClass}">● ${statusLabel}</span>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">
+              Marks: <strong style="color: var(--color-emerald);">${p.maxPoints || 50} Marks</strong> | Test Cases: ${(p.testCases || []).length}
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm btn-open-workspace" data-id="${p.id}">
+            Open Experiment Workspace →
+          </button>
+        `;
+
+        card.querySelector('.btn-open-workspace').addEventListener('click', () => {
+          this._openProblemWorkspace(p.id);
+        });
+
+        this.questionMatrixList.appendChild(card);
+      });
+      return;
+    }
+
     const tier = this.competitor.selectedTier;
     const tierName = tier.charAt(0).toUpperCase() + tier.slice(1);
     this.matrixTierHeading.textContent = `${tierName} Tier Problems`;
@@ -738,14 +1163,86 @@ class MassCodeApp {
 
     // Populate Left Sub-Panel
     this.wsProblemTitle.textContent = prob.title;
-    this.wsProblemTierTag.textContent = `${(prob.tier || 'Easy').toUpperCase()} TIER`;
-    this.wsProblemTierTag.className = `status-tag ${prob.tier === 'hard' ? 'status-not-attempted' : 'status-attempting'}`;
-    this.wsProblemPoints.textContent = `${prob.maxPoints || 20} Pts`;
+    if (prob.tier === 'lab' || this.hostContestType === 'exam') {
+      this.wsProblemTierTag.textContent = 'LAB EXPERIMENT';
+      this.wsProblemTierTag.className = 'status-tag status-attempting';
+      this.wsProblemPoints.textContent = `${prob.maxPoints || 50} Marks`;
+    } else {
+      this.wsProblemTierTag.textContent = `${(prob.tier || 'Easy').toUpperCase()} TIER`;
+      this.wsProblemTierTag.className = `status-tag ${prob.tier === 'hard' ? 'status-not-attempted' : 'status-attempting'}`;
+      this.wsProblemPoints.textContent = `${prob.maxPoints || 20} Pts`;
+    }
     this.wsProblemDesc.innerHTML = this._renderMarkdown(prob.description);
 
-    const sample = (prob.testCases || []).find(tc => tc.isSample) || (prob.testCases || [])[0];
-    this.wsSampleInput.textContent = sample ? sample.input : '--';
-    this.wsSampleOutput.textContent = sample ? sample.expectedOutput : '--';
+    // Change of Experiment Notice Banner
+    if (this.wsChangeOfExpNotice) {
+      let isCoe = false;
+      let coeDetails = '';
+      if (this.activeContest && this.activeContest.batches) {
+        for (const b of this.activeContest.batches) {
+          const s = (b.students || []).find(st => st.usn && st.usn.trim().toUpperCase() === (this.competitor.usn || '').trim().toUpperCase());
+          if (s && s.isChangeOfExperiment && s.assignedProblemId === problemId) {
+            isCoe = true;
+            coeDetails = `Original: ${s.originalProblemTitle || 'Previous Exp'} ➔ Assigned: ${s.assignedProblemTitle} (Penalty: -${s.penalty || 5} Marks applied per lab exam regulation)`;
+            break;
+          }
+        }
+      }
+      if (isCoe) {
+        if (this.wsChangeOfExpDetails) this.wsChangeOfExpDetails.textContent = coeDetails;
+        this.wsChangeOfExpNotice.style.display = 'flex';
+      } else {
+        this.wsChangeOfExpNotice.style.display = 'none';
+      }
+    }
+
+    // HackerRank Style Sample Test Cases & Hidden Test Cases rendering
+    const allTestCases = prob.testCases || [];
+    const sampleCases = allTestCases.filter(tc => tc.isSample);
+    const displaySamples = sampleCases.length > 0 ? sampleCases : (allTestCases.length > 0 ? [allTestCases[0]] : []);
+    const hiddenCount = allTestCases.length - displaySamples.length;
+
+    if (this.wsSampleCasesContainer) {
+      let html = displaySamples.map((tc, sIdx) => `
+        <div class="sample-case-box" style="margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-cyan); text-transform: uppercase;">
+              Sample Test Case ${sIdx}
+            </div>
+            <span class="badge-sample-case" style="font-size: 0.68rem;">★ Visible Example</span>
+          </div>
+          <div class="sample-grid">
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Sample Input</label>
+              <pre>${this._escape(tc.input || '--')}</pre>
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Expected Output</label>
+              <pre>${this._escape(tc.expectedOutput || '--')}</pre>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      if (hiddenCount > 0) {
+        html += `
+          <div class="hidden-cases-banner">
+            <span style="font-size: 1.15rem;">🔒</span>
+            <div style="flex: 1;">
+              <strong style="color: var(--color-amber);">${hiddenCount} Hidden Test Case(s)</strong>
+              <div style="font-size: 0.74rem; color: var(--text-secondary); margin-top: 2px; line-height: 1.4;">
+                Input &amp; output values are protected to prevent hardcoding. They will be executed when you click <strong>"Submit &amp; Grade (All Cases)"</strong>.
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      this.wsSampleCasesContainer.innerHTML = html;
+    } else {
+      const sample = displaySamples[0];
+      if (this.wsSampleInput) this.wsSampleInput.textContent = sample ? sample.input : '--';
+      if (this.wsSampleOutput) this.wsSampleOutput.textContent = sample ? sample.expectedOutput : '--';
+    }
 
     // Populate Right Sub-Panel Code Editor
     const code = this.competitor.problemCodes[prob.id] || prob.starterCode || '';
@@ -798,27 +1295,43 @@ class MassCodeApp {
         return;
       }
 
-      // STRICT CLIPBOARD INTERCEPTION
-      const ctrl = e.ctrlKey || e.metaKey;
-      if (ctrl && (e.key === 'c' || e.key === 'v' || e.key === 'x')) {
-        e.preventDefault();
-        this._showClipboardBlockedToast();
-        return;
-      }
+      // Allow native copy (Ctrl+C), cut (Ctrl+X), and paste (Ctrl+V) inside the code workspace editor
     });
 
-    // Block clipboard DOM events
-    ['copy', 'cut', 'paste', 'beforecopy', 'beforepaste'].forEach(evt => {
-      this.editorCode.addEventListener(evt, (e) => {
-        e.preventDefault();
-        this._showClipboardBlockedToast();
-        return false;
-      });
+    // Handle paste and cut in code editor to update gutter and autosave
+    this.editorCode.addEventListener('paste', () => {
+      setTimeout(() => {
+        this._updateEditorGutter();
+        if (this.competitor.isSessionActive) {
+          const probId = this.competitor.activeProblemId;
+          const lang = this.competitor.currentLanguage;
+          if (probId) {
+            this.competitor.problemCodes[`${probId}_${lang}`] = this.editorCode.value;
+            this._autoSaveSessionSnapshot();
+          }
+        }
+      }, 0);
     });
 
-    this.editorCode.addEventListener('contextmenu', (e) => {
+    this.editorCode.addEventListener('cut', () => {
+      setTimeout(() => {
+        this._updateEditorGutter();
+        if (this.competitor.isSessionActive) {
+          const probId = this.competitor.activeProblemId;
+          const lang = this.competitor.currentLanguage;
+          if (probId) {
+            this.competitor.problemCodes[`${probId}_${lang}`] = this.editorCode.value;
+            this._autoSaveSessionSnapshot();
+          }
+        }
+      }, 0);
+    });
+
+    // Restrict copying outside the code workspace editor
+    document.addEventListener('copy', (e) => {
+      if (e.target === this.editorCode) return;
       e.preventDefault();
-      this._showClipboardBlockedToast();
+      this.showToast('Copying question text outside workspace is restricted.', 'warning');
     });
 
     // Reset Code
@@ -837,13 +1350,21 @@ class MassCodeApp {
       this.terminalStream.innerHTML = '[MASS-CODE RUNTIME]: Terminal output cleared.';
     });
 
-    // Run Test Cases button & Ctrl+Enter
-    this.btnWsRunTests.addEventListener('click', () => this._runActiveProblemTests());
+    // HackerRank Style: Run Code (Sample Cases only)
+    if (this.btnWsRunSample) {
+      this.btnWsRunSample.addEventListener('click', () => this._runActiveProblemTests(true));
+    }
+
+    // Submit & Grade (Full Test Suite: Sample + Hidden Cases)
+    if (this.btnWsRunTests) {
+      this.btnWsRunTests.addEventListener('click', () => this._runActiveProblemTests(false));
+    }
+
     window.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         if (this.currentView === 'competitor' && this.competitor.activeProblemId) {
           e.preventDefault();
-          this._runActiveProblemTests();
+          this._runActiveProblemTests(false);
         }
       }
     });
@@ -864,6 +1385,7 @@ class MassCodeApp {
       nums += i + '\n';
     }
     this.editorGutter.textContent = nums;
+    this.editorGutter.scrollTop = this.editorCode.scrollTop;
   }
 
   _appendTerminalLine(html) {
@@ -873,25 +1395,40 @@ class MassCodeApp {
     this.terminalStream.scrollTop = this.terminalStream.scrollHeight;
   }
 
-  async _runActiveProblemTests() {
+  async _runActiveProblemTests(samplesOnly = false) {
     const prob = (this.activeContest.problems || []).find(p => p.id === this.competitor.activeProblemId);
     if (!prob) return;
 
-    this.btnWsRunTests.disabled = true;
-    this.btnWsRunTests.textContent = '⏳ Compiling...';
+    if (this.btnWsRunSample) this.btnWsRunSample.disabled = true;
+    if (this.btnWsRunTests) {
+      this.btnWsRunTests.disabled = true;
+      this.btnWsRunTests.textContent = '⏳ Compiling...';
+    }
+
     this.terminalStream.innerHTML = '';
-    this._appendTerminalLine(`<span style="color: var(--color-cyan);">&gt; gcc -O2 temp.c -o temp.exe</span>`);
+    const runModeLabel = samplesOnly ? 'SAMPLE CASES ONLY' : 'FULL SUITE (SAMPLE & HIDDEN CASES)';
+    this._appendTerminalLine(`<span style="color: var(--color-cyan);">&gt; gcc -O2 temp.c -o temp.exe [${runModeLabel}]</span>`);
+
+    // Determine target test cases
+    let targetTestCases = prob.testCases || [];
+    if (samplesOnly) {
+      const explicitSamples = targetTestCases.filter(tc => tc.isSample);
+      targetTestCases = explicitSamples.length > 0 ? explicitSamples : (targetTestCases.length > 0 ? [targetTestCases[0]] : []);
+    }
 
     const result = await window.api.compileAndEvaluate({
       code: this.editorCode.value,
       language: this.activeContest.language || 'c',
-      testCases: prob.testCases || [],
+      testCases: targetTestCases,
       timeoutMs: prob.timeLimitMs || 2000,
       maxPoints: prob.maxPoints || 20
     });
 
-    this.btnWsRunTests.disabled = false;
-    this.btnWsRunTests.textContent = '▶ Run Test Cases (Ctrl+Enter)';
+    if (this.btnWsRunSample) this.btnWsRunSample.disabled = false;
+    if (this.btnWsRunTests) {
+      this.btnWsRunTests.disabled = false;
+      this.btnWsRunTests.textContent = '⚡ Submit & Grade (All Cases)';
+    }
 
     if (!result.success && result.phase === 'compilation') {
       this.terminalTopStatus.textContent = 'STATUS // BUILD ERROR';
@@ -900,6 +1437,29 @@ class MassCodeApp {
       return;
     }
 
+    if (samplesOnly) {
+      this.terminalTopStatus.textContent = 'STATUS // SAMPLE CASES EVALUATED';
+      this._appendTerminalLine(`<span style="color: var(--color-cyan); font-weight: bold;">SAMPLE TEST CASES: ${result.passedCount}/${result.totalCount} PASSED</span>`);
+      this._appendTerminalLine(`<span style="color: var(--text-muted);">Execution Time: ${result.totalExecutionTimeMs} ms</span>\n`);
+
+      (result.testResults || []).forEach(tc => {
+        if (tc.passed) {
+          this._appendTerminalLine(`<span style="color: #39ff14; font-weight: 700;">✔ Sample Case #${tc.index}: PASSED (${tc.executionTimeMs}ms)</span>`);
+        } else if (tc.timedOut) {
+          this._appendTerminalLine(`<span style="color: var(--color-rose); font-weight: 700;">✖ Sample Case #${tc.index}: TIME LIMIT EXCEEDED (> ${prob.timeLimitMs || 2000}ms)</span>`);
+        } else {
+          this._appendTerminalLine(`<span style="color: var(--color-rose); font-weight: 700;">✖ Sample Case #${tc.index}: WRONG ANSWER (${tc.executionTimeMs}ms)</span>`);
+          this._appendTerminalLine(`    Input:           "${this._escape(tc.input.trim())}"`);
+          this._appendTerminalLine(`    Your Output:     "${this._escape(tc.actualOutput.trim())}"`);
+          this._appendTerminalLine(`    Expected Output: "${this._escape(tc.expectedOutput.trim())}"`);
+        }
+      });
+
+      this._appendTerminalLine(`\n<span style="color: var(--color-cyan); font-weight: 600;">[HACKERRANK RUNTIME]: Sample evaluation complete. Click "⚡ Submit &amp; Grade (All Cases)" to evaluate against all hidden test cases and earn points!</span>`);
+      return;
+    }
+
+    // Full Test Suite Evaluation (Sample + Hidden)
     this.terminalTopStatus.textContent = 'STATUS // EVALUATION COMPLETED';
     this._appendTerminalLine(`<span style="color: var(--color-emerald); font-weight: bold;">TEST SUITE EVALUATED: ${result.passedCount}/${result.totalCount} PASSED (${result.totalScore}/${result.maxScore} PTS)</span>`);
     this._appendTerminalLine(`<span style="color: var(--text-muted);">Total CPU Execution: ${result.totalExecutionTimeMs} ms</span>\n`);
@@ -907,18 +1467,32 @@ class MassCodeApp {
     (result.testResults || []).forEach(tc => {
       const tag = tc.isSample ? '[SAMPLE]' : '[HIDDEN]';
       if (tc.passed) {
-        this._appendTerminalLine(`<span style="color: #39ff14;">✔ Test Case #${tc.index} ${tag}: PASSED (${tc.executionTimeMs}ms)</span>`);
+        this._appendTerminalLine(`<span style="color: #39ff14; font-weight: 700;">✔ Test Case #${tc.index} ${tag}: PASSED (${tc.executionTimeMs}ms)</span>`);
       } else if (tc.timedOut) {
-        this._appendTerminalLine(`<span style="color: var(--color-rose);">✖ Test Case #${tc.index} ${tag}: TIME LIMIT EXCEEDED</span>`);
+        this._appendTerminalLine(`<span style="color: var(--color-rose); font-weight: 700;">✖ Test Case #${tc.index} ${tag}: TIME LIMIT EXCEEDED (> ${prob.timeLimitMs || 2000}ms)</span>`);
+        if (!tc.isSample) {
+          this._appendTerminalLine(`    (Possible infinite loop or inefficient time complexity for large hidden input)`);
+        }
+      } else if (tc.runtimeError) {
+        this._appendTerminalLine(`<span style="color: var(--color-rose); font-weight: 700;">✖ Test Case #${tc.index} ${tag}: RUNTIME ERROR</span>`);
+        this._appendTerminalLine(`    ${this._escape(tc.runtimeError)}`);
       } else {
-        this._appendTerminalLine(`<span style="color: var(--color-rose);">✖ Test Case #${tc.index} ${tag}: FAILED - WRONG ANSWER (${tc.executionTimeMs}ms)</span>`);
+        this._appendTerminalLine(`<span style="color: var(--color-rose); font-weight: 700;">✖ Test Case #${tc.index} ${tag}: FAILED - WRONG ANSWER (${tc.executionTimeMs}ms)</span>`);
         if (tc.isSample) {
-          this._appendTerminalLine(`    Input:    "${this._escape(tc.input.trim())}"`);
-          this._appendTerminalLine(`    Expected: "${this._escape(tc.expectedOutput.trim())}"`);
-          this._appendTerminalLine(`    Actual:   "${this._escape(tc.actualOutput.trim())}"`);
+          this._appendTerminalLine(`    Input:           "${this._escape(tc.input.trim())}"`);
+          this._appendTerminalLine(`    Your Output:     "${this._escape(tc.actualOutput.trim())}"`);
+          this._appendTerminalLine(`    Expected Output: "${this._escape(tc.expectedOutput.trim())}"`);
+        } else {
+          this._appendTerminalLine(`    [Hidden Case]: Output did not match expected output. Verify edge cases, boundary values, or formatting!`);
         }
       }
     });
+
+    if (result.passedCount === result.totalCount && result.totalCount > 0) {
+      this._appendTerminalLine(`\n<span style="color: #39ff14; font-weight: 800; font-size: 0.95rem;">🎉 SUCCESS! All ${result.totalCount} Test Cases Passed! Full Score: ${result.totalScore} / ${result.maxScore} Pts!</span>`);
+    } else {
+      this._appendTerminalLine(`\n<span style="color: var(--color-amber); font-weight: 800;">⚠ Test Evaluation: ${result.passedCount} / ${result.totalCount} Passed (${result.totalScore} / ${result.maxScore} Pts earned). Fix errors and re-submit!</span>`);
+    }
 
     // Store evaluation outcome
     this.competitor.evaluations[prob.id] = {
@@ -948,26 +1522,162 @@ class MassCodeApp {
   }
 
   // --------------------------------------------------------------------------
-  // SESSION FINALIZATION & END SESSION LOGIC
+  // SESSION FINALIZATION & END SESSION LOGIC (AUTOMATED BATCH TEST SUITE)
   // --------------------------------------------------------------------------
   async _finalizeSession(isTimeout = false) {
     this.competitor.isSessionActive = false;
     if (this.competitor.timerInterval) clearInterval(this.competitor.timerInterval);
 
-    // Compute aggregated final metrics
+    // Save current active problem code from editor if any
+    if (this.competitor.activeProblemId && this.editorCode) {
+      // Save under both plain key and language-keyed key to ensure batch lookup finds it
+      const activeLang = this.activeContest?.language || 'c';
+      this.competitor.problemCodes[this.competitor.activeProblemId] = this.editorCode.value;
+      this.competitor.problemCodes[`${this.competitor.activeProblemId}_${activeLang}`] = this.editorCode.value;
+    }
+
+    const normalizeCode = (str) => {
+      if (typeof str !== 'string') return '';
+      return str.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+    };
+
+    const problems = (this.activeContest && this.activeContest.problems) || [];
+    const contestLang = (this.activeContest && this.activeContest.language) || 'c';
+
+    // Determine which problems were actually attempted (code differs from starter)
+    const attemptedProblems = problems.filter(p => {
+      const code = this.competitor.problemCodes[p.id] ||
+                   this.competitor.problemCodes[`${p.id}_${contestLang}`] ||
+                   this.competitor.problemCodes[`${p.id}_c`] ||
+                   this.competitor.problemCodes[`${p.id}_python`] || '';
+      const normCode = normalizeCode(code);
+      const defaultC = normalizeCode(p.starterCode || '#include <stdio.h>\n#include <stdlib.h>\n\nint main() {\n    // Write C solution here\n    return 0;\n}\n');
+      const defaultPy = normalizeCode(p.starterCodePython || '# Write Python 3 solution here\nimport sys\n\ndef main():\n    pass\n\nif __name__ == "__main__":\n    main()\n');
+      return normCode.length > 0 && normCode !== defaultC && normCode !== defaultPy;
+    });
+
+    // AUTOMATED BATCH RUN: Run test cases for all attempted problems on End Session
+    if (this.modalEvaluatingAll) {
+      this.modalEvaluatingAll.classList.add('active');
+    }
+
+    for (let i = 0; i < attemptedProblems.length; i++) {
+      const p = attemptedProblems[i];
+      const tierLabel = (p.tier || 'Round').toUpperCase();
+      const pct = Math.round((i / Math.max(attemptedProblems.length, 1)) * 100);
+
+      if (this.evalProgressStatus) {
+        this.evalProgressStatus.innerHTML = `Evaluating <strong>[${tierLabel}] ${this._escape(p.title || p.id)}</strong>... (${i + 1}/${attemptedProblems.length})`;
+      }
+      if (this.evalProgressBar) this.evalProgressBar.style.width = `${pct}%`;
+      if (this.evalProgressCount) this.evalProgressCount.textContent = `${i + 1} / ${attemptedProblems.length} Attempted Problems Evaluated`;
+      if (this.evalProgressPercent) this.evalProgressPercent.textContent = `${pct}%`;
+
+      const code = this.competitor.problemCodes[p.id] ||
+                   this.competitor.problemCodes[`${p.id}_${contestLang}`] ||
+                   p.starterCode || '';
+
+      try {
+        const evalRes = await window.api.compileAndEvaluate({
+          code,
+          language: contestLang,
+          testCases: p.testCases || [],
+          timeoutMs: p.timeLimitMs || 2500,
+          maxPoints: p.maxPoints || 20
+        });
+        this.competitor.evaluations[p.id] = evalRes;
+      } catch (err) {
+        this.competitor.evaluations[p.id] = {
+          success: false,
+          phase: 'system',
+          compilerError: err.message,
+          totalScore: 0,
+          maxScore: p.maxPoints || 0,
+          passedCount: 0,
+          totalCount: (p.testCases || []).length,
+          totalExecutionTimeMs: 0
+        };
+      }
+    }
+
+    if (this.evalProgressBar) this.evalProgressBar.style.width = '100%';
+    if (this.evalProgressPercent) this.evalProgressPercent.textContent = '100%';
+    if (this.evalProgressCount) this.evalProgressCount.textContent = `${attemptedProblems.length} / ${attemptedProblems.length} Attempted Problems Evaluated`;
+    if (this.evalProgressStatus) this.evalProgressStatus.textContent = attemptedProblems.length > 0 ? `All ${attemptedProblems.length} attempted problem(s) evaluated! Finalizing scores...` : 'No problems attempted. Finalizing...';
+    await new Promise(r => setTimeout(r, 350));
+    if (this.modalEvaluatingAll) this.modalEvaluatingAll.classList.remove('active');
+
+    // Build a Set of attempted problem IDs for O(1) lookup
+    const attemptedIds = new Set(attemptedProblems.map(p => p.id));
+
+    // Compute aggregated final metrics & round breakdowns
     let totalScore = 0;
     let maxContestScore = 0;
     let totalCpuMs = 0;
     let solvedCount = 0;
+    const tierScores = {};
+    const roundBreakdown = [];
 
-    (this.activeContest.problems || []).forEach(p => {
+    problems.forEach(p => {
       maxContestScore += (p.maxPoints || 0);
-      const ev = this.competitor.evaluations[p.id];
-      if (ev) {
-        totalScore += (ev.totalScore || 0);
-        totalCpuMs += (ev.totalExecutionTimeMs || 0);
-        if (ev.passedCount === ev.totalCount && ev.totalCount > 0) solvedCount++;
+      const wasAttempted = attemptedIds.has(p.id);
+      const ev = this.competitor.evaluations[p.id] || null;
+
+      const earned = ev ? (ev.totalScore || 0) : 0;
+      totalScore += earned;
+      totalCpuMs += ev ? (ev.totalExecutionTimeMs || 0) : 0;
+      const isSolved = ev && ev.passedCount === ev.totalCount && ev.totalCount > 0;
+      if (isSolved) solvedCount++;
+
+      const tierKey = (p.tier || 'general').toLowerCase();
+      if (!tierScores[tierKey]) {
+        let displayName = tierKey.toUpperCase();
+        if (tierKey === 'easy') displayName = 'Easy (Round 1)';
+        else if (tierKey === 'medium') displayName = 'Medium (Round 2)';
+        else if (tierKey === 'hard') displayName = 'Hard (Round 3)';
+
+        tierScores[tierKey] = {
+          tier: tierKey,
+          name: displayName,
+          score: 0,
+          maxScore: 0,
+          solvedCount: 0,
+          attemptedCount: 0,
+          totalCount: 0
+        };
       }
+      tierScores[tierKey].score += earned;
+      tierScores[tierKey].maxScore += (p.maxPoints || 0);
+      if (isSolved) tierScores[tierKey].solvedCount++;
+      if (wasAttempted) tierScores[tierKey].attemptedCount++;
+      tierScores[tierKey].totalCount++;
+
+      // Determine status — unattempted problems are NOT ATTEMPTED, not FAILED
+      let status = 'NOT ATTEMPTED';
+      if (wasAttempted && ev) {
+        if (ev.phase === 'compilation' || (!ev.success && ev.compilerError)) {
+          status = 'BUILD ERROR';
+        } else if (isSolved) {
+          status = 'PASSED';
+        } else if (ev.passedCount > 0) {
+          status = 'PARTIAL';
+        } else {
+          status = 'FAILED';
+        }
+      }
+
+      roundBreakdown.push({
+        id: p.id,
+        title: p.title || p.id,
+        tier: p.tier || 'easy',
+        attempted: wasAttempted,
+        score: earned,
+        maxScore: p.maxPoints || 0,
+        passedCount: ev ? (ev.passedCount || 0) : 0,
+        totalCount: ev ? (ev.totalCount || (p.testCases || []).length) : (p.testCases || []).length,
+        totalExecutionTimeMs: ev ? (ev.totalExecutionTimeMs || 0) : 0,
+        status
+      });
     });
 
     const finalPayload = {
@@ -975,10 +1685,13 @@ class MassCodeApp {
       name: this.competitor.name,
       contestId: this.activeContest.id,
       contestTitle: this.activeContest.title,
-      totalScore,
+      totalScore: Math.round(totalScore * 10) / 10,
       maxScore: maxContestScore,
       problemsSolvedCount: solvedCount,
-      totalProblems: (this.activeContest.problems || []).length,
+      totalAttempted: attemptedProblems.length,
+      totalProblems: problems.length,
+      tierScores,
+      roundBreakdown,
       timeElapsedSeconds: this.competitor.uptimeSeconds,
       totalExecutionTimeMs: Math.round(totalCpuMs * 10) / 10,
       isAutoTimeout: isTimeout,
@@ -1003,7 +1716,11 @@ class MassCodeApp {
     } catch (_) {}
 
     // Populate Thank You View
-    this.tyTotalScore.textContent = `${totalScore} / ${maxContestScore}`;
+    const totalAttempted = attemptedProblems.length;
+    this.tyTotalScore.textContent = `${Math.round(totalScore * 10) / 10} / ${maxContestScore}`;
+    if (this.tySolvedCount) {
+      this.tySolvedCount.textContent = `${solvedCount} / ${totalAttempted} Attempted`;
+    }
     const m = Math.floor(this.competitor.uptimeSeconds / 60);
     const s = this.competitor.uptimeSeconds % 60;
     this.tyDuration.textContent = `${m}m ${s < 10 ? '0' : ''}${s}s`;
@@ -1011,11 +1728,70 @@ class MassCodeApp {
     this.tyPayloadFile.textContent = saveRes.filename || `FINAL_${this.competitor.usn}.json`;
 
     if (syncSuccess) {
-      this.tySyncStatus.textContent = '✔ Synchronized to Host Server';
+      this.tySyncStatus.innerHTML = `✔ Final package saved to submissions/${saveRes.filename || 'FINAL_' + this.competitor.usn + '.json'} <span style="color: var(--color-emerald);">(Synchronized to Host)</span>`;
       this.tySyncStatus.style.color = 'var(--color-emerald)';
     } else {
-      this.tySyncStatus.textContent = '⚠ Saved Locally on Disk (Offline Standalone)';
-      this.tySyncStatus.style.color = 'var(--color-amber)';
+      this.tySyncStatus.innerHTML = `✔ Final package saved to submissions/${saveRes.filename || 'FINAL_' + this.competitor.usn + '.json'}`;
+      this.tySyncStatus.style.color = 'var(--color-emerald)';
+    }
+
+    // Render Round/Tier Score Breakdown Cards
+    if (this.tyRoundCardsContainer) {
+      const roundOrder = ['easy', 'medium', 'hard'];
+      const allTierKeys = Object.keys(tierScores);
+      const sortedKeys = roundOrder.filter(k => allTierKeys.includes(k)).concat(allTierKeys.filter(k => !roundOrder.includes(k)));
+
+      this.tyRoundCardsContainer.innerHTML = sortedKeys.map(k => {
+        const item = tierScores[k];
+        let color = 'var(--color-cyan)';
+        if (k === 'easy') color = 'var(--color-emerald)';
+        else if (k === 'medium') color = 'var(--color-amber)';
+        else if (k === 'hard') color = 'var(--color-rose)';
+
+        const attemptedInTier = item.attemptedCount || 0;
+        return `
+          <div class="round-score-card" style="border-left: 4px solid ${color};">
+            <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">${this._escape(item.name)}</span>
+            <div style="font-size: 1.35rem; font-weight: 800; font-family: var(--font-mono); color: ${color};">
+              ${Math.round(item.score * 10) / 10} <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">/ ${item.maxScore} pts</span>
+            </div>
+            <span style="font-size: 0.75rem; color: var(--text-secondary);">${item.solvedCount} fully solved &nbsp;|&nbsp; ${attemptedInTier} / ${item.totalCount} attempted</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render Programs Test Suite Results Table
+    if (this.tyProgramsTbody) {
+      this.tyProgramsTbody.innerHTML = roundBreakdown.map((item, idx) => {
+        let badgeClass = 'badge-status-failed';
+        if (item.status === 'PASSED') badgeClass = 'badge-status-passed';
+        else if (item.status === 'PARTIAL') badgeClass = 'badge-status-partial';
+        else if (item.status === 'BUILD ERROR') badgeClass = 'badge-status-error';
+        else if (item.status === 'NOT ATTEMPTED') badgeClass = 'badge-status-unattempted';
+
+        let tierColor = 'var(--text-muted)';
+        const tk = (item.tier || '').toLowerCase();
+        if (tk === 'easy') tierColor = 'var(--color-emerald)';
+        else if (tk === 'medium') tierColor = 'var(--color-amber)';
+        else if (tk === 'hard') tierColor = 'var(--color-rose)';
+
+        const scoreColor = item.score > 0 ? 'var(--color-emerald)' : 'var(--text-muted)';
+        const testCaseDisplay = item.attempted ? `${item.passedCount} / ${item.totalCount}` : '—';
+        const cpuDisplay = item.attempted ? `${item.totalExecutionTimeMs} ms` : '—';
+
+        return `
+          <tr style="${!item.attempted ? 'opacity: 0.5;' : ''}">
+            <td style="text-align: center; color: var(--text-muted); font-family: var(--font-mono);">${idx + 1}</td>
+            <td style="color: ${tierColor}; font-weight: 700; text-transform: uppercase;">${this._escape(item.tier)}</td>
+            <td style="font-weight: 600;">${this._escape(item.title)}</td>
+            <td style="text-align: center; font-family: var(--font-mono);">${testCaseDisplay}</td>
+            <td style="text-align: center; font-family: var(--font-mono);"><strong style="color: ${scoreColor};">${item.attempted ? `${Math.round(item.score * 10) / 10} / ${item.maxScore}` : `0 / ${item.maxScore}`}</strong></td>
+            <td style="text-align: center; font-family: var(--font-mono); font-size: 0.78rem;">${cpuDisplay}</td>
+            <td style="text-align: center;"><span class="${badgeClass}">${item.status}</span></td>
+          </tr>
+        `;
+      }).join('');
     }
 
     // Lift kiosk mode and switch to Thank You view
@@ -1031,29 +1807,810 @@ class MassCodeApp {
     this.modalViolation.classList.add('active');
   }
 
-  async _verifySupervisorOverride() {
+  async _handleSupervisorConfirm() {
     const entered = this.supervisorKeyInput.value.trim();
     const res = await window.api.verifySupervisorKey({ key: entered });
-    if (res.success) {
+    if (res && res.success) {
       this.modalSupervisor.classList.remove('active');
-      this.showToast('Supervisor Emergency Key verified. Station unlocked.', 'success');
-      this.competitor.isSessionActive = false;
-      if (this.competitor.timerInterval) clearInterval(this.competitor.timerInterval);
-      this.switchView('welcome');
+      if (this.supervisorAction === 'review') {
+        this._startSupervisorReviewMode();
+      } else if (this.supervisorAction === 'close') {
+        if (window.api && window.api.quitApp) {
+          await window.api.quitApp();
+        } else {
+          window.close();
+        }
+      } else {
+        // Kiosk unlock
+        this.isKioskUnlocked = true;
+        this.btnSupervisorKey.textContent = '🔒 Lock Kiosk';
+        this.btnSupervisorKey.className = 'btn btn-warning btn-sm';
+        this.btnSupervisorKey.title = 'Click to Re-Activate Kiosk Lockdown';
+        this.navKioskBadge.textContent = 'KIOSK OVERRIDDEN (SUPERVISOR UNLOCK)';
+        this.navKioskBadge.style.borderColor = 'var(--color-amber)';
+        this.navKioskBadge.style.color = 'var(--color-amber)';
+        this.showToast('Supervisor Key Accepted: Kiosk Lockdown Released.', 'success');
+      }
     } else {
       this.supervisorKeyError.style.display = 'block';
     }
   }
 
+  _promptSupervisorUnlock(action = 'kiosk') {
+    this.supervisorAction = action;
+    this.supervisorKeyInput.value = '';
+    this.supervisorKeyError.style.display = 'none';
+    if (action === 'review') {
+      if (this.supervisorModalTitle) this.supervisorModalTitle.textContent = 'Supervisor Master Key (Review Mode)';
+      if (this.supervisorModalDesc) this.supervisorModalDesc.textContent = 'Enter the Invigilator Supervisor Key to inspect the code and test evaluations submitted by the candidate.';
+      if (this.btnConfirmSupervisorKey) this.btnConfirmSupervisorKey.textContent = 'Unlock Review Workspace';
+    } else if (action === 'close') {
+      if (this.supervisorModalTitle) this.supervisorModalTitle.textContent = 'Supervisor Key Required to Close Application';
+      if (this.supervisorModalDesc) this.supervisorModalDesc.textContent = 'Enter the Invigilator Supervisor Key to verify and exit the application.';
+      if (this.btnConfirmSupervisorKey) this.btnConfirmSupervisorKey.textContent = 'Confirm & Exit Application';
+    } else {
+      if (this.supervisorModalTitle) this.supervisorModalTitle.textContent = 'Supervisor Emergency Key Override';
+      if (this.supervisorModalDesc) this.supervisorModalDesc.textContent = 'Input the invigilator supervisor key to unlock the station and release kiosk mode.';
+      if (this.btnConfirmSupervisorKey) this.btnConfirmSupervisorKey.textContent = 'Unlock Station';
+    }
+    this.modalSupervisor.classList.add('active');
+    this.supervisorKeyInput.focus();
+  }
+
+  async _reLockKiosk() {
+    if (window.api && window.api.setSecurityMode) {
+      await window.api.setSecurityMode({ mode: 'kiosk' });
+    }
+    this.isKioskUnlocked = false;
+    this.btnSupervisorKey.textContent = '🔑 Supervisor UNLOCK';
+    this.btnSupervisorKey.className = 'btn btn-secondary btn-sm';
+    this.btnSupervisorKey.title = 'Supervisor Key Override';
+    this.navKioskBadge.textContent = 'KIOSK CONFINEMENT ACTIVE';
+    this.navKioskBadge.style.borderColor = '';
+    this.navKioskBadge.style.color = '';
+    this.showToast('Kiosk Mode Re-Activated! Station is locked.', 'success');
+  }
+
+  _startSupervisorReviewMode() {
+    this.isReviewMode = true;
+
+    // Transition view containers
+    this.viewThankyou.classList.remove('active');
+    this.viewThankyou.style.display = 'none';
+
+    this.viewCompetitor.classList.add('active');
+    this.viewCompetitor.style.display = '';
+
+    this.compRegOverlay.style.display = 'none';
+    this.competitorWorkspace.style.display = 'flex';
+
+    // Show Question Bank view initially
+    this.competitorWorkspaceView.style.display = 'none';
+    this.competitorBankView.style.display = 'flex';
+
+    // Setup Review Mode Navbar
+    this.navCandidatePill.style.display = 'flex';
+    this.navCandidateUsn.textContent = `${this.competitor.usn} (${this.competitor.name})`;
+
+    this.navTimerBox.style.display = 'flex';
+    this.navTimerDigits.textContent = 'CONCLUDED';
+
+    this.navKioskBadge.style.display = 'flex';
+    this.navKioskBadge.textContent = 'SUPERVISOR CODE REVIEW';
+    this.navKioskBadge.style.borderColor = 'var(--color-amber)';
+    this.navKioskBadge.style.color = 'var(--color-amber)';
+
+    if (this.btnReviewBackToTy) this.btnReviewBackToTy.style.display = 'inline-flex';
+    this.btnEndSession.style.display = 'none';
+    this.btnSupervisorKey.style.display = 'none';
+
+    // Refresh Question Bank
+    this._renderTierBadges();
+    this._renderQuestionMatrix();
+
+    this.showToast('Supervisor Review Mode: Inspect candidate answers and code.', 'success');
+  }
+
+  async _exitSupervisorReviewMode() {
+    this.isReviewMode = false;
+
+    // Transition back to Thank You view
+    this.viewCompetitor.classList.remove('active');
+    this.viewCompetitor.style.display = '';
+
+    this.viewThankyou.classList.add('active');
+    this.viewThankyou.style.display = '';
+
+    if (this.btnReviewBackToTy) this.btnReviewBackToTy.style.display = 'none';
+    this.navCandidatePill.style.display = 'none';
+    this.navTimerBox.style.display = 'none';
+    this.navKioskBadge.style.display = 'none';
+
+    // Re-lock in thankyou kiosk mode
+    if (window.api && window.api.setSecurityMode) {
+      await window.api.setSecurityMode({ mode: 'thankyou' });
+    }
+
+    this.showToast('Returned to Final Summary.', 'info');
+  }
+
   // --------------------------------------------------------------------------
-  // HOST CONTROLLER ACTIONS
+  // HOST CONTROLLER ACTIONS & OFFLINE PDF AUTO-IMPORTER
   // --------------------------------------------------------------------------
+  _setHostMode(mode) {
+    this.hostContestType = mode === 'exam' ? 'exam' : 'contest';
+
+    if (this.btnModeContest && this.btnModeExam) {
+      if (this.hostContestType === 'exam') {
+        this.btnModeExam.classList.add('active');
+        this.btnModeContest.classList.remove('active');
+      } else {
+        this.btnModeContest.classList.add('active');
+        this.btnModeExam.classList.remove('active');
+      }
+    }
+
+    if (this.hostModeIndicatorTag) {
+      if (this.hostContestType === 'exam') {
+        this.hostModeIndicatorTag.textContent = 'EXAM MODE // Lab Experiments & Batches';
+        this.hostModeIndicatorTag.className = 'candidate-pill mode-indicator-exam';
+      } else {
+        this.hostModeIndicatorTag.textContent = 'CONTEST MODE // Multi-Tier Competitive';
+        this.hostModeIndicatorTag.className = 'candidate-pill mode-indicator-contest';
+      }
+    }
+
+    // Toggle Tab Visibility
+    if (this.tabBtnBatches) {
+      this.tabBtnBatches.style.display = this.hostContestType === 'exam' ? 'inline-block' : 'none';
+    }
+    if (this.tabBtnBuilder) {
+      this.tabBtnBuilder.textContent = this.hostContestType === 'exam' ? '🧪 Lab Exam Questions' : 'Contest Builder';
+    }
+    if (this.tabBtnGrading) {
+      this.tabBtnGrading.textContent = this.hostContestType === 'exam' ? '📊 Lab Marks & Evaluation' : 'Grading Reporter & Leaderboard';
+    }
+
+    // Update Builder Labels
+    if (this.builderConfigHeading) {
+      this.builderConfigHeading.textContent = this.hostContestType === 'exam' ? 'Lab Examination Configuration' : 'Contest Configuration';
+    }
+    if (this.builderBankHeading) {
+      this.builderBankHeading.textContent = this.hostContestType === 'exam' ? 'Lab Experiments Question Bank' : 'Multi-Tier Question Bank';
+    }
+    if (this.lblContestTitle) {
+      this.lblContestTitle.textContent = this.hostContestType === 'exam' ? 'Lab Exam Title / Course' : 'Contest Title';
+    }
+    if (this.lblContestToken) {
+      this.lblContestToken.textContent = this.hostContestType === 'exam' ? 'Exam Token / Lab PIN' : 'Contest Token / PIN';
+    }
+    if (this.btnHostAddProblem) {
+      this.btnHostAddProblem.textContent = this.hostContestType === 'exam' ? '+ Add New Lab Experiment' : '+ Add New Question';
+    }
+    if (this.pdfDropzoneTitleText) {
+      this.pdfDropzoneTitleText.textContent = this.hostContestType === 'exam'
+        ? 'Import Lab Experiments from PDF (Offline Auto-Fill)'
+        : 'Import Questions from PDF (Offline Auto-Fill)';
+    }
+    if (this.hostPdfDropzoneSubtitle) {
+      this.hostPdfDropzoneSubtitle.innerHTML = this.hostContestType === 'exam'
+        ? `Drag &amp; drop a lab syllabus or question paper PDF here, or <span id="link-browse-pdf" class="pdf-browse-link">browse file</span>. Auto-detects Lab Experiments (Exp 1..N / Program 1..N), Aim, Marks, Starter Code &amp; Test Cases.`
+        : `Drag &amp; drop a question paper PDF here, or <span id="link-browse-pdf" class="pdf-browse-link">browse file</span>. Auto-detects Tiers (Easy/Medium/Hard), Marks, Starter Code &amp; Test Cases.`;
+      const link = document.getElementById('link-browse-pdf');
+      if (link && this.hostPdfFileInput) {
+        link.addEventListener('click', () => this.hostPdfFileInput.click());
+      }
+    }
+
+    // Refresh Question Cards & Tables
+    this._renderHostProblemCards();
+    if (this.hostContestType === 'exam') {
+      this._renderBatchSelectOptions();
+      this._renderBatchAllocationsTable();
+    }
+    this._renderLeaderboardTable();
+  }
+
+  _getActiveBatch() {
+    if (!this.hostBatches || this.hostBatches.length === 0) {
+      this.hostBatches = [{ id: 'batch_1', name: 'Batch 1 (Morning)', students: [] }];
+      this.activeBatchId = 'batch_1';
+    }
+    return this.hostBatches.find(b => b.id === this.activeBatchId) || this.hostBatches[0];
+  }
+
+  _renderBatchSelectOptions() {
+    if (!this.hostBatchSelect) return;
+    if (!this.hostBatches || this.hostBatches.length === 0) {
+      this.hostBatches = [{ id: 'batch_1', name: 'Batch 1 (Morning)', students: [] }];
+      this.activeBatchId = 'batch_1';
+    }
+    this.hostBatchSelect.innerHTML = this.hostBatches.map(b => `
+      <option value="${b.id}" ${b.id === this.activeBatchId ? 'selected' : ''}>
+        ${this._escape(b.name)} (${(b.students || []).length} Students)
+      </option>
+    `).join('');
+  }
+
+  _createBatch() {
+    const nextIdx = (this.hostBatches || []).length + 1;
+    const name = prompt('Enter name for the new Lab Exam Batch (e.g. "Batch 2: Afternoon"):', `Batch ${nextIdx}`);
+    if (!name || !name.trim()) return;
+
+    const newBatch = {
+      id: 'batch_' + Date.now(),
+      name: name.trim(),
+      students: []
+    };
+    this.hostBatches.push(newBatch);
+    this.activeBatchId = newBatch.id;
+    this._renderBatchSelectOptions();
+    this._renderBatchAllocationsTable();
+    this.showToast(`Created new batch "${newBatch.name}"!`, 'success');
+  }
+
+  _renameBatch() {
+    const batch = this._getActiveBatch();
+    if (!batch) return;
+    const newName = prompt(`Rename Batch "${batch.name}":`, batch.name);
+    if (!newName || !newName.trim() || newName.trim() === batch.name) return;
+
+    batch.name = newName.trim();
+    this._renderBatchSelectOptions();
+    this._renderBatchAllocationsTable();
+    this.showToast(`Batch renamed to "${batch.name}"!`, 'success');
+  }
+
+  _deleteBatch() {
+    if ((this.hostBatches || []).length <= 1) {
+      return this.showToast('At least one batch must remain active.', 'warning');
+    }
+    const batch = this._getActiveBatch();
+    if (!batch) return;
+    if (!confirm(`Are you sure you want to delete "${batch.name}" and all its student allocations?`)) return;
+
+    this.hostBatches = this.hostBatches.filter(b => b.id !== batch.id);
+    this.activeBatchId = this.hostBatches[0].id;
+    this._renderBatchSelectOptions();
+    this._renderBatchAllocationsTable();
+    this.showToast(`Deleted batch "${batch.name}".`, 'info');
+  }
+
+  _handleImportUsnsSubmit() {
+    if (!this.importUsnsTextarea) return;
+    const raw = this.importUsnsTextarea.value.trim();
+    if (!raw) {
+      return this.showToast('Please enter at least one USN to import.', 'warning');
+    }
+
+    const batch = this._getActiveBatch();
+    if (!batch) return;
+    if (!batch.students) batch.students = [];
+
+    const lines = raw.split('\n');
+    let addedCount = 0;
+    let updatedCount = 0;
+
+    lines.forEach(line => {
+      const cleanLine = line.trim();
+      if (!cleanLine) return;
+
+      let usn = '';
+      let name = '';
+
+      if (cleanLine.includes(',') || cleanLine.includes('\t')) {
+        const parts = cleanLine.split(/,|\t/);
+        usn = parts[0].trim().toUpperCase();
+        name = parts.slice(1).join(' ').trim();
+      } else {
+        usn = cleanLine.toUpperCase();
+      }
+
+      if (!usn) return;
+
+      const existing = batch.students.find(s => s.usn.toUpperCase() === usn);
+      if (existing) {
+        if (name) existing.name = name;
+        updatedCount++;
+      } else {
+        batch.students.push({
+          usn,
+          name: name || '',
+          assignedProblemId: null,
+          assignedProblemTitle: '',
+          allocationMethod: 'unassigned',
+          isChangeOfExperiment: false,
+          originalProblemId: null,
+          originalProblemTitle: '',
+          penalty: 0
+        });
+        addedCount++;
+      }
+    });
+
+    if (this.modalImportUsns) this.modalImportUsns.classList.remove('active');
+    this._renderBatchSelectOptions();
+    this._renderBatchAllocationsTable();
+    this.showToast(`Batch updated: Added ${addedCount} new student(s), updated ${updatedCount} existing.`, 'success');
+  }
+
+  _openAddSingleStudentModal() {
+    if (!this.modalSingleStudent) return;
+    if (this.singleStudentUsn) this.singleStudentUsn.value = '';
+    if (this.singleStudentName) this.singleStudentName.value = '';
+    if (this.singleStudentExpSelect) {
+      this.singleStudentExpSelect.innerHTML = `
+        <option value="">-- Leave Unassigned for now --</option>
+        ${(this.hostProblems || []).map((p, idx) => `
+          <option value="${p.id}">${idx + 1}. ${this._escape(p.title)}</option>
+        `).join('')}
+      `;
+    }
+    this.modalSingleStudent.classList.add('active');
+    if (this.singleStudentUsn) this.singleStudentUsn.focus();
+  }
+
+  _handleAddSingleStudentSubmit() {
+    if (!this.singleStudentUsn) return;
+    const usn = this.singleStudentUsn.value.trim().toUpperCase();
+    if (!usn) {
+      return this.showToast('Please enter a valid candidate USN.', 'warning');
+    }
+    const name = this.singleStudentName ? this.singleStudentName.value.trim() : '';
+    const selectedExpId = this.singleStudentExpSelect ? this.singleStudentExpSelect.value : '';
+
+    const batch = this._getActiveBatch();
+    if (!batch) return;
+    if (!batch.students) batch.students = [];
+
+    const existing = batch.students.find(s => s.usn.toUpperCase() === usn);
+    if (existing) {
+      existing.name = name || existing.name;
+      if (selectedExpId) {
+        const prob = (this.hostProblems || []).find(p => p.id === selectedExpId);
+        existing.assignedProblemId = selectedExpId;
+        existing.assignedProblemTitle = prob ? prob.title : '';
+        existing.allocationMethod = 'chit';
+      }
+      this.showToast(`Updated existing student ${usn} in ${batch.name}.`, 'info');
+    } else {
+      let expTitle = '';
+      if (selectedExpId) {
+        const prob = (this.hostProblems || []).find(p => p.id === selectedExpId);
+        expTitle = prob ? prob.title : '';
+      }
+      batch.students.push({
+        usn,
+        name,
+        assignedProblemId: selectedExpId || null,
+        assignedProblemTitle: expTitle,
+        allocationMethod: selectedExpId ? 'chit' : 'unassigned',
+        isChangeOfExperiment: false,
+        originalProblemId: null,
+        originalProblemTitle: '',
+        penalty: 0
+      });
+      this.showToast(`Added student ${usn} to ${batch.name}.`, 'success');
+    }
+
+    if (this.modalSingleStudent) this.modalSingleStudent.classList.remove('active');
+    this._renderBatchSelectOptions();
+    this._renderBatchAllocationsTable();
+  }
+
+  _deleteStudent(usn) {
+    const batch = this._getActiveBatch();
+    if (!batch || !batch.students) return;
+    if (!confirm(`Remove student ${usn} from this batch?`)) return;
+
+    batch.students = batch.students.filter(s => s.usn.toUpperCase() !== usn.toUpperCase());
+    this._renderBatchSelectOptions();
+    this._renderBatchAllocationsTable();
+    this.showToast(`Removed student ${usn}.`, 'info');
+  }
+
+  _randomAssignAllExperiments() {
+    this._syncCardsToHostProblems();
+    if (!this.hostProblems || this.hostProblems.length === 0) {
+      return this.showToast('No lab experiments found! Please add questions or import from PDF first.', 'warning');
+    }
+
+    const batch = this._getActiveBatch();
+    if (!batch || !batch.students || batch.students.length === 0) {
+      return this.showToast('No students in this batch to assign experiments to. Import USNs first.', 'warning');
+    }
+
+    const unassigned = batch.students.filter(s => !s.assignedProblemId || s.allocationMethod === 'unassigned');
+    if (unassigned.length === 0) {
+      const reassign = confirm('All students in this batch already have an experiment allocated. Re-roll random experiments for everyone?');
+      if (!reassign) return;
+    }
+
+    // Shuffle problems to ensure fair, random distribution
+    const shuffled = [...this.hostProblems].sort(() => Math.random() - 0.5);
+    let assignedCount = 0;
+
+    batch.students.forEach((s, idx) => {
+      // Pick random experiment in cyclic order from shuffled array
+      const chosen = shuffled[idx % shuffled.length];
+      s.assignedProblemId = chosen.id;
+      s.assignedProblemTitle = chosen.title;
+      s.allocationMethod = 'random';
+      s.isChangeOfExperiment = false;
+      s.originalProblemId = null;
+      s.originalProblemTitle = '';
+      s.penalty = 0;
+      assignedCount++;
+    });
+
+    this._renderBatchAllocationsTable();
+    this.showToast(`🎲 Randomly distributed experiments across all ${assignedCount} students in "${batch.name}"!`, 'success');
+  }
+
+  _rollRandomForStudent(usn) {
+    this._syncCardsToHostProblems();
+    if (!this.hostProblems || this.hostProblems.length === 0) {
+      return this.showToast('No lab experiments available to assign.', 'warning');
+    }
+
+    const batch = this._getActiveBatch();
+    if (!batch || !batch.students) return;
+    const student = batch.students.find(s => s.usn.toUpperCase() === usn.toUpperCase());
+    if (!student) return;
+
+    // Pick random problem different from current if multiple exist
+    const available = this.hostProblems.length > 1
+      ? this.hostProblems.filter(p => p.id !== student.assignedProblemId)
+      : this.hostProblems;
+
+    const chosen = available[Math.floor(Math.random() * available.length)];
+    student.assignedProblemId = chosen.id;
+    student.assignedProblemTitle = chosen.title;
+    student.allocationMethod = 'random';
+
+    this._renderBatchAllocationsTable();
+    this.showToast(`🎲 Randomly rolled "${chosen.title}" for ${usn}!`, 'success');
+  }
+
+  _manualChitPick(usn, problemId) {
+    const batch = this._getActiveBatch();
+    if (!batch || !batch.students) return;
+    const student = batch.students.find(s => s.usn.toUpperCase() === usn.toUpperCase());
+    if (!student) return;
+
+    const chosen = (this.hostProblems || []).find(p => p.id === problemId);
+    if (!chosen) return;
+
+    student.assignedProblemId = chosen.id;
+    student.assignedProblemTitle = chosen.title;
+    student.allocationMethod = 'chit';
+
+    this._renderBatchAllocationsTable();
+    this.showToast(`✏️ Mapped chit "${chosen.title}" for ${usn}!`, 'success');
+  }
+
+  _openChangeOfExpModal(usn) {
+    const batch = this._getActiveBatch();
+    if (!batch || !batch.students) return;
+    const student = batch.students.find(s => s.usn.toUpperCase() === usn.toUpperCase());
+    if (!student) return;
+
+    this.currentCoeStudentUsn = usn;
+    if (this.coeStudentLabel) {
+      this.coeStudentLabel.textContent = `${student.usn} ${student.name ? '(' + student.name + ')' : ''}`;
+    }
+    if (this.coeCurrentExpTitle) {
+      this.coeCurrentExpTitle.textContent = student.assignedProblemTitle || 'None';
+    }
+
+    if (this.coeNewExpSelect) {
+      const options = (this.hostProblems || []).map((p, idx) => `
+        <option value="${p.id}" ${p.id === student.assignedProblemId ? 'disabled' : ''}>
+          ${idx + 1}. ${this._escape(p.title)} ${p.id === student.assignedProblemId ? '(Current)' : ''}
+        </option>
+      `).join('');
+      this.coeNewExpSelect.innerHTML = options || '<option value="">No other experiments available</option>';
+    }
+
+    if (this.coePenaltyMarks) this.coePenaltyMarks.value = 5;
+    if (this.modalChangeOfExp) this.modalChangeOfExp.classList.add('active');
+  }
+
+  _rollRandomInCoeModal() {
+    if (!this.coeNewExpSelect) return;
+    const batch = this._getActiveBatch();
+    const student = batch ? (batch.students || []).find(s => s.usn.toUpperCase() === (this.currentCoeStudentUsn || '').toUpperCase()) : null;
+    const curId = student ? student.assignedProblemId : null;
+
+    const available = (this.hostProblems || []).filter(p => p.id !== curId);
+    if (available.length === 0) {
+      return this.showToast('No other lab experiments available to draw.', 'warning');
+    }
+    const chosen = available[Math.floor(Math.random() * available.length)];
+    this.coeNewExpSelect.value = chosen.id;
+    this.showToast(`🎲 Random chit drawn: "${chosen.title}"`, 'info');
+  }
+
+  _handleConfirmChangeOfExp() {
+    if (!this.currentCoeStudentUsn) return;
+    const batch = this._getActiveBatch();
+    if (!batch || !batch.students) return;
+    const student = batch.students.find(s => s.usn.toUpperCase() === this.currentCoeStudentUsn.toUpperCase());
+    if (!student) return;
+
+    const newExpId = this.coeNewExpSelect ? this.coeNewExpSelect.value : '';
+    if (!newExpId) {
+      return this.showToast('Please select a replacement experiment.', 'warning');
+    }
+    const chosen = (this.hostProblems || []).find(p => p.id === newExpId);
+    if (!chosen) return;
+
+    const penalty = this.coePenaltyMarks ? (parseInt(this.coePenaltyMarks.value) || 0) : 5;
+    const remarks = this.coeRemarks ? this.coeRemarks.value.trim() : '';
+
+    student.isChangeOfExperiment = true;
+    student.originalProblemId = student.assignedProblemId || student.originalProblemId;
+    student.originalProblemTitle = student.assignedProblemTitle || student.originalProblemTitle;
+    student.assignedProblemId = chosen.id;
+    student.assignedProblemTitle = chosen.title;
+    student.allocationMethod = 'change';
+    student.penalty = penalty;
+    student.changeRemarks = remarks;
+
+    if (this.modalChangeOfExp) this.modalChangeOfExp.classList.remove('active');
+    this._renderBatchAllocationsTable();
+    this.showToast(`⚠ Change of Experiment recorded for ${student.usn}: Changed to "${chosen.title}" (Penalty: -${penalty} Marks).`, 'success');
+  }
+
+  _exportAllocationsCsv() {
+    const batch = this._getActiveBatch();
+    if (!batch || !batch.students || batch.students.length === 0) {
+      return this.showToast('No students in this batch to export.', 'warning');
+    }
+
+    const headers = ['Sl', 'USN', 'Candidate Name', 'Batch', 'Assigned Experiment ID', 'Assigned Experiment Title', 'Chit Pick Type', 'Change of Experiment', 'Original Experiment', 'Penalty Marks'];
+    const rows = batch.students.map((s, idx) => {
+      return [
+        idx + 1,
+        `"${s.usn}"`,
+        `"${s.name || ''}"`,
+        `"${batch.name}"`,
+        `"${s.assignedProblemId || ''}"`,
+        `"${s.assignedProblemTitle || ''}"`,
+        `"${s.allocationMethod || 'unassigned'}"`,
+        s.isChangeOfExperiment ? 'YES' : 'NO',
+        `"${s.originalProblemTitle || ''}"`,
+        s.penalty || 0
+      ].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Batch_${(batch.name || 'Batch').replace(/[^a-zA-Z0-9_-]/g, '_')}_Allocations.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    this.showToast(`Allocation sheet exported for "${batch.name}"!`, 'success');
+  }
+
+  _renderBatchAllocationsTable() {
+    if (!this.batchStudentsTbody) return;
+    const batch = this._getActiveBatch();
+    if (!batch) {
+      this.batchStudentsTbody.innerHTML = `
+        <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 32px;">No active batch found.</td></tr>
+      `;
+      return;
+    }
+
+    const students = batch.students || [];
+    const allocatedCount = students.filter(s => s.assignedProblemId).length;
+    if (this.batchStatsPill) {
+      this.batchStatsPill.textContent = `${students.length} Students • ${allocatedCount} Allocated`;
+    }
+
+    if (students.length === 0) {
+      this.batchStudentsTbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 32px;">
+            No students in "${this._escape(batch.name)}" yet. Click <strong>"📥 Import / Paste USNs"</strong> or <strong>"+ Add Student"</strong> to populate this batch.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    this.batchStudentsTbody.innerHTML = students.map((s, idx) => {
+      const assignedProb = s.assignedProblemId ? (this.hostProblems || []).find(p => p.id === s.assignedProblemId) : null;
+      const assignedTitle = assignedProb ? assignedProb.title : (s.assignedProblemTitle || 'Not Allocated');
+
+      let assignedBadge = '';
+      if (s.assignedProblemId) {
+        assignedBadge = `<span class="candidate-pill" style="color: var(--color-cyan); border-color: rgba(14, 165, 233, 0.4); font-weight: 700;">★ ${this._escape(assignedTitle)}</span>`;
+      } else {
+        assignedBadge = `<span class="candidate-pill" style="color: var(--color-amber); border-color: rgba(245, 158, 11, 0.4);">⚠ Not Allocated</span>`;
+      }
+
+      let methodPill = '<span style="color: var(--text-muted); font-size: 0.75rem;">--</span>';
+      if (s.allocationMethod === 'random') {
+        methodPill = '<span class="badge-chit-random">🎲 Random Draw</span>';
+      } else if (s.allocationMethod === 'chit') {
+        methodPill = '<span class="badge-chit-manual">✏️ Chit Pick</span>';
+      } else if (s.allocationMethod === 'change') {
+        methodPill = '<span class="badge-change-of-exp">🔄 Change of Exp</span>';
+      }
+
+      let coeStatus = '<span style="color: var(--text-muted); font-size: 0.75rem;">None (Regular)</span>';
+      if (s.isChangeOfExperiment) {
+        coeStatus = `
+          <div style="font-size: 0.76rem; color: var(--color-amber); font-weight: 700;">
+            ⚠ Change (${this._escape(s.originalProblemTitle || 'Original')} ➔ ${this._escape(assignedTitle)})
+            <div style="font-size: 0.70rem; color: var(--color-rose); font-weight: 600; margin-top: 2px;">
+              Penalty: -${s.penalty || 5} Marks
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <tr>
+          <td style="text-align: center; font-size: 0.8rem; color: var(--text-muted);">${idx + 1}</td>
+          <td style="font-family: var(--font-mono); font-weight: 800; color: var(--text-main);">${this._escape(s.usn)}</td>
+          <td>${this._escape(s.name || '--')}</td>
+          <td>${assignedBadge}</td>
+          <td style="text-align: center;">${methodPill}</td>
+          <td>${coeStatus}</td>
+          <td style="text-align: center;">
+            <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+              <button type="button" class="btn btn-secondary btn-sm btn-row-roll" data-usn="${this._escape(s.usn)}" title="Roll a random experiment for this student" style="padding: 3px 8px; font-size: 0.72rem;">
+                🎲 Roll
+              </button>
+              <select class="form-control select-row-chit" data-usn="${this._escape(s.usn)}" style="width: auto; padding: 2px 6px; font-size: 0.72rem; height: 26px;">
+                <option value="">Chit #...</option>
+                ${(this.hostProblems || []).map((p, pIdx) => `
+                  <option value="${p.id}" ${p.id === s.assignedProblemId ? 'selected' : ''}>
+                    ${pIdx + 1}. ${this._escape(p.title.length > 20 ? p.title.substring(0, 18) + '...' : p.title)}
+                  </option>
+                `).join('')}
+              </select>
+              <button type="button" class="btn btn-outline btn-sm btn-row-coe" data-usn="${this._escape(s.usn)}" title="Grant Change of Experiment with Penalty" style="padding: 3px 8px; font-size: 0.72rem; color: var(--color-amber); border-color: rgba(245, 158, 11, 0.4);">
+                🔄 Change
+              </button>
+              <button type="button" class="btn btn-danger btn-sm btn-row-del" data-usn="${this._escape(s.usn)}" title="Remove student" style="padding: 3px 6px; font-size: 0.72rem;">
+                ✕
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    this.batchStudentsTbody.querySelectorAll('.btn-row-roll').forEach(btn => {
+      btn.addEventListener('click', (e) => this._rollRandomForStudent(e.currentTarget.dataset.usn));
+    });
+
+    this.batchStudentsTbody.querySelectorAll('.select-row-chit').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        const probId = e.target.value;
+        if (probId) {
+          this._manualChitPick(e.target.dataset.usn, probId);
+        }
+      });
+    });
+
+    this.batchStudentsTbody.querySelectorAll('.btn-row-coe').forEach(btn => {
+      btn.addEventListener('click', (e) => this._openChangeOfExpModal(e.currentTarget.dataset.usn));
+    });
+
+    this.batchStudentsTbody.querySelectorAll('.btn-row-del').forEach(btn => {
+      btn.addEventListener('click', (e) => this._deleteStudent(e.currentTarget.dataset.usn));
+    });
+  }
+
   _populateHostContest(contest) {
-    this.hostTitleInput.value = contest.title || '';
-    this.hostTokenInput.value = contest.token || contest.id || '';
+    if (!contest) return;
+    const determinedType = contest.type || ((contest.problems || []).some(p => p.tier === 'lab') ? 'exam' : 'contest');
+    this._setHostMode(determinedType);
+    this.hostTitleInput.value = contest.title || (determinedType === 'exam' ? 'College Lab Examination' : 'Mass-Code Championship');
+    this.hostTokenInput.value = contest.token || contest.id || 'MASS2026';
     this.hostDurationInput.value = contest.durationMinutes || 60;
     this.hostProblems = contest.problems || [];
+    this.hostBatches = (contest.batches && contest.batches.length > 0) ? contest.batches : [
+      { id: 'batch_1', name: 'Batch 1 (Morning)', students: [] }
+    ];
+    this.activeBatchId = contest.activeBatchId || (this.hostBatches[0] && this.hostBatches[0].id) || 'batch_1';
     this._renderHostProblemCards();
+    this._renderBatchSelectOptions();
+    this._renderBatchAllocationsTable();
+  }
+
+  _showPdfImportStatus(msg, isSpinner = true, isError = false) {
+    if (!this.hostPdfStatus) return;
+    this.hostPdfStatus.style.display = 'flex';
+    this.hostPdfStatus.className = isError ? 'pdf-status-banner pdf-status-error' : 'pdf-status-banner';
+    if (this.hostPdfStatusText) this.hostPdfStatusText.textContent = msg;
+    const spinner = document.getElementById('host-pdf-status-spinner');
+    if (spinner) spinner.textContent = isSpinner ? '⏳' : (isError ? '✖' : '✔');
+  }
+
+  _hidePdfImportStatus() {
+    if (this.hostPdfStatus) this.hostPdfStatus.style.display = 'none';
+  }
+
+  async _handlePdfImportDialog() {
+    this._showPdfImportStatus('Opening offline PDF file chooser...', true);
+    try {
+      const res = await window.api.importPdfDialog({ mode: this.hostContestType });
+      if (!res.success) {
+        if (res.canceled) {
+          this._hidePdfImportStatus();
+          return;
+        }
+        this._showPdfImportStatus(`Import failed: ${res.error}`, false, true);
+        this.showToast(`PDF Import Error: ${res.error}`, 'error');
+        return;
+      }
+      this._applyImportedPdfResult(res);
+    } catch (err) {
+      this._showPdfImportStatus(`Error: ${err.message}`, false, true);
+      this.showToast(`PDF Import Error: ${err.message}`, 'error');
+    }
+  }
+
+  async _handlePdfFileObject(file) {
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+      this.showToast('Please upload a valid PDF document (.pdf)', 'warning');
+      return;
+    }
+    this._showPdfImportStatus(`Reading & parsing "${file.name}" offline...`, true);
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      let binary = '';
+      const bytes = new Uint8Array(arrayBuffer);
+      const len = bytes.byteLength;
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const bufferBase64 = btoa(binary);
+
+      const res = await window.api.parsePdfBuffer({ bufferBase64, filename: file.name, mode: this.hostContestType });
+      if (!res.success) {
+        this._showPdfImportStatus(`Parsing error: ${res.error}`, false, true);
+        this.showToast(`PDF Parse Error: ${res.error}`, 'error');
+        return;
+      }
+      this._applyImportedPdfResult(res);
+    } catch (err) {
+      this._showPdfImportStatus(`Error: ${err.message}`, false, true);
+      this.showToast(`Failed to parse PDF: ${err.message}`, 'error');
+    }
+  }
+
+  _applyImportedPdfResult(res) {
+    const problems = res.problems || [];
+    if (problems.length === 0) {
+      this._showPdfImportStatus('No recognizable questions found in PDF.', false, true);
+      this.showToast('No questions could be extracted from this PDF. Please check if it contains text or use "+ Add New Question".', 'warning');
+      return;
+    }
+
+    if (res.title && (!this.hostTitleInput.value || this.hostTitleInput.value === 'Mass-Code National Championship')) {
+      this.hostTitleInput.value = res.title;
+    }
+
+    // Save existing edits before replacing with newly parsed problems
+    this.hostProblems = problems;
+    this._renderHostProblemCards();
+
+    const modeLabel = this.hostContestType === 'exam' ? 'Lab Experiment(s)' : 'Contest Question(s)';
+    this._showPdfImportStatus(`✓ Successfully extracted ${problems.length} ${modeLabel} from "${res.filename}"! Review and edit fields below.`, false, false);
+    this.showToast(`✓ Auto-imported ${problems.length} ${modeLabel} from "${res.filename}". Ready for review!`, 'success');
+
+    setTimeout(() => this._hidePdfImportStatus(), 7000);
   }
 
   _renderHostProblemCards() {
@@ -1061,58 +2618,251 @@ class MassCodeApp {
     this.hostProblems.forEach((p, idx) => {
       const card = document.createElement('div');
       card.className = 'builder-problem-card';
+      card.dataset.idx = idx;
+
+      const starterCode = p.starterCode || '#include <stdio.h>\n\nint main() {\n    return 0;\n}\n';
+      const testCases = p.testCases && p.testCases.length > 0 ? p.testCases : [
+        { id: `tc_${idx + 1}_1`, isSample: true, input: '', expectedOutput: '' }
+      ];
+
+      const tcRowsHtml = testCases.map((tc, tcIdx) => `
+        <div class="p-tc-row" data-tcidx="${tcIdx}" data-sample="${tc.isSample ? 'true' : 'false'}" style="display: flex; gap: 8px; align-items: flex-start; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; margin-bottom: 6px;">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 85px; margin-top: 6px;">
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);">#${tcIdx + 1}</span>
+            <button type="button" class="btn-toggle-tc-type ${tc.isSample ? 'badge-sample-case' : 'badge-hidden-case'}" data-pidx="${idx}" data-tcidx="${tcIdx}" title="Click to toggle between Sample Example and Hidden test case">
+              ${tc.isSample ? '★ Sample' : '🔒 Hidden'}
+            </button>
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 0.70rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Input (Exact)</label>
+            <textarea class="form-control tc-input" rows="2" style="font-family: var(--font-mono); font-size: 0.78rem; resize: vertical;">${this._escape(tc.input || '')}</textarea>
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 0.70rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Expected Output (Exact)</label>
+            <textarea class="form-control tc-output" rows="2" style="font-family: var(--font-mono); font-size: 0.78rem; resize: vertical;">${this._escape(tc.expectedOutput || '')}</textarea>
+          </div>
+          <button type="button" class="btn btn-danger btn-sm btn-del-tc" data-pidx="${idx}" data-tcidx="${tcIdx}" style="margin-top: 18px; padding: 4px 8px; font-size: 0.72rem;" title="Delete Test Case">✕</button>
+        </div>
+      `).join('');
+
       card.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <strong style="color: var(--color-cyan);">#${idx + 1}</strong>
-            <input type="text" class="form-control p-title" style="width: 320px; font-weight: 700;" value="${this._escape(p.title)}">
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+            <strong style="color: var(--color-cyan); font-size: 1rem;">#${idx + 1}</strong>
+            <input type="text" class="form-control p-title" style="flex: 1; max-width: 480px; font-weight: 700;" value="${this._escape(p.title)}" placeholder="${this.hostContestType === 'exam' ? 'Experiment Title (e.g. Exp 1: Stack Operations)' : 'Question Title'}">
           </div>
-          <button class="btn btn-danger btn-sm btn-del-prob" data-idx="${idx}">Remove</button>
+          <button class="btn btn-danger btn-sm btn-del-prob" data-idx="${idx}">${this.hostContestType === 'exam' ? 'Remove Experiment' : 'Remove Question'}</button>
         </div>
-        <div class="form-grid-3">
+        <div class="form-grid-3" style="margin-top: 10px;">
           <div class="form-group">
-            <label>Tier</label>
+            <label>${this.hostContestType === 'exam' ? 'Category / Type' : 'Tier / Difficulty'}</label>
             <select class="form-control p-tier">
-              <option value="easy" ${p.tier === 'easy' ? 'selected' : ''}>Easy</option>
-              <option value="medium" ${p.tier === 'medium' ? 'selected' : ''}>Medium</option>
-              <option value="hard" ${p.tier === 'hard' ? 'selected' : ''}>Hard</option>
+              ${this.hostContestType === 'exam' ? `
+                <option value="lab" selected>Lab Experiment</option>
+              ` : `
+                <option value="easy" ${p.tier === 'easy' ? 'selected' : ''}>Easy (Round 1)</option>
+                <option value="medium" ${p.tier === 'medium' ? 'selected' : ''}>Medium (Round 2)</option>
+                <option value="hard" ${p.tier === 'hard' ? 'selected' : ''}>Hard (Round 3)</option>
+              `}
             </select>
           </div>
           <div class="form-group">
-            <label>Points</label>
-            <input type="number" class="form-control p-points" value="${p.maxPoints || 20}">
+            <label>${this.hostContestType === 'exam' ? 'Lab Marks' : 'Max Points'}</label>
+            <input type="number" class="form-control p-points" value="${p.maxPoints || (this.hostContestType === 'exam' ? 50 : (p.tier === 'easy' ? 5 : (p.tier === 'medium' ? 10 : 15)))}">
           </div>
           <div class="form-group">
             <label>Time Limit (ms)</label>
             <input type="number" class="form-control p-timeout" value="${p.timeLimitMs || 2000}">
           </div>
         </div>
-        <div class="form-group">
-          <label>Problem Description</label>
-          <textarea class="form-control p-desc" rows="3">${this._escape(p.description)}</textarea>
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Problem Statement &amp; Requirements</label>
+          <textarea class="form-control p-desc" rows="3" placeholder="Enter problem description, constraints, and instructions...">${this._escape(p.description)}</textarea>
+        </div>
+        <div class="form-group" style="margin-top: 10px;">
+          <label style="color: var(--color-cyan); font-weight: 700;">Starter Code (C Language)</label>
+          <textarea class="form-control p-starter-code" rows="4" style="font-family: var(--font-mono); font-size: 0.82rem; background: rgba(0, 0, 0, 0.35);">${this._escape(starterCode)}</textarea>
+        </div>
+        <div class="form-group" style="margin-top: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="color: var(--color-emerald); font-weight: 700;">Test Cases (${testCases.length})</label>
+            <button type="button" class="btn btn-secondary btn-sm btn-add-tc" data-pidx="${idx}" style="font-size: 0.72rem; padding: 4px 10px; border: 1px solid var(--color-emerald); color: var(--color-emerald);">+ Add Test Case</button>
+          </div>
+          <div class="p-tc-container" data-pidx="${idx}">
+            ${tcRowsHtml}
+          </div>
         </div>
       `;
+
+      // Event: Toggle Sample vs Hidden Test Case
+      card.querySelectorAll('.btn-toggle-tc-type').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const pIdx = parseInt(e.currentTarget.dataset.pidx);
+          const tcIdx = parseInt(e.currentTarget.dataset.tcidx);
+          this._syncCardsToHostProblems();
+          if (this.hostProblems[pIdx] && this.hostProblems[pIdx].testCases && this.hostProblems[pIdx].testCases[tcIdx]) {
+            this.hostProblems[pIdx].testCases[tcIdx].isSample = !this.hostProblems[pIdx].testCases[tcIdx].isSample;
+          }
+          this._renderHostProblemCards();
+        });
+      });
+
+      // Event: Remove question
       card.querySelector('.btn-del-prob').addEventListener('click', (e) => {
+        this._syncCardsToHostProblems();
         this.hostProblems.splice(parseInt(e.target.dataset.idx), 1);
         this._renderHostProblemCards();
       });
+
+      // Event: Add test case
+      card.querySelector('.btn-add-tc').addEventListener('click', (e) => {
+        const pIdx = parseInt(e.target.dataset.pidx);
+        this._syncCardsToHostProblems();
+        if (!this.hostProblems[pIdx].testCases) this.hostProblems[pIdx].testCases = [];
+        const nextTc = this.hostProblems[pIdx].testCases.length + 1;
+        this.hostProblems[pIdx].testCases.push({
+          id: `tc_${pIdx + 1}_${nextTc}`,
+          isSample: false,
+          input: '',
+          expectedOutput: ''
+        });
+        this._renderHostProblemCards();
+      });
+
+      // Event: Delete test case
+      card.querySelectorAll('.btn-del-tc').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const pIdx = parseInt(e.target.dataset.pidx);
+          const tcIdx = parseInt(e.target.dataset.tcidx);
+          this._syncCardsToHostProblems();
+          if (this.hostProblems[pIdx] && this.hostProblems[pIdx].testCases) {
+            this.hostProblems[pIdx].testCases.splice(tcIdx, 1);
+          }
+          this._renderHostProblemCards();
+        });
+      });
+
       this.hostProblemsList.appendChild(card);
     });
   }
 
-  _addHostProblem() {
-    const idx = this.hostProblems.length + 1;
-    this.hostProblems.push({
-      id: `p_custom_${idx}`,
-      tier: 'easy',
-      title: `Problem ${idx}: Algorithmic Challenge`,
-      category: 'General',
-      maxPoints: 20,
-      timeLimitMs: 2000,
-      description: 'Describe problem requirements, input/output specifications, and constraints.',
-      starterCode: '#include <stdio.h>\n\nint main() {\n    return 0;\n}\n',
-      testCases: [{ id: `tc_${idx}_1`, isSample: true, input: '5\n', expectedOutput: '10\n' }]
+  _syncCardsToHostProblems() {
+    const cards = this.hostProblemsList.querySelectorAll('.builder-problem-card');
+    cards.forEach((card, i) => {
+      if (!this.hostProblems[i]) return;
+      this.hostProblems[i].title = card.querySelector('.p-title').value;
+      this.hostProblems[i].tier = card.querySelector('.p-tier').value;
+      this.hostProblems[i].maxPoints = parseInt(card.querySelector('.p-points').value) || 20;
+      this.hostProblems[i].timeLimitMs = parseInt(card.querySelector('.p-timeout').value) || 2000;
+      this.hostProblems[i].description = card.querySelector('.p-desc').value;
+
+      const starterElem = card.querySelector('.p-starter-code');
+      if (starterElem) {
+        this.hostProblems[i].starterCode = starterElem.value;
+      }
+
+      const tcRows = card.querySelectorAll('.p-tc-row');
+      const compiledTcs = [];
+      tcRows.forEach((row, tcIdx) => {
+        const inp = row.querySelector('.tc-input').value;
+        const out = row.querySelector('.tc-output').value;
+        const isSample = row.dataset.sample === 'true';
+        compiledTcs.push({
+          id: `tc_${i + 1}_${tcIdx + 1}`,
+          isSample,
+          input: inp,
+          expectedOutput: out
+        });
+      });
+      this.hostProblems[i].testCases = compiledTcs;
     });
+  }
+
+  async _handleHostEndSession() {
+    if (this.modalHostEndSession) this.modalHostEndSession.classList.remove('active');
+    this.showToast('Ending contest session & archiving submissions...', 'info');
+
+    try {
+      const res = await window.api.endHostSession();
+      if (res && res.success) {
+        this._resetHostContestToEmpty();
+        this.showToast(`✓ Contest ended. ${res.archivedCount} submission(s) archived safely. Host workspace is now fresh & empty!`, 'success');
+        await this.switchView('welcome');
+      } else {
+        this.showToast(`Failed to end session: ${res?.error || 'Unknown error'}`, 'error');
+      }
+    } catch (err) {
+      this.showToast(`Error ending session: ${err.message}`, 'error');
+    }
+  }
+
+  _resetHostContestToEmpty() {
+    this.hostContestType = 'contest';
+    this._setHostMode('contest');
+    this.hostTitleInput.value = 'Mass-Code Championship';
+    const randCode = 'MASS' + Math.floor(1000 + Math.random() * 9000);
+    this.hostTokenInput.value = randCode;
+    this.hostDurationInput.value = 60;
+    this.hostProblems = [];
+    this.hostBatches = [
+      { id: 'batch_1', name: 'Batch 1 (Morning)', students: [] }
+    ];
+    this.activeBatchId = 'batch_1';
+    this._renderHostProblemCards();
+    this._renderBatchSelectOptions();
+    this._renderBatchAllocationsTable();
+    this.activeContest = null;
+
+    if (this.hostLeaderboardTbody) {
+      this.hostLeaderboardTbody.innerHTML = `
+        <tr>
+          <td colspan="12" style="text-align: center; color: var(--text-muted); padding: 32px;">
+            No submissions yet for this contest. Broadcast is stopped.
+          </td>
+        </tr>
+      `;
+    }
+    if (this.gradingCountLabel) {
+      this.gradingCountLabel.textContent = '0 candidate submissions loaded';
+    }
+    if (this.serverStateVal) {
+      this.serverStateVal.textContent = 'OFFLINE';
+      this.serverStateVal.className = 'status-tag status-stopped';
+    }
+    if (this.btnHostToggleServer) {
+      this.btnHostToggleServer.textContent = 'Start Server Broadcast';
+      this.btnHostToggleServer.className = 'btn btn-success btn-sm';
+    }
+  }
+
+  _addHostProblem() {
+    this._syncCardsToHostProblems();
+    const idx = this.hostProblems.length + 1;
+    if (this.hostContestType === 'exam') {
+      this.hostProblems.push({
+        id: `p_exp_${idx}`,
+        tier: 'lab',
+        title: `Exp ${idx}: Lab Experiment`,
+        category: 'Lab Experiment',
+        maxPoints: 50,
+        timeLimitMs: 2000,
+        description: 'Describe the lab experiment aim, requirements, and input/output specifications.',
+        starterCode: '#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Implement lab experiment here\n    return 0;\n}\n',
+        testCases: [{ id: `tc_${idx}_1`, isSample: true, input: '5\n', expectedOutput: '10\n' }]
+      });
+    } else {
+      this.hostProblems.push({
+        id: `p_custom_${idx}`,
+        tier: 'easy',
+        title: `Problem ${idx}: Algorithmic Challenge`,
+        category: 'General',
+        maxPoints: 5,
+        timeLimitMs: 2000,
+        description: 'Describe problem requirements, input/output specifications, and constraints.',
+        starterCode: '#include <stdio.h>\n\nint main() {\n    return 0;\n}\n',
+        testCases: [{ id: `tc_${idx}_1`, isSample: true, input: '5\n', expectedOutput: '10\n' }]
+      });
+    }
     this._renderHostProblemCards();
   }
 
@@ -1125,23 +2875,18 @@ class MassCodeApp {
   }
 
   _compileHostContest() {
-    const cards = this.hostProblemsList.querySelectorAll('.builder-problem-card');
-    cards.forEach((card, i) => {
-      if (!this.hostProblems[i]) return;
-      this.hostProblems[i].title = card.querySelector('.p-title').value;
-      this.hostProblems[i].tier = card.querySelector('.p-tier').value;
-      this.hostProblems[i].maxPoints = parseInt(card.querySelector('.p-points').value) || 20;
-      this.hostProblems[i].timeLimitMs = parseInt(card.querySelector('.p-timeout').value) || 2000;
-      this.hostProblems[i].description = card.querySelector('.p-desc').value;
-    });
+    this._syncCardsToHostProblems();
 
     return {
       id: this.hostTokenInput.value.trim() || 'MASS-' + Date.now(),
-      title: this.hostTitleInput.value.trim() || 'Mass-Code Contest',
+      type: this.hostContestType || 'contest',
+      title: this.hostTitleInput.value.trim() || (this.hostContestType === 'exam' ? 'College Lab Examination' : 'Mass-Code Contest'),
       token: this.hostTokenInput.value.trim() || 'MASS2026',
       durationMinutes: parseInt(this.hostDurationInput.value) || 60,
       language: 'c',
-      problems: this.hostProblems
+      problems: this.hostProblems,
+      batches: this.hostBatches || [],
+      activeBatchId: this.activeBatchId || 'batch_1'
     };
   }
 
@@ -1165,19 +2910,35 @@ class MassCodeApp {
 
   async _refreshHostServerStatus() {
     const status = await window.api.getHostServerStatus();
-    this.serverPortVal.textContent = status.port;
-    this.serverContestVal.textContent = status.activeContestId || 'MASS2026';
+    const primaryIp = status.primaryIp || (status.ips && status.ips[0]) || '127.0.0.1';
+    const port = status.port || 8080;
+    const pin = status.activeContestId || (this.activeContest && (this.activeContest.token || this.activeContest.id)) || 'MASS2026';
+    const fullUrl = `http://${primaryIp}:${port}`;
+
+    this.serverPortVal.textContent = port;
+    this.serverContestVal.textContent = pin;
     this.serverStateVal.textContent = status.isRunning ? 'Online' : 'Stopped';
     this.serverStateVal.style.color = status.isRunning ? 'var(--color-emerald)' : 'var(--color-rose)';
     this.btnHostToggleServer.textContent = status.isRunning ? 'Stop Server' : 'Start Server';
     this.btnHostToggleServer.className = status.isRunning ? 'btn btn-danger btn-sm' : 'btn btn-success btn-sm';
 
-    this.serverIpBadges.innerHTML = (status.ips || []).map(ip => `
-      <span class="candidate-pill">Endpoint: http://${ip}:${status.port}</span>
+    if (this.btnHostEndSession) {
+      this.btnHostEndSession.style.display = status.isRunning ? 'inline-flex' : 'none';
+    }
+
+    if (this.routerHostIp) this.routerHostIp.textContent = primaryIp;
+    if (this.routerHostPort) this.routerHostPort.textContent = `${port} (TCP)`;
+    if (this.routerHostPin) this.routerHostPin.textContent = pin;
+    if (this.routerFullUrl) this.routerFullUrl.textContent = fullUrl;
+
+    this.serverIpBadges.innerHTML = (status.ips || []).map((ip, idx) => `
+      <span class="candidate-pill" style="${idx === 0 ? 'border-color: var(--color-cyan); color: var(--color-cyan); font-weight: bold;' : ''}">
+        ${idx === 0 ? '⭐ Primary Endpoint: ' : 'Endpoint: '}http://${ip}:${port}
+      </span>
     `).join('');
 
     if (this.serverGuidePin) {
-      this.serverGuidePin.textContent = status.activeContestId || (this.activeContest && this.activeContest.token) || 'MASS2026';
+      this.serverGuidePin.textContent = pin;
     }
   }
 
@@ -1201,7 +2962,9 @@ class MassCodeApp {
     const serverPanel = document.getElementById('host-panel-server');
     if (serverPanel) serverPanel.classList.add('active');
 
-    this.showToast(`Contest "${config.title}" is now LIVE on LAN (Port 8080)! (${config.problems.length} questions, PIN: ${config.token})`, 'success');
+    const primaryIp = (startRes && startRes.primaryIp) || (startRes && startRes.ips && startRes.ips[0]) || '127.0.0.1';
+    const port = (startRes && startRes.port) || 8080;
+    this.showToast(`Contest LIVE! IP: ${primaryIp} | Port: ${port} | PIN: ${config.token || 'MASS2026'}`, 'success');
   }
 
   async _toggleHostServer() {
@@ -1213,10 +2976,12 @@ class MassCodeApp {
       const config = this._compileHostContest();
       this.activeContest = config;
       await window.api.saveContestConfig(config);
-      await window.api.startHostServer({ port: 8080, contestConfig: config });
-      this.showToast('Host Server started on port 8080 (UDP Broadcast Active).', 'success');
+      const startRes = await window.api.startHostServer({ port: 8080, contestConfig: config });
+      const primaryIp = (startRes && startRes.primaryIp) || (startRes && startRes.ips && startRes.ips[0]) || '127.0.0.1';
+      const port = (startRes && startRes.port) || 8080;
+      this.showToast(`Host Server started on http://${primaryIp}:${port} (PIN: ${config.token || 'MASS2026'})`, 'success');
     }
-    this._refreshHostServerStatus();
+    await this._refreshHostServerStatus();
   }
 
   async _scanHostSubmissions() {
@@ -1228,10 +2993,187 @@ class MassCodeApp {
     }
   }
 
+  async _autoGradeAllHostSubmissions() {
+    const problems = (this.activeContest && this.activeContest.problems) || this.hostProblems || [];
+    if (!problems || problems.length === 0) {
+      return this.showToast('No active contest problems found to evaluate against.', 'warning');
+    }
+    if (!this.hostSubmissions || this.hostSubmissions.length === 0) {
+      await this._scanHostSubmissions();
+    }
+    if (!this.hostSubmissions || this.hostSubmissions.length === 0) {
+      return this.showToast('No candidate submissions found to grade.', 'warning');
+    }
+
+    const ok = confirm(`Run all test cases for ALL ${this.hostSubmissions.length} candidates across ${problems.length} problems?\nThis will automatically execute code, verify test cases, and calculate scores for all rounds.`);
+    if (!ok) return;
+
+    if (this.btnHostGradeAll) {
+      this.btnHostGradeAll.disabled = true;
+      this.btnHostGradeAll.textContent = '⏳ Auto-Grading All...';
+    }
+    this.showToast(`Batch grading started for ${this.hostSubmissions.length} candidates...`, 'info');
+
+    let processedCount = 0;
+    for (let ci = 0; ci < this.hostSubmissions.length; ci++) {
+      const sub = this.hostSubmissions[ci];
+      const payload = sub.fullPayload || {};
+      const problemCodes = payload.problemCodes || {};
+      const evaluations = {};
+      let totalScore = 0;
+      let maxContestScore = 0;
+      let solvedCount = 0;
+      let totalCpuMs = 0;
+      const tierScores = {};
+      const roundBreakdown = [];
+
+      this.gradingCountLabel.textContent = `Evaluating candidate ${ci + 1}/${this.hostSubmissions.length}: ${sub.usn}...`;
+
+      for (let pi = 0; pi < problems.length; pi++) {
+        const p = problems[pi];
+        maxContestScore += (p.maxPoints || 0);
+        const code = problemCodes[p.id] || problemCodes[`${p.id}_c`] || problemCodes[`${p.id}_python`] || p.starterCode || '';
+
+        let evalRes = null;
+        try {
+          evalRes = await window.api.compileAndEvaluate({
+            code,
+            language: this.activeContest?.language || 'c',
+            testCases: p.testCases || [],
+            timeoutMs: p.timeLimitMs || 2500,
+            maxPoints: p.maxPoints || 20
+          });
+        } catch (err) {
+          evalRes = {
+            success: false,
+            phase: 'system',
+            compilerError: err.message,
+            totalScore: 0,
+            maxScore: p.maxPoints || 0,
+            passedCount: 0,
+            totalCount: (p.testCases || []).length,
+            totalExecutionTimeMs: 0
+          };
+        }
+
+        evaluations[p.id] = evalRes;
+        const earned = evalRes.totalScore || 0;
+        totalScore += earned;
+        totalCpuMs += (evalRes.totalExecutionTimeMs || 0);
+        const isSolved = evalRes.passedCount === evalRes.totalCount && evalRes.totalCount > 0;
+        if (isSolved) solvedCount++;
+
+        const tierKey = (p.tier || 'general').toLowerCase();
+        if (!tierScores[tierKey]) {
+          let displayName = tierKey.toUpperCase();
+          if (tierKey === 'easy') displayName = 'Easy (Round 1)';
+          else if (tierKey === 'medium') displayName = 'Medium (Round 2)';
+          else if (tierKey === 'hard') displayName = 'Hard (Round 3)';
+
+          tierScores[tierKey] = {
+            tier: tierKey,
+            name: displayName,
+            score: 0,
+            maxScore: 0,
+            solvedCount: 0,
+            totalCount: 0
+          };
+        }
+        tierScores[tierKey].score += earned;
+        tierScores[tierKey].maxScore += (p.maxPoints || 0);
+        if (isSolved) tierScores[tierKey].solvedCount++;
+        tierScores[tierKey].totalCount++;
+
+        let status = 'FAILED';
+        if (evalRes.phase === 'compilation' || (!evalRes.success && evalRes.compilerError)) {
+          status = 'BUILD ERROR';
+        } else if (isSolved) {
+          status = 'PASSED';
+        } else if (evalRes.passedCount > 0) {
+          status = 'PARTIAL';
+        }
+
+        roundBreakdown.push({
+          id: p.id,
+          title: p.title || p.id,
+          tier: p.tier || 'easy',
+          difficulty: p.difficulty || p.tier || 'Easy',
+          score: earned,
+          maxScore: p.maxPoints || 0,
+          passedCount: evalRes.passedCount || 0,
+          totalCount: evalRes.totalCount || (p.testCases || []).length,
+          totalExecutionTimeMs: evalRes.totalExecutionTimeMs || 0,
+          status
+        });
+      }
+
+      // Update payload
+      payload.totalScore = totalScore;
+      payload.maxScore = maxContestScore;
+      payload.problemsSolvedCount = solvedCount;
+      payload.totalProblems = problems.length;
+      payload.totalExecutionTimeMs = Math.round(totalCpuMs * 10) / 10;
+      payload.evaluations = evaluations;
+      payload.tierScores = tierScores;
+      payload.roundBreakdown = roundBreakdown;
+
+      // Save back to disk and mirror
+      await window.api.saveFinalSubmission(payload);
+      processedCount++;
+    }
+
+    if (this.btnHostGradeAll) {
+      this.btnHostGradeAll.disabled = false;
+      this.btnHostGradeAll.textContent = '⚡ Auto-Grade / Run All Tests';
+    }
+    this.showToast(`Batch evaluation complete! Evaluated ${processedCount} candidates for all rounds.`, 'success');
+    await this._scanHostSubmissions();
+  }
+
   _renderLeaderboardTable() {
+    const isExam = this.hostContestType === 'exam' || (this.activeContest && this.activeContest.type === 'exam');
+
+    if (this.leaderboardThead) {
+      if (isExam) {
+        this.leaderboardThead.innerHTML = `
+          <tr>
+            <th style="width: 50px; text-align: center;">Rank</th>
+            <th style="width: 130px;">USN</th>
+            <th>Candidate Name</th>
+            <th>Batch</th>
+            <th>Assigned Lab Experiment</th>
+            <th style="text-align: center;">Change of Exp?</th>
+            <th style="text-align: center;">Status</th>
+            <th style="text-align: center;">Raw Marks</th>
+            <th style="text-align: center; color: var(--color-emerald);">Final Marks</th>
+            <th>Elapsed</th>
+            <th>Violations</th>
+            <th style="text-align: center;">Action</th>
+          </tr>
+        `;
+      } else {
+        this.leaderboardThead.innerHTML = `
+          <tr>
+            <th style="width: 55px; text-align: center;">Rank</th>
+            <th>USN</th>
+            <th>Candidate Name</th>
+            <th style="color: var(--color-emerald); text-align: center;">Easy (R1)</th>
+            <th style="color: var(--color-amber); text-align: center;">Medium (R2)</th>
+            <th style="color: var(--color-rose); text-align: center;">Hard (R3)</th>
+            <th style="text-align: center;">Total Score</th>
+            <th style="text-align: center;">Solved</th>
+            <th>Elapsed</th>
+            <th>CPU Exec</th>
+            <th>Violations</th>
+            <th style="text-align: center;">Action</th>
+          </tr>
+        `;
+      }
+    }
+
     if (this.hostSubmissions.length === 0) {
       this.hostLeaderboardTbody.innerHTML = `
-        <tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 32px;">No submissions found.</td></tr>
+        <tr><td colspan="12" style="text-align: center; color: var(--text-muted); padding: 32px;">No submissions found. Click "Scan Submissions Folder" to load candidate records.</td></tr>
       `;
       return;
     }
@@ -1241,17 +3183,90 @@ class MassCodeApp {
       const s = r.timeElapsedSeconds % 60;
       const rankColor = r.rank === 1 ? 'color: #ffd700; font-weight: 900;' : r.rank === 2 ? 'color: #e0e0e0; font-weight: 800;' : r.rank === 3 ? 'color: #cd7f32; font-weight: 800;' : '';
 
+      if (isExam) {
+        const p = r.fullPayload || {};
+        let studentBatchName = p.batchName || '';
+        let studentAssignedExp = p.assignedProblemTitle || '';
+        let isCoe = p.isChangeOfExperiment || false;
+        let penalty = p.penalty || 0;
+
+        if (!studentAssignedExp && this.hostBatches) {
+          for (const b of this.hostBatches) {
+            const found = (b.students || []).find(st => st.usn && st.usn.toUpperCase() === r.usn.toUpperCase());
+            if (found) {
+              studentBatchName = b.name;
+              studentAssignedExp = found.assignedProblemTitle;
+              isCoe = found.isChangeOfExperiment;
+              penalty = found.penalty || 0;
+              break;
+            }
+          }
+        }
+
+        const rawScore = r.totalScore || 0;
+        const finalScore = isCoe ? Math.max(0, rawScore - penalty) : rawScore;
+        const coeDisplay = isCoe
+          ? `<span class="badge-change-of-exp">⚠ -${penalty} Pts (Changed)</span>`
+          : `<span style="color: var(--text-muted); font-size: 0.76rem;">No (Regular)</span>`;
+
+        return `
+          <tr>
+            <td style="text-align: center;"><span style="${rankColor}">#${r.rank}</span></td>
+            <td style="font-family: var(--font-mono); font-weight: 700;">${this._escape(r.usn)}</td>
+            <td>${this._escape(r.name)}</td>
+            <td><span class="candidate-pill" style="font-size: 0.72rem;">${this._escape(studentBatchName || 'Batch 1')}</span></td>
+            <td><strong style="color: var(--color-cyan); font-size: 0.85rem;">${this._escape(studentAssignedExp || 'Lab Program')}</strong></td>
+            <td style="text-align: center;">${coeDisplay}</td>
+            <td style="text-align: center; font-family: var(--font-mono);">${r.problemsSolvedCount > 0 ? '✔ Solved' : 'Incomplete'}</td>
+            <td style="text-align: center; font-family: var(--font-mono); color: var(--text-muted);">${rawScore} / ${r.maxScore}</td>
+            <td style="text-align: center; font-family: var(--font-mono);"><strong style="color: var(--color-emerald); font-size: 0.95rem;">${finalScore} / ${r.maxScore}</strong></td>
+            <td style="font-family: var(--font-mono); font-size: 0.8rem;">${m}m ${s < 10 ? '0' : ''}${s}s</td>
+            <td><span style="${r.violationsCount > 0 ? 'color: var(--color-rose); font-weight: bold;' : ''}">${r.violationsCount}</span></td>
+            <td style="text-align: center;"><button class="btn btn-secondary btn-sm btn-inspect-cand" data-usn="${this._escape(r.usn)}">Inspect</button></td>
+          </tr>
+        `;
+      }
+
+      // Contest Mode Row
+      const tierScores = r.tierScores || (r.fullPayload && r.fullPayload.tierScores) || {};
+      let easyStr = (tierScores.easy && typeof tierScores.easy.score === 'number') ? `${tierScores.easy.score}/${tierScores.easy.maxScore}` : null;
+      let medStr = (tierScores.medium && typeof tierScores.medium.score === 'number') ? `${tierScores.medium.score}/${tierScores.medium.maxScore}` : null;
+      let hardStr = (tierScores.hard && typeof tierScores.hard.score === 'number') ? `${tierScores.hard.score}/${tierScores.hard.maxScore}` : null;
+
+      // Dynamic calculation for legacy or fallback submissions
+      if (!easyStr || !medStr || !hardStr) {
+        const evs = (r.fullPayload && r.fullPayload.evaluations) || {};
+        const probs = (this.activeContest && this.activeContest.problems) || this.hostProblems || [];
+        let eS = 0, eM = 0, mS = 0, mM = 0, hS = 0, hM = 0;
+        let hasE = false, hasM = false, hasH = false;
+        probs.forEach(p => {
+          const t = (p.tier || '').toLowerCase();
+          const ev = evs[p.id];
+          const sc = ev ? (ev.totalScore || 0) : 0;
+          const maxP = p.maxPoints || 0;
+          if (t === 'easy') { eS += sc; eM += maxP; hasE = true; }
+          else if (t === 'medium') { mS += sc; mM += maxP; hasM = true; }
+          else if (t === 'hard') { hS += sc; hM += maxP; hasH = true; }
+        });
+        if (hasE && !easyStr) easyStr = `${eS}/${eM}`;
+        if (hasM && !medStr) medStr = `${mS}/${mM}`;
+        if (hasH && !hardStr) hardStr = `${hS}/${hM}`;
+      }
+
       return `
         <tr>
-          <td><span style="${rankColor}">#${r.rank}</span></td>
+          <td style="text-align: center;"><span style="${rankColor}">#${r.rank}</span></td>
           <td style="font-family: var(--font-mono); font-weight: 700;">${this._escape(r.usn)}</td>
           <td>${this._escape(r.name)}</td>
-          <td><strong style="color: var(--color-emerald);">${r.totalScore} / ${r.maxScore}</strong></td>
-          <td>${r.problemsSolvedCount} / ${r.totalProblems}</td>
+          <td style="text-align: center; font-family: var(--font-mono); color: var(--color-emerald); font-weight: 700;">${easyStr || '--'}</td>
+          <td style="text-align: center; font-family: var(--font-mono); color: var(--color-amber); font-weight: 700;">${medStr || '--'}</td>
+          <td style="text-align: center; font-family: var(--font-mono); color: var(--color-rose); font-weight: 700;">${hardStr || '--'}</td>
+          <td style="text-align: center;"><strong style="color: var(--color-emerald); font-size: 0.95rem;">${r.totalScore} / ${r.maxScore}</strong></td>
+          <td style="text-align: center;">${r.problemsSolvedCount} / ${r.totalProblems}</td>
           <td style="font-family: var(--font-mono); font-size: 0.8rem;">${m}m ${s < 10 ? '0' : ''}${s}s</td>
           <td style="font-family: var(--font-mono); font-size: 0.8rem;">${r.totalExecutionTimeMs} ms</td>
           <td><span style="${r.violationsCount > 0 ? 'color: var(--color-rose); font-weight: bold;' : ''}">${r.violationsCount}</span></td>
-          <td><button class="btn btn-secondary btn-sm btn-inspect-cand" data-usn="${this._escape(r.usn)}">Inspect</button></td>
+          <td style="text-align: center;"><button class="btn btn-secondary btn-sm btn-inspect-cand" data-usn="${this._escape(r.usn)}">Inspect</button></td>
         </tr>
       `;
     }).join('');
@@ -1263,9 +3278,63 @@ class MassCodeApp {
           this.inspectUsn.textContent = sub.usn;
           this.inspectName.textContent = sub.name;
           this.inspectScore.textContent = `${sub.totalScore} / ${sub.maxScore}`;
+          const m = Math.floor(sub.timeElapsedSeconds / 60);
+          const s = sub.timeElapsedSeconds % 60;
+          if (this.inspectTime) {
+            this.inspectTime.innerHTML = `Time: <strong>${m}m ${s < 10 ? '0' : ''}${s}s</strong> | CPU: <strong>${sub.totalExecutionTimeMs} ms</strong>`;
+          }
+
+          const p = sub.fullPayload || {};
+          const tScores = sub.tierScores || p.tierScores || {};
+          if (this.inspectRoundsContainer) {
+            const keys = Object.keys(tScores);
+            if (keys.length > 0) {
+              this.inspectRoundsContainer.innerHTML = keys.map(k => {
+                const item = tScores[k];
+                let color = 'var(--color-cyan)';
+                if (k === 'easy') color = 'var(--color-emerald)';
+                else if (k === 'medium') color = 'var(--color-amber)';
+                else if (k === 'hard') color = 'var(--color-rose)';
+                return `
+                  <div style="background: rgba(255,255,255,0.03); border: 1px solid ${color}; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem;">
+                    <span style="color: var(--text-muted);">${item.name || k.toUpperCase()}:</span>
+                    <strong style="color: ${color}; margin-left: 6px;">${item.score} / ${item.maxScore}</strong>
+                    <span style="color: var(--text-muted); font-size: 0.72rem; margin-left: 4px;">(${item.solvedCount || 0} solved)</span>
+                  </div>
+                `;
+              }).join('');
+            } else {
+              this.inspectRoundsContainer.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">No round breakdown saved. Click "⚡ Auto-Grade / Run All Tests" to compute.</span>';
+            }
+          }
+
+          if (this.inspectProgramsTbody) {
+            const breakdown = sub.roundBreakdown || p.roundBreakdown || [];
+            if (breakdown.length > 0) {
+              this.inspectProgramsTbody.innerHTML = breakdown.map((item, idx) => {
+                let badgeClass = 'badge-status-failed';
+                if (item.status === 'PASSED') badgeClass = 'badge-status-passed';
+                else if (item.status === 'PARTIAL') badgeClass = 'badge-status-partial';
+                else if (item.status === 'BUILD ERROR') badgeClass = 'badge-status-error';
+                else if (item.status === 'NOT ATTEMPTED') badgeClass = 'badge-status-unattempted';
+
+                return `
+                  <tr>
+                    <td style="text-align: center; color: var(--text-muted); font-family: var(--font-mono);">${idx + 1}</td>
+                    <td style="text-transform: uppercase; font-weight: 700;">${this._escape(item.tier)}</td>
+                    <td style="font-weight: 600;">${this._escape(item.title)}</td>
+                    <td style="text-align: center; font-family: var(--font-mono);">${item.passedCount} / ${item.totalCount}</td>
+                    <td style="text-align: center; font-family: var(--font-mono);"><strong style="color: var(--color-emerald);">${item.score} / ${item.maxScore}</strong></td>
+                    <td style="text-align: center;"><span class="${badgeClass}">${item.status}</span></td>
+                  </tr>
+                `;
+              }).join('');
+            } else {
+              this.inspectProgramsTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 12px;">Detailed breakdown not recorded for this legacy submission. Click "⚡ Auto-Grade / Run All Tests" to evaluate.</td></tr>`;
+            }
+          }
 
           let codeLogs = '';
-          const p = sub.fullPayload;
           if (p && p.problemCodes) {
             for (const [probId, code] of Object.entries(p.problemCodes)) {
               codeLogs += `// ====================================\n// PROBLEM: ${probId}\n// ====================================\n${code}\n\n`;

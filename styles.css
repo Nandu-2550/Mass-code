@@ -266,6 +266,16 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   transform: translateY(-1px);
 }
 
+.btn-warning {
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+  color: #fff;
+  box-shadow: 0 2px 8px var(--color-amber-glow);
+}
+.btn-warning:hover {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  transform: translateY(-1px);
+}
+
 .btn-secondary {
   background-color: var(--bg-card);
   color: var(--text-main);
@@ -849,20 +859,51 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   overflow: hidden;
 }
 
+.workspace-top-bar,
 .workspace-breadcrumb {
   height: 42px;
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
-  padding: 0 16px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-cyan);
-  cursor: pointer;
+  padding: 0 12px;
+  flex-shrink: 0;
 }
-.workspace-breadcrumb:hover {
-  text-decoration: underline;
+
+.btn-back-bank {
+  background-color: rgba(14, 165, 233, 0.12);
+  color: var(--color-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: var(--radius-md);
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  user-select: none;
+}
+
+.btn-back-bank:hover {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(14, 165, 233, 0.3));
+  border-color: var(--color-cyan);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+  transform: translateX(-2px);
+}
+
+.btn-back-bank .btn-back-arrow {
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.btn-back-bank:hover .btn-back-arrow {
+  transform: translateX(-3px);
 }
 
 .problem-statement-scroll {
@@ -941,16 +982,20 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
 }
 
 .line-numbers-gutter {
-  width: 48px;
+  width: 52px;
+  min-width: 52px;
   background-color: #090c14;
   border-right: 1px solid var(--border-subtle);
-  padding: 14px 8px;
+  padding: 14px 10px 14px 0;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  line-height: 20px;
+  font-size: 0.88rem;
+  line-height: 22px;
   color: var(--text-muted);
   text-align: right;
   user-select: none;
+  white-space: pre !important;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .code-editor-textarea {
@@ -961,11 +1006,14 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   padding: 14px 16px;
   font-family: var(--font-mono);
   font-size: 0.88rem;
-  line-height: 20px;
+  line-height: 22px;
   outline: none;
   resize: none;
   white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
   tab-size: 4;
+  box-sizing: border-box;
 }
 
 /* Green-on-black terminal sandbox */
@@ -1118,3 +1166,418 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+
+/* Evaluation Spinner & Batch Testing Badges */
+.eval-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(0, 229, 255, 0.15);
+  border-top-color: var(--color-cyan);
+  border-radius: 50%;
+  animation: eval-spin 0.8s linear infinite;
+}
+
+@keyframes eval-spin {
+  to { transform: rotate(360deg); }
+}
+
+.badge-status-passed {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--color-emerald);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.badge-status-partial {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.badge-status-failed {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--color-rose);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.badge-status-error {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(244, 63, 94, 0.2);
+  color: #f43f5e;
+  border: 1px solid rgba(244, 63, 94, 0.5);
+}
+
+.badge-status-unattempted {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+.round-score-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.round-score-card:hover {
+  border-color: var(--border-focus);
+}
+
+#btn-review-back-to-ty {
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid var(--color-cyan);
+  color: var(--color-cyan);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+#btn-review-back-to-ty:hover {
+  background: rgba(14, 165, 233, 0.25);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+#btn-ty-review-code {
+  transition: all 0.2s ease;
+}
+
+#btn-ty-review-code:hover {
+  background: rgba(14, 165, 233, 0.25) !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+}
+
+/* Offline PDF Question Paper Dropzone & Host Builder Enhancements */
+.pdf-dropzone {
+  background: rgba(14, 165, 233, 0.04);
+  border: 2px dashed rgba(14, 165, 233, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.pdf-dropzone:hover,
+.pdf-dropzone.dragover,
+.pdf-dropzone.drag-over {
+  background: rgba(14, 165, 233, 0.09);
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+}
+
+.pdf-dropzone-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pdf-dropzone-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.pdf-dropzone-text {
+  flex: 1;
+  min-width: 240px;
+}
+
+.pdf-dropzone-title {
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.pdf-dropzone-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.pdf-browse-link {
+  color: var(--color-cyan);
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.pdf-browse-link:hover {
+  color: #fff;
+}
+
+.pdf-status-banner {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(14, 165, 233, 0.12);
+  border: 1px solid var(--color-cyan);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-cyan);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pdf-status-banner.error,
+.pdf-status-banner.pdf-status-error {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: var(--color-rose);
+  color: var(--color-rose);
+}
+
+.pdf-status-banner.success,
+.pdf-status-banner.pdf-status-success {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: var(--color-emerald);
+  color: var(--color-emerald);
+}
+
+.builder-problem-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  transition: border-color 0.15s ease;
+}
+
+.builder-problem-card:hover {
+  border-color: var(--border-focus);
+}
+
+/* HackerRank-style Test Case Badges and Containers */
+.badge-sample-case {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.70rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(14, 165, 233, 0.15);
+  color: var(--color-cyan);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.badge-sample-case:hover {
+  background: rgba(14, 165, 233, 0.25);
+  border-color: var(--color-cyan);
+}
+
+.badge-hidden-case {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.70rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.badge-hidden-case:hover {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: var(--color-amber);
+}
+
+.hidden-cases-banner {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px dashed rgba(245, 158, 11, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  color: var(--color-amber);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* ==========================================================================
+   HOST MODE BAR & EXAM / CONTEST SWITCHER
+   ========================================================================== */
+.host-mode-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.75);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 10px 24px;
+}
+
+.host-mode-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mode-label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mode-switch-group {
+  display: inline-flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 4px;
+}
+
+.mode-pill-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-pill-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.mode-pill-btn.active {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(16, 185, 129, 0.2));
+  color: var(--color-cyan);
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.2);
+}
+
+.mode-pill-btn[data-mode="exam"].active {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(16, 185, 129, 0.2));
+  color: var(--color-amber);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+.mode-pill-desc {
+  font-size: 0.68rem;
+  font-weight: 500;
+  opacity: 0.8;
+  margin-top: 1px;
+}
+
+.mode-indicator-contest {
+  color: var(--color-cyan) !important;
+  border-color: rgba(14, 165, 233, 0.4) !important;
+}
+
+.mode-indicator-exam {
+  color: var(--color-amber) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+/* ==========================================================================
+   BATCHES & EXPERIMENT ALLOCATION BADGES
+   ========================================================================== */
+.badge-chit-random {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(14, 165, 233, 0.15);
+  color: var(--color-cyan);
+  border: 1px solid rgba(14, 165, 233, 0.35);
+}
+
+.badge-chit-manual {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.badge-change-of-exp {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.change-of-exp-banner {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
