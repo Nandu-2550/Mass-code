@@ -23,6 +23,7 @@ async function updateUnpackedAsar() {
     'main.js',
     'preload.js',
     'renderer.js',
+    'c-engine.js',
     'index.html',
     'styles.css',
     'package.json'
@@ -50,8 +51,8 @@ async function updateUnpackedAsar() {
     console.log('Copied assets directory');
   }
 
-  // Copy runtime node_modules needed in app.asar for offline PDF parsing
-  const runtimeModules = ['pdf-parse', 'pdfjs-dist'];
+  // Copy runtime node_modules needed in app.asar for offline PDF parsing and in-process C runtime
+  const runtimeModules = ['pdf-parse', 'pdfjs-dist', 'JSCPP', 'lodash', 'pegjs-util', 'printf'];
   const stageNodeModules = path.join(tempStage, 'node_modules');
   fs.mkdirSync(stageNodeModules, { recursive: true });
   for (const mod of runtimeModules) {

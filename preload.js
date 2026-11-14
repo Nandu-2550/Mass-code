@@ -44,8 +44,21 @@ contextBridge.exposeInMainWorld('api', {
 
   // LAN Remote Sync & UDP Discovery Bridge
   fetchRemoteContest: (options) => ipcRenderer.invoke('sync:fetch-remote-contest', options),
+  fetchExamAssignment: (options) => ipcRenderer.invoke('sync:fetch-exam-assignment', options),
   pushSubmissionHttp: (options) => ipcRenderer.invoke('sync:push-submission', options),
   startLanListening: () => ipcRenderer.invoke('lan:start-listening'),
   stopLanListening: () => ipcRenderer.invoke('lan:stop-listening'),
-  onHostDiscovered: (callback) => ipcRenderer.on('lan:host-discovered', (e, data) => callback(data))
+  onHostDiscovered: (callback) => ipcRenderer.on('lan:host-discovered', (e, data) => callback(data)),
+
+  // Interactive Terminal Sandbox & Infinite Loop Killer
+  initTerminalSession: (options) => ipcRenderer.invoke('terminal:init-session', options),
+  syncTerminalEditorFile: (options) => ipcRenderer.invoke('terminal:sync-editor-file', options),
+  runTerminalCommand: (options) => ipcRenderer.invoke('terminal:run-command', options),
+  sendTerminalStdin: (options) => ipcRenderer.invoke('terminal:send-stdin', options),
+  killTerminalProcess: () => ipcRenderer.invoke('terminal:kill-process'),
+  onTerminalStreamOutput: (callback) => ipcRenderer.on('terminal:stream-output', (e, data) => callback(data)),
+  onTerminalProcessExit: (callback) => ipcRenderer.on('terminal:process-exit', (e, data) => callback(data)),
+
+  // System & Windows Security Fix Tool
+  fixSecurityPolicy: () => ipcRenderer.invoke('system:fix-security-policy')
 });

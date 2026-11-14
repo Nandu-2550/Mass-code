@@ -843,11 +843,15 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
    PROBLEM WORKSPACE SPLIT-SCREEN VIEW
    ========================================================================= */
 .workspace-split-container {
-  display: grid;
-  grid-template-columns: 46% 54%;
-  flex: 1;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
   height: 100%;
   overflow: hidden;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 .left-panel-workspace {
@@ -856,7 +860,46 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 44%;
+  min-width: 220px;
+  max-width: 85%;
   overflow: hidden;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+}
+
+/* Draggable Splitters for Panels */
+.workspace-resizer {
+  width: 8px;
+  background-color: var(--border-subtle);
+  cursor: col-resize;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  z-index: 10;
+  flex-shrink: 0;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.workspace-resizer:hover,
+.workspace-resizer.resizing {
+  background-color: var(--color-cyan);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
+}
+
+.terminal-resizer {
+  height: 6px;
+  background-color: var(--border-subtle);
+  cursor: row-resize;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  z-index: 10;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.terminal-resizer:hover,
+.terminal-resizer.resizing {
+  background-color: var(--color-cyan);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
 }
 
 .workspace-top-bar,
@@ -959,6 +1002,10 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  flex: 1 1 0%;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .editor-toolbar {
@@ -970,15 +1017,20 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   justify-content: space-between;
   padding: 0 16px;
   flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .code-editor-area {
-  flex: 1;
+  flex: 1 1 0%;
+  min-height: 80px;
   position: relative;
   display: flex;
   background-color: #070a10;
   overflow: hidden;
   border-bottom: 2px solid var(--border-subtle);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .line-numbers-gutter {
@@ -996,10 +1048,13 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   white-space: pre !important;
   overflow: hidden;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .code-editor-textarea {
-  flex: 1;
+  flex: 1 1 0%;
+  min-width: 0;
+  width: 100%;
   background-color: transparent;
   color: var(--text-code);
   border: none;
@@ -1019,10 +1074,14 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
 /* Green-on-black terminal sandbox */
 .terminal-sandbox {
   height: 240px;
+  min-height: 90px;
+  max-height: calc(100% - 100px);
   background-color: #05070a;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .terminal-top {
@@ -1037,10 +1096,14 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--color-emerald);
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .terminal-stream {
-  flex: 1;
+  flex: 1 1 0%;
+  min-height: 0;
   padding: 12px 16px;
   font-family: var(--font-mono);
   font-size: 0.82rem;
@@ -1050,6 +1113,42 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   white-space: pre-wrap;
   user-select: text;
   text-shadow: 0 0 2px rgba(57, 255, 20, 0.4);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.terminal-cli-bar {
+  display: flex;
+  align-items: center;
+  background: #090d16;
+  border-bottom: 1px solid #1a233a;
+  padding: 6px 12px;
+  gap: 8px;
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.stage-nav-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  margin-top: 24px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stage-step-num {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--color-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 4px;
 }
 
 /* Clipboard Alert Toast */
@@ -1580,4 +1679,198 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   align-items: center;
   gap: 12px;
 }
+
+/* ==========================================================================
+   HIGHLIGHTED DIFFICULTY BADGES & EXACT QUESTION CARD FORMAT
+   ========================================================================== */
+.badge-tier-easy {
+  background-color: rgba(16, 185, 129, 0.22);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.55);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.76rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge-tier-medium {
+  background-color: rgba(245, 158, 11, 0.22);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.55);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.76rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge-tier-hard {
+  background-color: rgba(239, 68, 68, 0.22);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.76rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge-tier-lab {
+  background-color: rgba(56, 189, 248, 0.22);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.55);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.76rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ws-problem-header-container {
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.problem-section-heading {
+  font-size: 0.90rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+.problem-desc-content {
+  font-size: 0.93rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ==========================================================================
+   HOST MODE SELECTION SCREEN & FULL-WINDOW WORKSPACE
+   ========================================================================== */
+.host-mode-select-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  min-height: calc(100vh - 60px);
+  background: radial-gradient(circle at 50% 20%, #151d30 0%, #080c16 100%);
+}
+
+.host-mode-select-box {
+  max-width: 960px;
+  width: 100%;
+}
+
+.host-mode-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 24px;
+}
+
+.host-mode-choice-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.host-mode-choice-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-cyan);
+  box-shadow: 0 12px 30px rgba(0, 229, 255, 0.15);
+}
+
+.host-mode-choice-card.card-exam:hover {
+  border-color: var(--color-amber);
+  box-shadow: 0 12px 30px rgba(245, 158, 11, 0.15);
+}
+
+.host-mode-choice-icon {
+  font-size: 2.8rem;
+  margin-bottom: 14px;
+}
+
+/* Candidate Mode Switcher */
+.comp-mode-pill {
+  padding: 8px 14px;
+  font-size: 0.84rem;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.comp-mode-pill.active {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(16, 185, 129, 0.2));
+  color: var(--color-cyan);
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.2);
+}
+
+.comp-mode-pill[data-mode="exam"].active {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(16, 185, 129, 0.2));
+  color: var(--color-amber);
+  border-color: var(--color-amber);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+/* Terminal Command Input CLI Bar */
+.terminal-cli-bar {
+  display: flex;
+  align-items: center;
+  background: #090d16;
+  border-bottom: 1px solid #1a233a;
+  border-top: none;
+  padding: 6px 12px;
+  gap: 8px;
+}
+
+.terminal-prompt {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #38bdf8;
+  white-space: nowrap;
+}
+
+.terminal-cli-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #39ff14;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+
 

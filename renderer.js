@@ -49,6 +49,11 @@ class MassCodeApp {
     this.isReviewMode = false;
     this.supervisorAction = 'kiosk';
 
+    // Step Flow Tracking (1: Welcome, 2: Session Mode Select, 3: Workspace/Station, 4: Active Session)
+    this.hostStep = 2;
+    this.compStep = 2;
+    this.candidateMode = 'contest';
+
     this._initElements();
     this._bindEvents();
     this._initDiagnostics();
@@ -81,6 +86,11 @@ class MassCodeApp {
     this.welcomeIpStatus = document.getElementById('welcome-ip-status');
 
     // Host Mode Switcher Elements
+    this.hostModeSelectScreen = document.getElementById('host-mode-select-screen');
+    this.hostWorkspaceContent = document.getElementById('host-workspace-content');
+    this.cardHostModeContest = document.getElementById('card-host-mode-contest');
+    this.cardHostModeExam = document.getElementById('card-host-mode-exam');
+    this.btnSwitchHostMode = document.getElementById('btn-switch-host-mode');
     this.btnModeContest = document.getElementById('btn-mode-contest');
     this.btnModeExam = document.getElementById('btn-mode-exam');
     this.hostModeIndicatorTag = document.getElementById('host-mode-indicator-tag');
@@ -149,9 +159,32 @@ class MassCodeApp {
     // Batch & Allocation Modals
     this.modalImportUsns = document.getElementById('modal-import-usns');
     this.importUsnsTextarea = document.getElementById('import-usns-textarea');
+    this.btnPasteClipboardUsns = document.getElementById('btn-paste-clipboard-usns');
+    this.btnBrowseCsvUsns = document.getElementById('btn-browse-csv-usns');
+    this.inputFileCsvUsns = document.getElementById('input-file-csv-usns');
     this.btnCloseImportUsns = document.getElementById('btn-close-import-usns');
     this.btnCancelImportUsns = document.getElementById('btn-cancel-import-usns');
     this.btnConfirmImportUsns = document.getElementById('btn-confirm-import-usns');
+
+    this.modalCreateBatch = document.getElementById('modal-create-batch');
+    this.createBatchNameInput = document.getElementById('create-batch-name-input');
+    this.btnCancelCreateBatch = document.getElementById('btn-cancel-create-batch');
+    this.btnConfirmCreateBatch = document.getElementById('btn-confirm-create-batch');
+
+    this.modalRenameBatch = document.getElementById('modal-rename-batch');
+    this.renameBatchNameInput = document.getElementById('rename-batch-name-input');
+    this.btnCancelRenameBatch = document.getElementById('btn-cancel-rename-batch');
+    this.btnConfirmRenameBatch = document.getElementById('btn-confirm-rename-batch');
+
+    this.modalConfirmDeleteBatch = document.getElementById('modal-confirm-delete-batch');
+    this.deleteBatchDesc = document.getElementById('delete-batch-desc');
+    this.btnCancelDeleteBatch = document.getElementById('btn-cancel-delete-batch');
+    this.btnConfirmDeleteBatch = document.getElementById('btn-confirm-delete-batch');
+
+    this.modalConfirmResetAllocations = document.getElementById('modal-confirm-reset-allocations');
+    this.resetAllocationsDesc = document.getElementById('reset-allocations-desc');
+    this.btnCancelResetAllocations = document.getElementById('btn-cancel-reset-allocations');
+    this.btnConfirmResetAllocations = document.getElementById('btn-confirm-reset-allocations');
 
     this.modalChangeOfExp = document.getElementById('modal-change-of-exp');
     this.coeStudentLabel = document.getElementById('coe-student-label');
@@ -178,6 +211,12 @@ class MassCodeApp {
     this.wsChangeOfExpDetails = document.getElementById('ws-change-of-exp-details');
 
     // Competitor Overlay & Registration
+    this.competitorModeSelectScreen = document.getElementById('competitor-mode-select-screen');
+    this.cardCompModeContest = document.getElementById('card-comp-mode-contest');
+    this.cardCompModeExam = document.getElementById('card-comp-mode-exam');
+    this.compModeIndicatorTag = document.getElementById('comp-mode-indicator-tag');
+    this.compRegHeaderTitle = document.getElementById('comp-reg-header-title');
+    this.compRegHeaderDesc = document.getElementById('comp-reg-header-desc');
     this.compRegOverlay = document.getElementById('competitor-reg-overlay');
     this.lanDiscoveryBox = document.getElementById('lan-discovery-box');
     this.lanDiscoveryDot = document.getElementById('lan-discovery-dot');
@@ -188,9 +227,17 @@ class MassCodeApp {
     this.compHostUrl = document.getElementById('comp-host-url');
     this.compUsnInput = document.getElementById('comp-usn-input');
     this.compNameInput = document.getElementById('comp-name-input');
+    this.compExamOtpInput = document.getElementById('comp-exam-otp-input');
+    this.compExamOtpGroup = document.getElementById('comp-exam-otp-group');
+    this.compNameGroup = document.getElementById('comp-name-group');
     this.btnCompPullLan = document.getElementById('btn-comp-pull-lan');
     this.btnCompLoadLocal = document.getElementById('btn-comp-load-local');
     this.btnCompStartContest = document.getElementById('btn-comp-start-contest');
+    this.btnCompStartExam = document.getElementById('btn-comp-start-exam');
+    this.btnCompModeContest = document.getElementById('btn-comp-mode-contest');
+    this.btnCompModeExam = document.getElementById('btn-comp-mode-exam');
+    this.compContestFields = document.getElementById('comp-contest-fields');
+    this.compExamNotice = document.getElementById('comp-exam-notice');
     this.btnCompExit = document.getElementById('btn-comp-exit');
     this.compContestStatusBox = document.getElementById('comp-contest-status-box');
     this.compContestStatusText = document.getElementById('comp-contest-status-text');
@@ -200,6 +247,11 @@ class MassCodeApp {
     this.competitorWorkspace = document.getElementById('competitor-workspace');
     this.competitorBankView = document.getElementById('competitor-bank-view');
     this.competitorWorkspaceView = document.getElementById('competitor-workspace-view');
+    this.wsLeftPanel = document.getElementById('ws-left-panel');
+    this.wsRightPanel = document.getElementById('ws-right-panel');
+    this.workspaceResizer = document.getElementById('workspace-resizer');
+    this.terminalResizer = document.getElementById('terminal-resizer');
+    this.wsTerminalContainer = document.getElementById('ws-terminal-container');
     this.tierBtnEasy = document.getElementById('tier-btn-easy');
     this.tierBtnMedium = document.getElementById('tier-btn-medium');
     this.tierBtnHard = document.getElementById('tier-btn-hard');
@@ -219,6 +271,7 @@ class MassCodeApp {
     this.wsProblemTierTag = document.getElementById('ws-problem-tier-tag');
     this.wsProblemPoints = document.getElementById('ws-problem-points');
     this.wsProblemDesc = document.getElementById('ws-problem-desc');
+    this.wsStarterCodePreview = document.getElementById('ws-starter-code-preview');
     this.wsSampleCasesContainer = document.getElementById('ws-sample-cases-container');
     this.wsSampleInput = document.getElementById('ws-sample-input');
     this.wsSampleOutput = document.getElementById('ws-sample-output');
@@ -229,14 +282,25 @@ class MassCodeApp {
     this.editorCode = document.getElementById('editor-code');
     this.clipboardToast = document.getElementById('clipboard-toast');
     this.terminalTopStatus = document.getElementById('terminal-top-status');
+    this.terminalCwdTag = document.getElementById('terminal-cwd-tag');
     this.terminalStream = document.getElementById('terminal-stream');
+    this.terminalCliInput = document.getElementById('terminal-cli-input');
+    this.terminalCliPrompt = document.getElementById('terminal-cli-prompt');
+    this.btnTerminalSendCli = document.getElementById('btn-terminal-send-cli');
+    this.btnWsRunTerm = document.getElementById('btn-ws-run-term');
+    this.btnWsKillTerm = document.getElementById('btn-ws-kill-term');
     this.wsAutosaveTag = document.getElementById('ws-autosave-tag');
+    this.btnWsToggleExpand = document.getElementById('btn-ws-toggle-expand');
     this.btnWsResetCode = document.getElementById('btn-ws-reset-code');
     this.btnWsClearTerm = document.getElementById('btn-ws-clear-term');
     this.btnWsRunSample = document.getElementById('btn-ws-run-sample');
     this.btnWsRunTests = document.getElementById('btn-ws-run-tests');
 
     // Thank You Screen
+    this.tyHeaderTitle = document.getElementById('ty-header-title');
+    this.tyHeaderDesc = document.getElementById('ty-header-desc');
+    this.tyContestScoresSection = document.getElementById('ty-contest-scores-section');
+    this.tyAuditPackageLine = document.getElementById('ty-audit-package-line');
     this.tyTotalScore = document.getElementById('ty-total-score');
     this.tyDuration = document.getElementById('ty-duration');
     this.tyCandidateUsn = document.getElementById('ty-candidate-usn');
@@ -295,9 +359,12 @@ class MassCodeApp {
     // Mode Selection triggers
     this.cardEnterHost.addEventListener('click', () => this.switchView('host'));
     this.cardEnterCompetitor.addEventListener('click', () => this.switchView('competitor'));
-    this.btnExitHost.addEventListener('click', () => this.switchView('welcome'));
+    this.btnExitHost.addEventListener('click', () => this._handleHostBack());
     if (this.btnExitComp) {
-      this.btnExitComp.addEventListener('click', () => this._exitCompetitorEntry());
+      this.btnExitComp.addEventListener('click', () => this._handleCompBack());
+    }
+    if (this.btnCompExit) {
+      this.btnCompExit.addEventListener('click', () => this._handleCompBack());
     }
     if (this.btnTyReturnHome) {
       this.btnTyReturnHome.addEventListener('click', () => this.switchView('welcome'));
@@ -310,33 +377,88 @@ class MassCodeApp {
     }
     if (this.btnTyExitApp) {
       this.btnTyExitApp.addEventListener('click', () => {
-        this._promptSupervisorUnlock('close');
+        this._promptSupervisorUnlock('main_menu');
       });
+    }
+    if (this.btnTyReturnHome) {
+      this.btnTyReturnHome.addEventListener('click', () => {
+        this._promptSupervisorUnlock('main_menu');
+      });
+    }
+
+    // Host Mode Screen Choice Cards (Step 2 -> Step 3)
+    if (this.cardHostModeContest) {
+      this.cardHostModeContest.addEventListener('click', () => this._chooseHostMode('contest'));
+    }
+    if (this.cardHostModeExam) {
+      this.cardHostModeExam.addEventListener('click', () => this._chooseHostMode('exam'));
+    }
+
+    // Competitor Mode Screen Choice Cards (Step 2 -> Step 3)
+    if (this.cardCompModeContest) {
+      this.cardCompModeContest.addEventListener('click', () => this._launchCandidateEntry('contest'));
+    }
+    if (this.cardCompModeExam) {
+      this.cardCompModeExam.addEventListener('click', () => this._launchCandidateEntry('exam'));
     }
 
     // Mode Switcher Buttons (Contest Mode vs Exam Mode)
     if (this.btnModeContest) {
-      this.btnModeContest.addEventListener('click', () => this._setHostMode('contest'));
+      this.btnModeContest.addEventListener('click', () => this._chooseHostMode('contest'));
     }
     if (this.btnModeExam) {
-      this.btnModeExam.addEventListener('click', () => this._setHostMode('exam'));
+      this.btnModeExam.addEventListener('click', () => this._chooseHostMode('exam'));
     }
 
-    // Host Tabs
+    // Host Stage Navigation Tabs
     this.hostTabs.forEach(btn => {
       btn.addEventListener('click', () => {
-        this.hostTabs.forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.host-content-panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        const target = document.getElementById(`host-panel-${btn.dataset.tab}`);
-        if (target) target.classList.add('active');
-
-        if (btn.dataset.tab === 'batches') {
-          this._renderBatchSelectOptions();
-          this._renderBatchAllocationsTable();
-        }
+        this._switchHostStage(btn.dataset.tab);
       });
     });
+
+    // Host Stage Navigation Footer Buttons
+    const btnNextStageBuilder = document.getElementById('btn-next-stage-builder');
+    if (btnNextStageBuilder) {
+      btnNextStageBuilder.addEventListener('click', () => {
+        if (this.currentHostSessionMode === 'exam') {
+          this._switchHostStage('batches');
+        } else {
+          this._switchHostStage('server');
+        }
+      });
+    }
+
+    const btnPrevStageBatches = document.getElementById('btn-prev-stage-batches');
+    if (btnPrevStageBatches) {
+      btnPrevStageBatches.addEventListener('click', () => this._switchHostStage('builder'));
+    }
+
+    const btnNextStageBatches = document.getElementById('btn-next-stage-batches');
+    if (btnNextStageBatches) {
+      btnNextStageBatches.addEventListener('click', () => this._switchHostStage('server'));
+    }
+
+    const btnPrevStageServer = document.getElementById('btn-prev-stage-server');
+    if (btnPrevStageServer) {
+      btnPrevStageServer.addEventListener('click', () => {
+        if (this.currentHostSessionMode === 'exam') {
+          this._switchHostStage('batches');
+        } else {
+          this._switchHostStage('builder');
+        }
+      });
+    }
+
+    const btnNextStageServer = document.getElementById('btn-next-stage-server');
+    if (btnNextStageServer) {
+      btnNextStageServer.addEventListener('click', () => this._switchHostStage('grading'));
+    }
+
+    const btnPrevStageGrading = document.getElementById('btn-prev-stage-grading');
+    if (btnPrevStageGrading) {
+      btnPrevStageGrading.addEventListener('click', () => this._switchHostStage('server'));
+    }
 
     // Batch Management Events
     if (this.hostBatchSelect) {
@@ -346,13 +468,43 @@ class MassCodeApp {
       });
     }
     if (this.btnCreateBatch) {
-      this.btnCreateBatch.addEventListener('click', () => this._createBatch());
+      this.btnCreateBatch.addEventListener('click', () => this._openCreateBatchModal());
     }
+    if (this.btnCancelCreateBatch) {
+      this.btnCancelCreateBatch.addEventListener('click', () => this.modalCreateBatch.classList.remove('active'));
+    }
+    if (this.btnConfirmCreateBatch) {
+      this.btnConfirmCreateBatch.addEventListener('click', () => this._handleCreateBatchSubmit());
+    }
+    if (this.createBatchNameInput) {
+      this.createBatchNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') this._handleCreateBatchSubmit();
+      });
+    }
+
     if (this.btnRenameBatch) {
-      this.btnRenameBatch.addEventListener('click', () => this._renameBatch());
+      this.btnRenameBatch.addEventListener('click', () => this._openRenameBatchModal());
     }
+    if (this.btnCancelRenameBatch) {
+      this.btnCancelRenameBatch.addEventListener('click', () => this.modalRenameBatch.classList.remove('active'));
+    }
+    if (this.btnConfirmRenameBatch) {
+      this.btnConfirmRenameBatch.addEventListener('click', () => this._handleRenameBatchSubmit());
+    }
+    if (this.renameBatchNameInput) {
+      this.renameBatchNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') this._handleRenameBatchSubmit();
+      });
+    }
+
     if (this.btnDeleteBatch) {
-      this.btnDeleteBatch.addEventListener('click', () => this._deleteBatch());
+      this.btnDeleteBatch.addEventListener('click', () => this._openDeleteBatchModal());
+    }
+    if (this.btnCancelDeleteBatch) {
+      this.btnCancelDeleteBatch.addEventListener('click', () => this.modalConfirmDeleteBatch.classList.remove('active'));
+    }
+    if (this.btnConfirmDeleteBatch) {
+      this.btnConfirmDeleteBatch.addEventListener('click', () => this._handleDeleteBatchSubmit());
     }
 
     // Student Import & Add Events
@@ -364,6 +516,39 @@ class MassCodeApp {
         }
       });
     }
+    if (this.btnPasteClipboardUsns) {
+      this.btnPasteClipboardUsns.addEventListener('click', async () => {
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text && text.trim()) {
+            this.importUsnsTextarea.value = (this.importUsnsTextarea.value ? this.importUsnsTextarea.value + '\n' : '') + text.trim();
+            this.showToast('✓ Pasted clipboard text into importer!', 'success');
+          } else {
+            this.showToast('Clipboard is empty or has no text.', 'warning');
+          }
+        } catch (err) {
+          this.showToast('Please press Ctrl+V directly to paste into the box.', 'info');
+        }
+      });
+    }
+    if (this.btnBrowseCsvUsns && this.inputFileCsvUsns) {
+      this.btnBrowseCsvUsns.addEventListener('click', () => this.inputFileCsvUsns.click());
+      this.inputFileCsvUsns.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          const text = evt.target.result;
+          if (text) {
+            this.importUsnsTextarea.value = text;
+            this.showToast(`✓ Loaded ${file.name} successfully!`, 'success');
+          }
+        };
+        reader.readAsText(file);
+        this.inputFileCsvUsns.value = '';
+      });
+    }
+
     if (this.btnCloseImportUsns) {
       this.btnCloseImportUsns.addEventListener('click', () => this.modalImportUsns.classList.remove('active'));
     }
@@ -388,11 +573,14 @@ class MassCodeApp {
     }
 
     // Batch Allocation & Export Controls
-    if (this.btnRandomAssignAll) {
-      this.btnRandomAssignAll.addEventListener('click', () => this._randomAssignAllExperiments());
-    }
     if (this.btnResetBatchAllocations) {
-      this.btnResetBatchAllocations.addEventListener('click', () => this._resetBatchAllocations());
+      this.btnResetBatchAllocations.addEventListener('click', () => this._openResetAllocationsModal());
+    }
+    if (this.btnCancelResetAllocations) {
+      this.btnCancelResetAllocations.addEventListener('click', () => this.modalConfirmResetAllocations.classList.remove('active'));
+    }
+    if (this.btnConfirmResetAllocations) {
+      this.btnConfirmResetAllocations.addEventListener('click', () => this._handleResetAllocationsSubmit());
     }
     if (this.btnExportAllocationsCsv) {
       this.btnExportAllocationsCsv.addEventListener('click', () => this._exportAllocationsCsv());
@@ -461,10 +649,10 @@ class MassCodeApp {
       });
     }
     this.btnHostExport.addEventListener('click', () => this._exportContestDialog());
-    const handleDeployContest = () => this._deployHostContest();
-    if (this.btnHostDeployTop) this.btnHostDeployTop.addEventListener('click', handleDeployContest);
-    if (this.btnHostDeployBottom) this.btnHostDeployBottom.addEventListener('click', handleDeployContest);
-    this.btnHostToggleServer.addEventListener('click', () => this._toggleHostServer());
+    const handleToggleServer = () => this._toggleHostServer();
+    if (this.btnHostDeployTop) this.btnHostDeployTop.addEventListener('click', handleToggleServer);
+    if (this.btnHostDeployBottom) this.btnHostDeployBottom.addEventListener('click', handleToggleServer);
+    if (this.btnHostToggleServer) this.btnHostToggleServer.addEventListener('click', handleToggleServer);
     if (this.btnCopyHostUrl) {
       this.btnCopyHostUrl.addEventListener('click', () => {
         const url = (this.routerFullUrl && this.routerFullUrl.textContent) || '';
@@ -500,7 +688,34 @@ class MassCodeApp {
     this.btnCloseInspector.addEventListener('click', () => this.modalInspector.classList.remove('active'));
 
     // Competitor Overlay Triggers
+    if (this.btnCompModeContest) {
+      this.btnCompModeContest.addEventListener('click', () => this._setCandidateMode('contest'));
+    }
+    if (this.btnCompModeExam) {
+      this.btnCompModeExam.addEventListener('click', () => this._setCandidateMode('exam'));
+    }
+    if (this.btnCompStartExam) {
+      this.btnCompStartExam.addEventListener('click', () => this._handleStartExamSubmit());
+    }
+
     this.compUsnInput.addEventListener('input', () => this._checkCompStartButton());
+    this.compUsnInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (this.candidateMode === 'exam') {
+          if (this.compExamOtpInput && !this.compExamOtpInput.value) {
+            this.compExamOtpInput.focus();
+          } else {
+            this._handleStartExamSubmit();
+          }
+        }
+      }
+    });
+    if (this.compExamOtpInput) {
+      this.compExamOtpInput.addEventListener('input', () => this._checkCompStartButton());
+      this.compExamOtpInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') this._handleStartExamSubmit();
+      });
+    }
     this.compPinInput.addEventListener('input', () => this._checkCompStartButton());
     this.compHostUrl.addEventListener('input', () => this._checkCompStartButton());
     if (this.btnLanAutoConnect) {
@@ -512,6 +727,12 @@ class MassCodeApp {
       this.btnCompExit.addEventListener('click', () => this._exitCompetitorEntry());
     }
     this.btnCompStartContest.addEventListener('click', () => this._startCompetitorSession());
+
+    // Initialize horizontal and vertical resizers
+    this._initResizers();
+
+    // Initialize interactive GCC terminal sandbox
+    this._initInteractiveTerminal();
 
     // Competitor Multi-Tier Question Bank Buttons
     [this.tierBtnEasy, this.tierBtnMedium, this.tierBtnHard].forEach(btn => {
@@ -532,6 +753,29 @@ class MassCodeApp {
 
     // Monospace Editor Events
     this._bindEditorEvents();
+
+    // Toggle full-width editor workspace
+    if (this.btnWsToggleExpand) {
+      this.btnWsToggleExpand.addEventListener('click', () => {
+        const isCollapsed = this.wsLeftPanel && this.wsLeftPanel.style.display === 'none';
+        if (isCollapsed) {
+          if (this.wsLeftPanel) {
+            this.wsLeftPanel.style.display = 'flex';
+            this.wsLeftPanel.style.width = '44%';
+          }
+          if (this.workspaceResizer) this.workspaceResizer.style.display = 'block';
+          this.btnWsToggleExpand.innerHTML = '⛶ Expand Workspace';
+          this.btnWsToggleExpand.classList.remove('btn-primary');
+          this.btnWsToggleExpand.classList.add('btn-secondary');
+        } else {
+          if (this.wsLeftPanel) this.wsLeftPanel.style.display = 'none';
+          if (this.workspaceResizer) this.workspaceResizer.style.display = 'none';
+          this.btnWsToggleExpand.innerHTML = '⛶ Show Question';
+          this.btnWsToggleExpand.classList.remove('btn-secondary');
+          this.btnWsToggleExpand.classList.add('btn-primary');
+        }
+      });
+    }
 
     // End Session Triggers
     this.btnEndSession.addEventListener('click', () => {
@@ -658,6 +902,8 @@ class MassCodeApp {
     }
 
     if (viewName === 'welcome') {
+      this.hostStep = 2;
+      this.compStep = 2;
       if (window.api && window.api.stopLanListening) {
         try { window.api.stopLanListening(); } catch (_) {}
       }
@@ -674,6 +920,7 @@ class MassCodeApp {
       if (window.api && window.api.stopLanListening) {
         try { window.api.stopLanListening(); } catch (_) {}
       }
+      this.hostStep = 2;
       this.viewHost.classList.add('active');
       this.navCandidatePill.style.display = 'none';
       this.navTimerBox.style.display = 'none';
@@ -684,6 +931,9 @@ class MassCodeApp {
       if (this.btnExitComp) this.btnExitComp.style.display = 'none';
       this.btnSupervisorKey.style.display = 'none';
 
+      if (this.hostModeSelectScreen) this.hostModeSelectScreen.style.display = 'flex';
+      if (this.hostWorkspaceContent) this.hostWorkspaceContent.style.display = 'none';
+
       this._refreshHostServerStatus();
       this._scanHostSubmissions();
     } else if (viewName === 'competitor') {
@@ -692,13 +942,15 @@ class MassCodeApp {
       if (this.btnHostEndSession) this.btnHostEndSession.style.display = 'none';
 
       if (!this.competitor.isSessionActive) {
+        this.compStep = 2;
         if (window.api && window.api.startLanListening) {
           window.api.startLanListening();
         }
         this._updateCompetitorContestStatus(this.activeContest, this.activeContestSource || '');
         this._checkCompStartButton();
-        this.compRegOverlay.style.display = 'flex';
-        this.competitorWorkspace.style.display = 'none';
+        if (this.competitorModeSelectScreen) this.competitorModeSelectScreen.style.display = 'flex';
+        if (this.compRegOverlay) this.compRegOverlay.style.display = 'none';
+        if (this.competitorWorkspace) this.competitorWorkspace.style.display = 'none';
         this.navCandidatePill.style.display = 'none';
         this.navTimerBox.style.display = 'none';
         this.navKioskBadge.style.display = 'none';
@@ -706,6 +958,8 @@ class MassCodeApp {
         this.btnSupervisorKey.style.display = 'none';
         if (this.btnExitComp) this.btnExitComp.style.display = 'inline-flex';
       } else {
+        this.compStep = 4;
+        if (this.competitorModeSelectScreen) this.competitorModeSelectScreen.style.display = 'none';
         this.compRegOverlay.style.display = 'none';
         this.competitorWorkspace.style.display = 'flex';
         this.navCandidatePill.style.display = 'inline-flex';
@@ -888,6 +1142,7 @@ class MassCodeApp {
     this.competitor.durationSeconds = (this.activeContest.durationMinutes || 60) * 60;
     this.competitor.uptimeSeconds = 0;
     this.competitor.isSessionActive = true;
+    this.compStep = 4;
     this.competitor.problemCodes = {};
     this.competitor.evaluations = {};
 
@@ -903,6 +1158,15 @@ class MassCodeApp {
       this.activeContest.problems.forEach(p => {
         this.competitor.problemCodes[p.id] = p.starterCode || '// Write solution here\n';
       });
+    }
+
+    // Initialize interactive terminal session for this USN
+    if (window.api && window.api.initTerminalSession) {
+      const termRes = await window.api.initTerminalSession({ usn });
+      if (termRes && termRes.cwd) {
+        if (this.terminalCwdTag) this.terminalCwdTag.textContent = termRes.cwd;
+        if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = termRes.cwd + '>';
+      }
     }
 
     // Check if in Exam Mode and student has an assigned experiment
@@ -1132,12 +1396,22 @@ class MassCodeApp {
         statusLabel = 'Attempting / Saved';
       }
 
+      const tier = (p.tier || 'easy').toLowerCase();
+      const tierBadge = tier === 'hard'
+        ? `<span class="badge-tier-hard">HARD</span>`
+        : (tier === 'medium'
+          ? `<span class="badge-tier-medium">MEDIUM</span>`
+          : `<span class="badge-tier-easy">EASY</span>`);
+
       card.innerHTML = `
         <div class="question-card-left">
-          <div class="question-card-title">${this._escape(p.title)}</div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <div class="question-card-title">${this._escape(p.title)}</div>
+            ${tierBadge}
+          </div>
           <span class="status-tag ${statusClass}">● ${statusLabel}</span>
           <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">
-            Points: <strong style="color: var(--color-emerald);">${p.maxPoints} pts</strong> | Category: ${this._escape(p.category || 'General')}
+            Marks: <strong style="color: var(--color-emerald);">${p.maxPoints} Marks</strong> | Category: ${this._escape(p.category || 'Algorithmic Challenge')}
           </div>
         </div>
         <button class="btn btn-primary btn-sm btn-open-workspace" data-id="${p.id}">
@@ -1159,20 +1433,56 @@ class MassCodeApp {
 
     this.competitor.activeProblemId = problemId;
     this.competitorBankView.style.display = 'none';
-    this.competitorWorkspaceView.style.display = 'grid';
+    this.competitorWorkspaceView.style.display = 'flex';
 
-    // Populate Left Sub-Panel
-    this.wsProblemTitle.textContent = prob.title;
-    if (prob.tier === 'lab' || this.hostContestType === 'exam') {
-      this.wsProblemTierTag.textContent = 'LAB EXPERIMENT';
-      this.wsProblemTierTag.className = 'status-tag status-attempting';
-      this.wsProblemPoints.textContent = `${prob.maxPoints || 50} Marks`;
+    // In Exam Mode: hide Return to Bank, Reset Code, Run Code (Samples), and Submit & Grade buttons
+    const isExam = !!(
+      this.competitor.isExamMode ||
+      (this.activeContest && (this.activeContest.type === 'exam' || (this.activeContest.problems || []).some(p => p.tier === 'lab')))
+    );
+    if (isExam) {
+      if (this.btnBackToBank) this.btnBackToBank.style.display = 'none';
+      if (this.btnWsResetCode) this.btnWsResetCode.style.display = 'none';
+      if (this.btnWsRunSample) this.btnWsRunSample.style.display = 'none';
+      if (this.btnWsRunTests) this.btnWsRunTests.style.display = 'none';
     } else {
-      this.wsProblemTierTag.textContent = `${(prob.tier || 'Easy').toUpperCase()} TIER`;
-      this.wsProblemTierTag.className = `status-tag ${prob.tier === 'hard' ? 'status-not-attempted' : 'status-attempting'}`;
-      this.wsProblemPoints.textContent = `${prob.maxPoints || 20} Pts`;
+      if (this.btnBackToBank) this.btnBackToBank.style.display = 'inline-flex';
+      if (this.btnWsResetCode) this.btnWsResetCode.style.display = 'inline-flex';
+      if (this.btnWsRunSample) this.btnWsRunSample.style.display = 'inline-flex';
+      if (this.btnWsRunTests) this.btnWsRunTests.style.display = 'inline-flex';
     }
-    this.wsProblemDesc.innerHTML = this._renderMarkdown(prob.description);
+
+    // Sync starter/existing code to solution.c in workspace for terminal use
+    if (window.api && window.api.syncTerminalEditorFile) {
+      const existingCode = this.competitor.problemCodes[problemId] || prob.starterCode || '';
+      window.api.syncTerminalEditorFile({ filename: 'solution.c', code: existingCode });
+    }
+
+    // Ensure split layout is properly visible on opening
+    if (this.wsLeftPanel) {
+      this.wsLeftPanel.style.display = 'flex';
+      if (!this.wsLeftPanel.style.width) this.wsLeftPanel.style.width = '44%';
+    }
+    if (this.workspaceResizer) this.workspaceResizer.style.display = 'block';
+    if (this.btnWsToggleExpand) {
+      this.btnWsToggleExpand.innerHTML = '⛶ Expand Workspace';
+      this.btnWsToggleExpand.classList.remove('btn-primary');
+      this.btnWsToggleExpand.classList.add('btn-secondary');
+    }
+
+    // Populate Left Sub-Panel with highlighted tier and clean format
+    this.wsProblemTitle.textContent = prob.title;
+    const tier = (prob.tier || 'easy').toLowerCase();
+    if (prob.tier === 'lab' || this.hostContestType === 'exam' || (this.activeContest && this.activeContest.type === 'exam') || this.competitor.isExamMode) {
+      this.wsProblemTierTag.textContent = 'LAB EXPERIMENT';
+      this.wsProblemTierTag.className = 'badge-tier-lab';
+      this.wsProblemPoints.textContent = `— ${prob.maxPoints || 50} Marks`;
+    } else {
+      this.wsProblemTierTag.textContent = tier.toUpperCase();
+      this.wsProblemTierTag.className = tier === 'hard' ? 'badge-tier-hard' : (tier === 'medium' ? 'badge-tier-medium' : 'badge-tier-easy');
+      this.wsProblemPoints.textContent = `— ${prob.maxPoints || (tier === 'hard' ? 15 : (tier === 'medium' ? 10 : 5))} Marks`;
+    }
+    this.wsProblemDesc.textContent = prob.description;
 
     // Change of Experiment Notice Banner
     if (this.wsChangeOfExpNotice) {
@@ -1213,18 +1523,18 @@ class MassCodeApp {
           </div>
           <div class="sample-grid">
             <div>
-              <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Sample Input</label>
+              <label style="font-size: 0.8rem; color: var(--text-main); font-weight: 700; display: block; margin-bottom: 4px;">Sample Input:</label>
               <pre>${this._escape(tc.input || '--')}</pre>
             </div>
             <div>
-              <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Expected Output</label>
+              <label style="font-size: 0.8rem; color: var(--text-main); font-weight: 700; display: block; margin-bottom: 4px;">Expected Output:</label>
               <pre>${this._escape(tc.expectedOutput || '--')}</pre>
             </div>
           </div>
         </div>
       `).join('');
 
-      if (hiddenCount > 0) {
+      if (hiddenCount > 0 && !isExam) {
         html += `
           <div class="hidden-cases-banner">
             <span style="font-size: 1.15rem;">🔒</span>
@@ -1556,56 +1866,63 @@ class MassCodeApp {
       return normCode.length > 0 && normCode !== defaultC && normCode !== defaultPy;
     });
 
-    // AUTOMATED BATCH RUN: Run test cases for all attempted problems on End Session
-    if (this.modalEvaluatingAll) {
-      this.modalEvaluatingAll.classList.add('active');
-    }
+    const isExam = !!(
+      this.competitor.isExamMode ||
+      (this.activeContest && (this.activeContest.type === 'exam' || (this.activeContest.problems || []).some(p => p.tier === 'lab')))
+    );
 
-    for (let i = 0; i < attemptedProblems.length; i++) {
-      const p = attemptedProblems[i];
-      const tierLabel = (p.tier || 'Round').toUpperCase();
-      const pct = Math.round((i / Math.max(attemptedProblems.length, 1)) * 100);
-
-      if (this.evalProgressStatus) {
-        this.evalProgressStatus.innerHTML = `Evaluating <strong>[${tierLabel}] ${this._escape(p.title || p.id)}</strong>... (${i + 1}/${attemptedProblems.length})`;
+    // AUTOMATED BATCH RUN: Run test cases for all attempted problems on End Session (Contest Mode only)
+    if (!isExam) {
+      if (this.modalEvaluatingAll) {
+        this.modalEvaluatingAll.classList.add('active');
       }
-      if (this.evalProgressBar) this.evalProgressBar.style.width = `${pct}%`;
-      if (this.evalProgressCount) this.evalProgressCount.textContent = `${i + 1} / ${attemptedProblems.length} Attempted Problems Evaluated`;
-      if (this.evalProgressPercent) this.evalProgressPercent.textContent = `${pct}%`;
 
-      const code = this.competitor.problemCodes[p.id] ||
-                   this.competitor.problemCodes[`${p.id}_${contestLang}`] ||
-                   p.starterCode || '';
+      for (let i = 0; i < attemptedProblems.length; i++) {
+        const p = attemptedProblems[i];
+        const tierLabel = (p.tier || 'Round').toUpperCase();
+        const pct = Math.round((i / Math.max(attemptedProblems.length, 1)) * 100);
 
-      try {
-        const evalRes = await window.api.compileAndEvaluate({
-          code,
-          language: contestLang,
-          testCases: p.testCases || [],
-          timeoutMs: p.timeLimitMs || 2500,
-          maxPoints: p.maxPoints || 20
-        });
-        this.competitor.evaluations[p.id] = evalRes;
-      } catch (err) {
-        this.competitor.evaluations[p.id] = {
-          success: false,
-          phase: 'system',
-          compilerError: err.message,
-          totalScore: 0,
-          maxScore: p.maxPoints || 0,
-          passedCount: 0,
-          totalCount: (p.testCases || []).length,
-          totalExecutionTimeMs: 0
-        };
+        if (this.evalProgressStatus) {
+          this.evalProgressStatus.innerHTML = `Evaluating <strong>[${tierLabel}] ${this._escape(p.title || p.id)}</strong>... (${i + 1}/${attemptedProblems.length})`;
+        }
+        if (this.evalProgressBar) this.evalProgressBar.style.width = `${pct}%`;
+        if (this.evalProgressCount) this.evalProgressCount.textContent = `${i + 1} / ${attemptedProblems.length} Attempted Problems Evaluated`;
+        if (this.evalProgressPercent) this.evalProgressPercent.textContent = `${pct}%`;
+
+        const code = this.competitor.problemCodes[p.id] ||
+                     this.competitor.problemCodes[`${p.id}_${contestLang}`] ||
+                     p.starterCode || '';
+
+        try {
+          const evalRes = await window.api.compileAndEvaluate({
+            code,
+            language: contestLang,
+            testCases: p.testCases || [],
+            timeoutMs: p.timeLimitMs || 2500,
+            maxPoints: p.maxPoints || 20
+          });
+          this.competitor.evaluations[p.id] = evalRes;
+        } catch (err) {
+          this.competitor.evaluations[p.id] = {
+            success: false,
+            phase: 'system',
+            compilerError: err.message,
+            totalScore: 0,
+            maxScore: p.maxPoints || 0,
+            passedCount: 0,
+            totalCount: (p.testCases || []).length,
+            totalExecutionTimeMs: 0
+          };
+        }
       }
-    }
 
-    if (this.evalProgressBar) this.evalProgressBar.style.width = '100%';
-    if (this.evalProgressPercent) this.evalProgressPercent.textContent = '100%';
-    if (this.evalProgressCount) this.evalProgressCount.textContent = `${attemptedProblems.length} / ${attemptedProblems.length} Attempted Problems Evaluated`;
-    if (this.evalProgressStatus) this.evalProgressStatus.textContent = attemptedProblems.length > 0 ? `All ${attemptedProblems.length} attempted problem(s) evaluated! Finalizing scores...` : 'No problems attempted. Finalizing...';
-    await new Promise(r => setTimeout(r, 350));
-    if (this.modalEvaluatingAll) this.modalEvaluatingAll.classList.remove('active');
+      if (this.evalProgressBar) this.evalProgressBar.style.width = '100%';
+      if (this.evalProgressPercent) this.evalProgressPercent.textContent = '100%';
+      if (this.evalProgressCount) this.evalProgressCount.textContent = `${attemptedProblems.length} / ${attemptedProblems.length} Attempted Problems Evaluated`;
+      if (this.evalProgressStatus) this.evalProgressStatus.textContent = attemptedProblems.length > 0 ? `All ${attemptedProblems.length} attempted problem(s) evaluated! Finalizing scores...` : 'No problems attempted. Finalizing...';
+      await new Promise(r => setTimeout(r, 350));
+      if (this.modalEvaluatingAll) this.modalEvaluatingAll.classList.remove('active');
+    }
 
     // Build a Set of attempted problem IDs for O(1) lookup
     const attemptedIds = new Set(attemptedProblems.map(p => p.id));
@@ -1716,82 +2033,127 @@ class MassCodeApp {
     } catch (_) {}
 
     // Populate Thank You View
-    const totalAttempted = attemptedProblems.length;
-    this.tyTotalScore.textContent = `${Math.round(totalScore * 10) / 10} / ${maxContestScore}`;
-    if (this.tySolvedCount) {
-      this.tySolvedCount.textContent = `${solvedCount} / ${totalAttempted} Attempted`;
-    }
-    const m = Math.floor(this.competitor.uptimeSeconds / 60);
-    const s = this.competitor.uptimeSeconds % 60;
-    this.tyDuration.textContent = `${m}m ${s < 10 ? '0' : ''}${s}s`;
-    this.tyCandidateUsn.textContent = `${this.competitor.usn} (${this.competitor.name})`;
-    this.tyPayloadFile.textContent = saveRes.filename || `FINAL_${this.competitor.usn}.json`;
-
-    if (syncSuccess) {
-      this.tySyncStatus.innerHTML = `✔ Final package saved to submissions/${saveRes.filename || 'FINAL_' + this.competitor.usn + '.json'} <span style="color: var(--color-emerald);">(Synchronized to Host)</span>`;
-      this.tySyncStatus.style.color = 'var(--color-emerald)';
+    if (isExam) {
+      if (this.tyHeaderTitle) {
+        this.tyHeaderTitle.textContent = 'Thank you and all the best for your result!';
+      }
+      if (this.tyHeaderDesc) {
+        this.tyHeaderDesc.textContent = 'Your laboratory examination session has concluded and your solution has been successfully submitted. All the best for your result!';
+      }
+      if (this.tyContestScoresSection) {
+        this.tyContestScoresSection.style.display = 'none';
+      }
+      if (this.tyAuditPackageLine) {
+        this.tyAuditPackageLine.style.display = 'none';
+      }
+      this.tyCandidateUsn.textContent = `${this.competitor.usn} (${this.competitor.name})`;
+      if (this.tySyncStatus) {
+        this.tySyncStatus.innerHTML = `✔ Laboratory examination solution successfully recorded.${syncSuccess ? ' <span style="color: var(--color-emerald);">(Synchronized to Host)</span>' : ''}`;
+        this.tySyncStatus.style.color = 'var(--color-emerald)';
+      }
+      if (this.btnTyReviewCode) {
+        this.btnTyReviewCode.innerHTML = '🔑 Supervisor Review';
+      }
+      if (this.btnTyExitApp) {
+        this.btnTyExitApp.innerHTML = '⌂ Return to Main Menu';
+      }
     } else {
-      this.tySyncStatus.innerHTML = `✔ Final package saved to submissions/${saveRes.filename || 'FINAL_' + this.competitor.usn + '.json'}`;
-      this.tySyncStatus.style.color = 'var(--color-emerald)';
-    }
+      if (this.tyHeaderTitle) {
+        this.tyHeaderTitle.textContent = 'Thank You for Participating!';
+      }
+      if (this.tyHeaderDesc) {
+        this.tyHeaderDesc.textContent = 'Your competitive programming session has ended. All your solutions across all rounds and tiers have been automatically executed against all test cases and finalized into an immutable audit package.';
+      }
+      if (this.tyContestScoresSection) {
+        this.tyContestScoresSection.style.display = 'flex';
+      }
+      if (this.tyAuditPackageLine) {
+        this.tyAuditPackageLine.style.display = 'block';
+      }
+      if (this.btnTyReviewCode) {
+        this.btnTyReviewCode.innerHTML = '🔑 Supervisor Review';
+      }
+      if (this.btnTyExitApp) {
+        this.btnTyExitApp.innerHTML = '⌂ Return to Main Menu';
+      }
 
-    // Render Round/Tier Score Breakdown Cards
-    if (this.tyRoundCardsContainer) {
-      const roundOrder = ['easy', 'medium', 'hard'];
-      const allTierKeys = Object.keys(tierScores);
-      const sortedKeys = roundOrder.filter(k => allTierKeys.includes(k)).concat(allTierKeys.filter(k => !roundOrder.includes(k)));
+      const totalAttempted = attemptedProblems.length;
+      this.tyTotalScore.textContent = `${Math.round(totalScore * 10) / 10} / ${maxContestScore}`;
+      if (this.tySolvedCount) {
+        this.tySolvedCount.textContent = `${solvedCount} / ${totalAttempted} Attempted`;
+      }
+      const m = Math.floor(this.competitor.uptimeSeconds / 60);
+      const s = this.competitor.uptimeSeconds % 60;
+      this.tyDuration.textContent = `${m}m ${s < 10 ? '0' : ''}${s}s`;
+      this.tyCandidateUsn.textContent = `${this.competitor.usn} (${this.competitor.name})`;
+      this.tyPayloadFile.textContent = saveRes.filename || `FINAL_${this.competitor.usn}.json`;
 
-      this.tyRoundCardsContainer.innerHTML = sortedKeys.map(k => {
-        const item = tierScores[k];
-        let color = 'var(--color-cyan)';
-        if (k === 'easy') color = 'var(--color-emerald)';
-        else if (k === 'medium') color = 'var(--color-amber)';
-        else if (k === 'hard') color = 'var(--color-rose)';
+      if (syncSuccess) {
+        this.tySyncStatus.innerHTML = `✔ Final package saved to submissions/${saveRes.filename || 'FINAL_' + this.competitor.usn + '.json'} <span style="color: var(--color-emerald);">(Synchronized to Host)</span>`;
+        this.tySyncStatus.style.color = 'var(--color-emerald)';
+      } else {
+        this.tySyncStatus.innerHTML = `✔ Final package saved to submissions/${saveRes.filename || 'FINAL_' + this.competitor.usn + '.json'}`;
+        this.tySyncStatus.style.color = 'var(--color-emerald)';
+      }
 
-        const attemptedInTier = item.attemptedCount || 0;
-        return `
-          <div class="round-score-card" style="border-left: 4px solid ${color};">
-            <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">${this._escape(item.name)}</span>
-            <div style="font-size: 1.35rem; font-weight: 800; font-family: var(--font-mono); color: ${color};">
-              ${Math.round(item.score * 10) / 10} <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">/ ${item.maxScore} pts</span>
+      // Render Round/Tier Score Breakdown Cards
+      if (this.tyRoundCardsContainer) {
+        const roundOrder = ['easy', 'medium', 'hard'];
+        const allTierKeys = Object.keys(tierScores);
+        const sortedKeys = roundOrder.filter(k => allTierKeys.includes(k)).concat(allTierKeys.filter(k => !roundOrder.includes(k)));
+
+        this.tyRoundCardsContainer.innerHTML = sortedKeys.map(k => {
+          const item = tierScores[k];
+          let color = 'var(--color-cyan)';
+          if (k === 'easy') color = 'var(--color-emerald)';
+          else if (k === 'medium') color = 'var(--color-amber)';
+          else if (k === 'hard') color = 'var(--color-rose)';
+
+          const attemptedInTier = item.attemptedCount || 0;
+          return `
+            <div class="round-score-card" style="border-left: 4px solid ${color};">
+              <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">${this._escape(item.name)}</span>
+              <div style="font-size: 1.35rem; font-weight: 800; font-family: var(--font-mono); color: ${color};">
+                ${Math.round(item.score * 10) / 10} <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">/ ${item.maxScore} pts</span>
+              </div>
+              <span style="font-size: 0.75rem; color: var(--text-secondary);">${item.solvedCount} fully solved &nbsp;|&nbsp; ${attemptedInTier} / ${item.totalCount} attempted</span>
             </div>
-            <span style="font-size: 0.75rem; color: var(--text-secondary);">${item.solvedCount} fully solved &nbsp;|&nbsp; ${attemptedInTier} / ${item.totalCount} attempted</span>
-          </div>
-        `;
-      }).join('');
-    }
+          `;
+        }).join('');
+      }
 
-    // Render Programs Test Suite Results Table
-    if (this.tyProgramsTbody) {
-      this.tyProgramsTbody.innerHTML = roundBreakdown.map((item, idx) => {
-        let badgeClass = 'badge-status-failed';
-        if (item.status === 'PASSED') badgeClass = 'badge-status-passed';
-        else if (item.status === 'PARTIAL') badgeClass = 'badge-status-partial';
-        else if (item.status === 'BUILD ERROR') badgeClass = 'badge-status-error';
-        else if (item.status === 'NOT ATTEMPTED') badgeClass = 'badge-status-unattempted';
+      // Render Programs Test Suite Results Table
+      if (this.tyProgramsTbody) {
+        this.tyProgramsTbody.innerHTML = roundBreakdown.map((item, idx) => {
+          let badgeClass = 'badge-status-failed';
+          if (item.status === 'PASSED') badgeClass = 'badge-status-passed';
+          else if (item.status === 'PARTIAL') badgeClass = 'badge-status-partial';
+          else if (item.status === 'BUILD ERROR') badgeClass = 'badge-status-error';
+          else if (item.status === 'NOT ATTEMPTED') badgeClass = 'badge-status-unattempted';
 
-        let tierColor = 'var(--text-muted)';
-        const tk = (item.tier || '').toLowerCase();
-        if (tk === 'easy') tierColor = 'var(--color-emerald)';
-        else if (tk === 'medium') tierColor = 'var(--color-amber)';
-        else if (tk === 'hard') tierColor = 'var(--color-rose)';
+          let tierColor = 'var(--text-muted)';
+          const tk = (item.tier || '').toLowerCase();
+          if (tk === 'easy') tierColor = 'var(--color-emerald)';
+          else if (tk === 'medium') tierColor = 'var(--color-amber)';
+          else if (tk === 'hard') tierColor = 'var(--color-rose)';
 
-        const scoreColor = item.score > 0 ? 'var(--color-emerald)' : 'var(--text-muted)';
-        const testCaseDisplay = item.attempted ? `${item.passedCount} / ${item.totalCount}` : '—';
-        const cpuDisplay = item.attempted ? `${item.totalExecutionTimeMs} ms` : '—';
+          const scoreColor = item.score > 0 ? 'var(--color-emerald)' : 'var(--text-muted)';
+          const testCaseDisplay = item.attempted ? `${item.passedCount} / ${item.totalCount}` : '—';
+          const cpuDisplay = item.attempted ? `${item.totalExecutionTimeMs} ms` : '—';
 
-        return `
-          <tr style="${!item.attempted ? 'opacity: 0.5;' : ''}">
-            <td style="text-align: center; color: var(--text-muted); font-family: var(--font-mono);">${idx + 1}</td>
-            <td style="color: ${tierColor}; font-weight: 700; text-transform: uppercase;">${this._escape(item.tier)}</td>
-            <td style="font-weight: 600;">${this._escape(item.title)}</td>
-            <td style="text-align: center; font-family: var(--font-mono);">${testCaseDisplay}</td>
-            <td style="text-align: center; font-family: var(--font-mono);"><strong style="color: ${scoreColor};">${item.attempted ? `${Math.round(item.score * 10) / 10} / ${item.maxScore}` : `0 / ${item.maxScore}`}</strong></td>
-            <td style="text-align: center; font-family: var(--font-mono); font-size: 0.78rem;">${cpuDisplay}</td>
-            <td style="text-align: center;"><span class="${badgeClass}">${item.status}</span></td>
-          </tr>
-        `;
-      }).join('');
+          return `
+            <tr style="${!item.attempted ? 'opacity: 0.5;' : ''}">
+              <td style="text-align: center; color: var(--text-muted); font-family: var(--font-mono);">${idx + 1}</td>
+              <td style="color: ${tierColor}; font-weight: 700; text-transform: uppercase;">${this._escape(item.tier)}</td>
+              <td style="font-weight: 600;">${this._escape(item.title)}</td>
+              <td style="text-align: center; font-family: var(--font-mono);">${testCaseDisplay}</td>
+              <td style="text-align: center; font-family: var(--font-mono);"><strong style="color: ${scoreColor};">${item.attempted ? `${Math.round(item.score * 10) / 10} / ${item.maxScore}` : `0 / ${item.maxScore}`}</strong></td>
+              <td style="text-align: center; font-family: var(--font-mono); font-size: 0.78rem;">${cpuDisplay}</td>
+              <td style="text-align: center;"><span class="${badgeClass}">${item.status}</span></td>
+            </tr>
+          `;
+        }).join('');
+      }
     }
 
     // Lift kiosk mode and switch to Thank You view
@@ -1814,12 +2176,8 @@ class MassCodeApp {
       this.modalSupervisor.classList.remove('active');
       if (this.supervisorAction === 'review') {
         this._startSupervisorReviewMode();
-      } else if (this.supervisorAction === 'close') {
-        if (window.api && window.api.quitApp) {
-          await window.api.quitApp();
-        } else {
-          window.close();
-        }
+      } else if (this.supervisorAction === 'main_menu' || this.supervisorAction === 'close') {
+        await this._returnToMainMenu();
       } else {
         // Kiosk unlock
         this.isKioskUnlocked = true;
@@ -1836,6 +2194,39 @@ class MassCodeApp {
     }
   }
 
+  async _returnToMainMenu() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    this.competitor = {
+      usn: '',
+      name: '',
+      isSessionActive: false,
+      selectedTier: 'easy',
+      activeProblemId: null,
+      problemCodes: {},
+      evaluations: {},
+      uptimeSeconds: 0,
+      violations: [],
+      isExamMode: false
+    };
+    if (this.compUsnInput) this.compUsnInput.value = '';
+    if (this.compNameInput) this.compNameInput.value = '';
+    if (this.compExamOtpInput) this.compExamOtpInput.value = '';
+    this.isKioskUnlocked = false;
+    this.isReviewMode = false;
+
+    // Reset sub-screens inside competitor view
+    if (this.competitorModeSelectScreen) this.competitorModeSelectScreen.style.display = 'flex';
+    if (this.compRegOverlay) this.compRegOverlay.style.display = 'none';
+    if (this.competitorWorkspace) this.competitorWorkspace.style.display = 'none';
+
+    // Switch view to welcome screen (Main Menu with Host Mode / Competitor Mode)
+    await this.switchView('welcome');
+    this.showToast('Station Unlocked: Returned to Main Menu.', 'success');
+  }
+
   _promptSupervisorUnlock(action = 'kiosk') {
     this.supervisorAction = action;
     this.supervisorKeyInput.value = '';
@@ -1844,10 +2235,10 @@ class MassCodeApp {
       if (this.supervisorModalTitle) this.supervisorModalTitle.textContent = 'Supervisor Master Key (Review Mode)';
       if (this.supervisorModalDesc) this.supervisorModalDesc.textContent = 'Enter the Invigilator Supervisor Key to inspect the code and test evaluations submitted by the candidate.';
       if (this.btnConfirmSupervisorKey) this.btnConfirmSupervisorKey.textContent = 'Unlock Review Workspace';
-    } else if (action === 'close') {
-      if (this.supervisorModalTitle) this.supervisorModalTitle.textContent = 'Supervisor Key Required to Close Application';
-      if (this.supervisorModalDesc) this.supervisorModalDesc.textContent = 'Enter the Invigilator Supervisor Key to verify and exit the application.';
-      if (this.btnConfirmSupervisorKey) this.btnConfirmSupervisorKey.textContent = 'Confirm & Exit Application';
+    } else if (action === 'main_menu' || action === 'close') {
+      if (this.supervisorModalTitle) this.supervisorModalTitle.textContent = 'Supervisor Key Required (Return to Main Menu)';
+      if (this.supervisorModalDesc) this.supervisorModalDesc.textContent = 'Enter the Invigilator Supervisor Key to unlock this station and return to the main menu (Host Mode / Competitor Mode).';
+      if (this.btnConfirmSupervisorKey) this.btnConfirmSupervisorKey.textContent = 'Unlock & Return to Main Menu';
     } else {
       if (this.supervisorModalTitle) this.supervisorModalTitle.textContent = 'Supervisor Emergency Key Override';
       if (this.supervisorModalDesc) this.supervisorModalDesc.textContent = 'Input the invigilator supervisor key to unlock the station and release kiosk mode.';
@@ -2011,6 +2402,10 @@ class MassCodeApp {
     this._renderLeaderboardTable();
   }
 
+  _generate4DigitOtp() {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+  }
+
   _getActiveBatch() {
     if (!this.hostBatches || this.hostBatches.length === 0) {
       this.hostBatches = [{ id: 'batch_1', name: 'Batch 1 (Morning)', students: [] }];
@@ -2032,81 +2427,183 @@ class MassCodeApp {
     `).join('');
   }
 
-  _createBatch() {
+  _openCreateBatchModal() {
+    if (!this.modalCreateBatch) return;
     const nextIdx = (this.hostBatches || []).length + 1;
-    const name = prompt('Enter name for the new Lab Exam Batch (e.g. "Batch 2: Afternoon"):', `Batch ${nextIdx}`);
-    if (!name || !name.trim()) return;
+    if (this.createBatchNameInput) {
+      this.createBatchNameInput.value = `Batch ${nextIdx}`;
+    }
+    this.modalCreateBatch.classList.add('active');
+    setTimeout(() => {
+      if (this.createBatchNameInput) {
+        this.createBatchNameInput.focus();
+        this.createBatchNameInput.select();
+      }
+    }, 50);
+  }
 
+  _handleCreateBatchSubmit() {
+    if (!this.createBatchNameInput) return;
+    const name = this.createBatchNameInput.value.trim();
+    if (!name) {
+      return this.showToast('Please enter a batch name.', 'warning');
+    }
+
+    if (!this.hostBatches) this.hostBatches = [];
     const newBatch = {
       id: 'batch_' + Date.now(),
-      name: name.trim(),
+      name: name,
       students: []
     };
     this.hostBatches.push(newBatch);
     this.activeBatchId = newBatch.id;
+    if (this.modalCreateBatch) this.modalCreateBatch.classList.remove('active');
     this._renderBatchSelectOptions();
     this._renderBatchAllocationsTable();
-    this.showToast(`Created new batch "${newBatch.name}"!`, 'success');
+    this.showToast(`✓ Created new batch "${newBatch.name}"!`, 'success');
   }
 
-  _renameBatch() {
+  _openRenameBatchModal() {
+    const batch = this._getActiveBatch();
+    if (!batch || !this.modalRenameBatch) return;
+    if (this.renameBatchNameInput) {
+      this.renameBatchNameInput.value = batch.name;
+    }
+    this.modalRenameBatch.classList.add('active');
+    setTimeout(() => {
+      if (this.renameBatchNameInput) {
+        this.renameBatchNameInput.focus();
+        this.renameBatchNameInput.select();
+      }
+    }, 50);
+  }
+
+  _handleRenameBatchSubmit() {
+    if (!this.renameBatchNameInput) return;
     const batch = this._getActiveBatch();
     if (!batch) return;
-    const newName = prompt(`Rename Batch "${batch.name}":`, batch.name);
-    if (!newName || !newName.trim() || newName.trim() === batch.name) return;
+    const newName = this.renameBatchNameInput.value.trim();
+    if (!newName) {
+      return this.showToast('Batch name cannot be empty.', 'warning');
+    }
 
-    batch.name = newName.trim();
+    batch.name = newName;
+    if (this.modalRenameBatch) this.modalRenameBatch.classList.remove('active');
     this._renderBatchSelectOptions();
     this._renderBatchAllocationsTable();
-    this.showToast(`Batch renamed to "${batch.name}"!`, 'success');
+    this.showToast(`✓ Batch renamed to "${batch.name}"!`, 'success');
   }
 
-  _deleteBatch() {
+  _openDeleteBatchModal() {
     if ((this.hostBatches || []).length <= 1) {
-      return this.showToast('At least one batch must remain active.', 'warning');
+      return this.showToast('Cannot delete: At least one batch must remain active.', 'warning');
     }
     const batch = this._getActiveBatch();
-    if (!batch) return;
-    if (!confirm(`Are you sure you want to delete "${batch.name}" and all its student allocations?`)) return;
+    if (!batch || !this.modalConfirmDeleteBatch) return;
+    if (this.deleteBatchDesc) {
+      const studentCount = (batch.students || []).length;
+      this.deleteBatchDesc.innerHTML = `Are you sure you want to delete <strong>"${this._escape(batch.name)}"</strong> (${studentCount} student(s))? All student records in this batch will be removed.`;
+    }
+    this.modalConfirmDeleteBatch.classList.add('active');
+  }
 
-    this.hostBatches = this.hostBatches.filter(b => b.id !== batch.id);
-    this.activeBatchId = this.hostBatches[0].id;
+  _handleDeleteBatchSubmit() {
+    const batch = this._getActiveBatch();
+    if (!batch) return;
+    this.hostBatches = (this.hostBatches || []).filter(b => b.id !== batch.id);
+    if (this.hostBatches.length > 0) {
+      this.activeBatchId = this.hostBatches[0].id;
+    }
+    if (this.modalConfirmDeleteBatch) this.modalConfirmDeleteBatch.classList.remove('active');
     this._renderBatchSelectOptions();
     this._renderBatchAllocationsTable();
     this.showToast(`Deleted batch "${batch.name}".`, 'info');
+  }
+
+  _openResetAllocationsModal() {
+    const batch = this._getActiveBatch();
+    if (!batch || !this.modalConfirmResetAllocations) return;
+    const allocatedCount = (batch.students || []).filter(s => s.assignedProblemId).length;
+    if (this.resetAllocationsDesc) {
+      this.resetAllocationsDesc.innerHTML = `Are you sure you want to reset all experiment allocations for <strong>"${this._escape(batch.name)}"</strong>?<br><br>Currently <strong>${allocatedCount} of ${(batch.students || []).length} students</strong> have assigned experiments. Resetting will clear all assigned experiments, chit picks, and change of experiment records back to unassigned state.`;
+    }
+    this.modalConfirmResetAllocations.classList.add('active');
+  }
+
+  _handleResetAllocationsSubmit() {
+    const batch = this._getActiveBatch();
+    if (!batch) return;
+
+    let resetCount = 0;
+    (batch.students || []).forEach(s => {
+      if (s.assignedProblemId || s.isChangeOfExperiment) resetCount++;
+      s.assignedProblemId = null;
+      s.assignedProblemTitle = '';
+      s.chitPickType = 'none';
+      s.allocationMethod = 'unassigned';
+      s.isChangeOfExperiment = false;
+      s.penalty = 0;
+      s.originalProblemId = null;
+      s.originalProblemTitle = '';
+      s.changeOfExpRemarks = '';
+      s.otp = null;
+    });
+
+    if (this.modalConfirmResetAllocations) this.modalConfirmResetAllocations.classList.remove('active');
+    this._renderBatchSelectOptions();
+    this._renderBatchAllocationsTable();
+    this.showToast(`✓ Reset ${resetCount} allocation(s) in "${batch.name}". All students are now ready for new chit draws!`, 'success');
   }
 
   _handleImportUsnsSubmit() {
     if (!this.importUsnsTextarea) return;
     const raw = this.importUsnsTextarea.value.trim();
     if (!raw) {
-      return this.showToast('Please enter at least one USN to import.', 'warning');
+      return this.showToast('Please enter or paste at least one USN to import.', 'warning');
     }
 
     const batch = this._getActiveBatch();
     if (!batch) return;
     if (!batch.students) batch.students = [];
 
-    const lines = raw.split('\n');
+    const lines = raw.split(/\r?\n/);
     let addedCount = 0;
     let updatedCount = 0;
 
     lines.forEach(line => {
-      const cleanLine = line.trim();
+      let cleanLine = line.trim();
       if (!cleanLine) return;
+
+      // Strip surrounding quotes
+      cleanLine = cleanLine.replace(/^["']|["']$/g, '');
+
+      // Check if line is a header row (e.g. USN, Name, Roll No, etc.)
+      if (/^(usn|roll\s*no|reg\s*no|student\s*name|candidate|sl\.?\s*no)/i.test(cleanLine)) {
+        return; // skip CSV table header
+      }
 
       let usn = '';
       let name = '';
 
-      if (cleanLine.includes(',') || cleanLine.includes('\t')) {
-        const parts = cleanLine.split(/,|\t/);
-        usn = parts[0].trim().toUpperCase();
-        name = parts.slice(1).join(' ').trim();
+      if (cleanLine.includes(',') || cleanLine.includes('\t') || cleanLine.includes(';')) {
+        const parts = cleanLine.split(/,|\t|;/).map(p => p.trim().replace(/^["']|["']$/g, ''));
+        if (parts.length >= 2) {
+          // If first part is just a serial number (1, 2, 3), second part is USN
+          if (/^\d+$/.test(parts[0]) && parts.length >= 3) {
+            usn = parts[1].toUpperCase();
+            name = parts.slice(2).join(' ').trim();
+          } else {
+            usn = parts[0].toUpperCase();
+            name = parts.slice(1).join(' ').trim();
+          }
+        } else {
+          usn = parts[0].toUpperCase();
+        }
       } else {
         usn = cleanLine.toUpperCase();
       }
 
-      if (!usn) return;
+      if (!usn || usn.length < 2) return;
 
       const existing = batch.students.find(s => s.usn.toUpperCase() === usn);
       if (existing) {
@@ -2118,6 +2615,7 @@ class MassCodeApp {
           name: name || '',
           assignedProblemId: null,
           assignedProblemTitle: '',
+          chitPickType: 'none',
           allocationMethod: 'unassigned',
           isChangeOfExperiment: false,
           originalProblemId: null,
@@ -2131,7 +2629,7 @@ class MassCodeApp {
     if (this.modalImportUsns) this.modalImportUsns.classList.remove('active');
     this._renderBatchSelectOptions();
     this._renderBatchAllocationsTable();
-    this.showToast(`Batch updated: Added ${addedCount} new student(s), updated ${updatedCount} existing.`, 'success');
+    this.showToast(`✓ Batch updated: Added ${addedCount} new student(s), updated ${updatedCount} existing.`, 'success');
   }
 
   _openAddSingleStudentModal() {
@@ -2171,6 +2669,7 @@ class MassCodeApp {
         existing.assignedProblemId = selectedExpId;
         existing.assignedProblemTitle = prob ? prob.title : '';
         existing.allocationMethod = 'chit';
+        existing.otp = existing.otp || this._generate4DigitOtp();
       }
       this.showToast(`Updated existing student ${usn} in ${batch.name}.`, 'info');
     } else {
@@ -2188,7 +2687,8 @@ class MassCodeApp {
         isChangeOfExperiment: false,
         originalProblemId: null,
         originalProblemTitle: '',
-        penalty: 0
+        penalty: 0,
+        otp: selectedExpId ? this._generate4DigitOtp() : null
       });
       this.showToast(`Added student ${usn} to ${batch.name}.`, 'success');
     }
@@ -2240,6 +2740,7 @@ class MassCodeApp {
       s.originalProblemId = null;
       s.originalProblemTitle = '';
       s.penalty = 0;
+      s.otp = s.otp || this._generate4DigitOtp();
       assignedCount++;
     });
 
@@ -2267,6 +2768,7 @@ class MassCodeApp {
     student.assignedProblemId = chosen.id;
     student.assignedProblemTitle = chosen.title;
     student.allocationMethod = 'random';
+    student.otp = student.otp || this._generate4DigitOtp();
 
     this._renderBatchAllocationsTable();
     this.showToast(`🎲 Randomly rolled "${chosen.title}" for ${usn}!`, 'success');
@@ -2284,6 +2786,7 @@ class MassCodeApp {
     student.assignedProblemId = chosen.id;
     student.assignedProblemTitle = chosen.title;
     student.allocationMethod = 'chit';
+    student.otp = student.otp || this._generate4DigitOtp();
 
     this._renderBatchAllocationsTable();
     this.showToast(`✏️ Mapped chit "${chosen.title}" for ${usn}!`, 'success');
@@ -2356,6 +2859,7 @@ class MassCodeApp {
     student.allocationMethod = 'change';
     student.penalty = penalty;
     student.changeRemarks = remarks;
+    student.otp = student.otp || this._generate4DigitOtp();
 
     if (this.modalChangeOfExp) this.modalChangeOfExp.classList.remove('active');
     this._renderBatchAllocationsTable();
@@ -2368,7 +2872,7 @@ class MassCodeApp {
       return this.showToast('No students in this batch to export.', 'warning');
     }
 
-    const headers = ['Sl', 'USN', 'Candidate Name', 'Batch', 'Assigned Experiment ID', 'Assigned Experiment Title', 'Chit Pick Type', 'Change of Experiment', 'Original Experiment', 'Penalty Marks'];
+    const headers = ['Sl', 'USN', 'Candidate Name', 'Batch', 'Assigned Experiment ID', 'Assigned Experiment Title', 'Exam Access OTP', 'Chit Pick Type', 'Change of Experiment', 'Original Experiment', 'Penalty Marks'];
     const rows = batch.students.map((s, idx) => {
       return [
         idx + 1,
@@ -2377,6 +2881,7 @@ class MassCodeApp {
         `"${batch.name}"`,
         `"${s.assignedProblemId || ''}"`,
         `"${s.assignedProblemTitle || ''}"`,
+        `"${s.otp || ''}"`,
         `"${s.allocationMethod || 'unassigned'}"`,
         s.isChangeOfExperiment ? 'YES' : 'NO',
         `"${s.originalProblemTitle || ''}"`,
@@ -2401,7 +2906,7 @@ class MassCodeApp {
     const batch = this._getActiveBatch();
     if (!batch) {
       this.batchStudentsTbody.innerHTML = `
-        <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 32px;">No active batch found.</td></tr>
+        <tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 32px;">No active batch found.</td></tr>
       `;
       return;
     }
@@ -2415,7 +2920,7 @@ class MassCodeApp {
     if (students.length === 0) {
       this.batchStudentsTbody.innerHTML = `
         <tr>
-          <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 32px;">
+          <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 32px;">
             No students in "${this._escape(batch.name)}" yet. Click <strong>"📥 Import / Paste USNs"</strong> or <strong>"+ Add Student"</strong> to populate this batch.
           </td>
         </tr>
@@ -2432,6 +2937,16 @@ class MassCodeApp {
         assignedBadge = `<span class="candidate-pill" style="color: var(--color-cyan); border-color: rgba(14, 165, 233, 0.4); font-weight: 700;">★ ${this._escape(assignedTitle)}</span>`;
       } else {
         assignedBadge = `<span class="candidate-pill" style="color: var(--color-amber); border-color: rgba(245, 158, 11, 0.4);">⚠ Not Allocated</span>`;
+      }
+
+      // Generate or retrieve 4-digit Exam Access OTP for assigned students
+      if (s.assignedProblemId && !s.otp) {
+        s.otp = this._generate4DigitOtp();
+      }
+
+      let otpBadge = '<span style="color: var(--text-muted); font-size: 0.75rem;">--</span>';
+      if (s.assignedProblemId && s.otp) {
+        otpBadge = `<span style="display: inline-block; padding: 2px 8px; font-family: var(--font-mono); font-weight: 800; font-size: 0.88rem; letter-spacing: 2px; color: var(--color-cyan); background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(14, 165, 233, 0.4); border-radius: 4px; box-shadow: 0 0 6px rgba(14, 165, 233, 0.15);">${this._escape(s.otp)}</span>`;
       }
 
       let methodPill = '<span style="color: var(--text-muted); font-size: 0.75rem;">--</span>';
@@ -2461,6 +2976,7 @@ class MassCodeApp {
           <td style="font-family: var(--font-mono); font-weight: 800; color: var(--text-main);">${this._escape(s.usn)}</td>
           <td>${this._escape(s.name || '--')}</td>
           <td>${assignedBadge}</td>
+          <td style="text-align: center;">${otpBadge}</td>
           <td style="text-align: center;">${methodPill}</td>
           <td>${coeStatus}</td>
           <td style="text-align: center;">
@@ -2625,6 +3141,15 @@ class MassCodeApp {
         { id: `tc_${idx + 1}_1`, isSample: true, input: '', expectedOutput: '' }
       ];
 
+      const tier = (p.tier || 'easy').toLowerCase();
+      const tierBadge = this.hostContestType === 'exam'
+        ? `<span class="badge-tier-lab">LAB EXPERIMENT</span>`
+        : (tier === 'hard'
+          ? `<span class="badge-tier-hard">HARD</span>`
+          : (tier === 'medium'
+            ? `<span class="badge-tier-medium">MEDIUM</span>`
+            : `<span class="badge-tier-easy">EASY</span>`));
+
       const tcRowsHtml = testCases.map((tc, tcIdx) => `
         <div class="p-tc-row" data-tcidx="${tcIdx}" data-sample="${tc.isSample ? 'true' : 'false'}" style="display: flex; gap: 8px; align-items: flex-start; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; margin-bottom: 6px;">
           <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 85px; margin-top: 6px;">
@@ -2646,10 +3171,12 @@ class MassCodeApp {
       `).join('');
 
       card.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
-            <strong style="color: var(--color-cyan); font-size: 1rem;">#${idx + 1}</strong>
-            <input type="text" class="form-control p-title" style="flex: 1; max-width: 480px; font-weight: 700;" value="${this._escape(p.title)}" placeholder="${this.hostContestType === 'exam' ? 'Experiment Title (e.g. Exp 1: Stack Operations)' : 'Question Title'}">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px; flex: 1; flex-wrap: wrap;">
+            <strong style="color: var(--color-cyan); font-size: 1.05rem;">#${idx + 1}</strong>
+            ${tierBadge}
+            <input type="text" class="form-control p-title" style="flex: 1; max-width: 440px; font-weight: 700;" value="${this._escape(p.title)}" placeholder="${this.hostContestType === 'exam' ? 'Experiment Title (e.g. Exp 1: Stack Operations)' : 'Question Title'}">
+            <span style="font-weight: 700; color: var(--text-muted); font-size: 0.88rem;">— ${p.maxPoints || (this.hostContestType === 'exam' ? 50 : (tier === 'hard' ? 15 : (tier === 'medium' ? 10 : 5)))} Marks</span>
           </div>
           <button class="btn btn-danger btn-sm btn-del-prob" data-idx="${idx}">${this.hostContestType === 'exam' ? 'Remove Experiment' : 'Remove Question'}</button>
         </div>
@@ -2693,6 +3220,22 @@ class MassCodeApp {
           </div>
         </div>
       `;
+
+      // Event: Change Tier dropdown
+      const tierSelect = card.querySelector('.p-tier');
+      if (tierSelect) {
+        tierSelect.addEventListener('change', (e) => {
+          this._syncCardsToHostProblems();
+          const selectedTier = e.target.value;
+          if (this.hostProblems[idx]) {
+            this.hostProblems[idx].tier = selectedTier;
+            if (this.hostContestType !== 'exam') {
+              this.hostProblems[idx].maxPoints = selectedTier === 'hard' ? 15 : (selectedTier === 'medium' ? 10 : 5);
+            }
+          }
+          this._renderHostProblemCards();
+        });
+      }
 
       // Event: Toggle Sample vs Hidden Test Case
       card.querySelectorAll('.btn-toggle-tc-type').forEach(btn => {
@@ -2830,8 +3373,12 @@ class MassCodeApp {
       this.serverStateVal.className = 'status-tag status-stopped';
     }
     if (this.btnHostToggleServer) {
-      this.btnHostToggleServer.textContent = 'Start Server Broadcast';
+      this.btnHostToggleServer.textContent = 'HOST(start Local server)';
       this.btnHostToggleServer.className = 'btn btn-success btn-sm';
+    }
+    if (this.btnHostDeployBottom) {
+      this.btnHostDeployBottom.textContent = 'HOST(start Local server)';
+      this.btnHostDeployBottom.className = 'btn btn-success';
     }
   }
 
@@ -2877,6 +3424,17 @@ class MassCodeApp {
   _compileHostContest() {
     this._syncCardsToHostProblems();
 
+    // Ensure all assigned students have a 4-digit Exam Access OTP
+    if (this.hostBatches) {
+      this.hostBatches.forEach(b => {
+        (b.students || []).forEach(s => {
+          if (s.assignedProblemId && !s.otp) {
+            s.otp = this._generate4DigitOtp();
+          }
+        });
+      });
+    }
+
     return {
       id: this.hostTokenInput.value.trim() || 'MASS-' + Date.now(),
       type: this.hostContestType || 'contest',
@@ -2919,11 +3477,23 @@ class MassCodeApp {
     this.serverContestVal.textContent = pin;
     this.serverStateVal.textContent = status.isRunning ? 'Online' : 'Stopped';
     this.serverStateVal.style.color = status.isRunning ? 'var(--color-emerald)' : 'var(--color-rose)';
-    this.btnHostToggleServer.textContent = status.isRunning ? 'Stop Server' : 'Start Server';
-    this.btnHostToggleServer.className = status.isRunning ? 'btn btn-danger btn-sm' : 'btn btn-success btn-sm';
+    if (this.btnHostToggleServer) {
+      this.btnHostToggleServer.textContent = status.isRunning ? 'Stop Local Server' : 'HOST(start Local server)';
+      this.btnHostToggleServer.className = status.isRunning ? 'btn btn-danger btn-sm' : 'btn btn-success btn-sm';
+    }
+    if (this.btnHostDeployBottom) {
+      this.btnHostDeployBottom.textContent = status.isRunning ? 'Stop Local Server' : 'HOST(start Local server)';
+      this.btnHostDeployBottom.className = status.isRunning ? 'btn btn-danger' : 'btn btn-success';
+    }
+    const serverStatusPill = document.getElementById('server-status-pill-badge');
+    if (serverStatusPill) {
+      serverStatusPill.textContent = status.isRunning ? 'Server Active / Broadcasting' : 'Host Broadcast Ready';
+      serverStatusPill.style.color = status.isRunning ? 'var(--color-emerald)' : 'var(--color-cyan)';
+      serverStatusPill.style.borderColor = status.isRunning ? 'var(--color-emerald)' : 'var(--color-cyan)';
+    }
 
     if (this.btnHostEndSession) {
-      this.btnHostEndSession.style.display = status.isRunning ? 'inline-flex' : 'none';
+      this.btnHostEndSession.style.display = (this.currentView === 'host' && this.hostStep === 3 && status.isRunning) ? 'inline-flex' : 'none';
     }
 
     if (this.routerHostIp) this.routerHostIp.textContent = primaryIp;
@@ -2954,13 +3524,8 @@ class MassCodeApp {
     const startRes = await window.api.startHostServer({ port: 8080, contestConfig: config });
     await this._refreshHostServerStatus();
 
-    // Switch host tabs to Server & LAN Distribution tab to show live endpoints
-    this.hostTabs.forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.host-content-panel').forEach(p => p.classList.remove('active'));
-    const serverTabBtn = Array.from(this.hostTabs).find(b => b.dataset.tab === 'server');
-    if (serverTabBtn) serverTabBtn.classList.add('active');
-    const serverPanel = document.getElementById('host-panel-server');
-    if (serverPanel) serverPanel.classList.add('active');
+    // Switch host stage to Server & LAN Distribution stage to show live endpoints
+    this._switchHostStage('server');
 
     const primaryIp = (startRes && startRes.primaryIp) || (startRes && startRes.ips && startRes.ips[0]) || '127.0.0.1';
     const port = (startRes && startRes.port) || 8080;
@@ -2974,6 +3539,10 @@ class MassCodeApp {
       this.showToast('Host Server stopped.', 'warning');
     } else {
       const config = this._compileHostContest();
+      if (!config.problems || config.problems.length === 0) {
+        this.showToast('Please add at least one question before hosting the contest.', 'warning');
+        return;
+      }
       this.activeContest = config;
       await window.api.saveContestConfig(config);
       const startRes = await window.api.startHostServer({ port: 8080, contestConfig: config });
@@ -3388,6 +3957,540 @@ class MassCodeApp {
   _escape(str) {
     if (typeof str !== 'string') return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  // --------------------------------------------------------------------------
+  // RESIZABLE WORKSPACE & TERMINAL SPLITTERS
+  // --------------------------------------------------------------------------
+  _initResizers() {
+    const wsResizer = document.getElementById('workspace-resizer');
+    const leftPanel = document.getElementById('ws-left-panel');
+    const container = document.getElementById('competitor-workspace-view');
+
+    if (wsResizer && leftPanel && container) {
+      let isDragging = false;
+      wsResizer.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        wsResizer.classList.add('resizing');
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const rect = container.getBoundingClientRect();
+        const newWidth = e.clientX - rect.left;
+        const minWidth = 200;
+        const maxWidth = rect.width - 260;
+        const clampedWidth = Math.max(minWidth, Math.min(newWidth, maxWidth));
+        leftPanel.style.width = `${clampedWidth}px`;
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          wsResizer.classList.remove('resizing');
+          document.body.style.cursor = '';
+          document.body.style.userSelect = '';
+        }
+      });
+
+      // Double-click on splitter resets to default 44% width
+      wsResizer.addEventListener('dblclick', () => {
+        leftPanel.style.width = '44%';
+        if (leftPanel.style.display === 'none') {
+          leftPanel.style.display = 'flex';
+          wsResizer.style.display = 'block';
+          if (this.btnWsToggleExpand) {
+            this.btnWsToggleExpand.innerHTML = '⛶ Expand Workspace';
+            this.btnWsToggleExpand.classList.remove('btn-primary');
+            this.btnWsToggleExpand.classList.add('btn-secondary');
+          }
+        }
+      });
+    }
+
+    // Terminal vertical resizer
+    const termResizer = document.getElementById('terminal-resizer');
+    const termContainer = document.getElementById('ws-terminal-container');
+    if (termResizer && termContainer) {
+      let isTermDragging = false;
+      termResizer.addEventListener('mousedown', (e) => {
+        isTermDragging = true;
+        termResizer.classList.add('resizing');
+        document.body.style.cursor = 'row-resize';
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isTermDragging) return;
+        const rect = termContainer.parentElement.getBoundingClientRect();
+        const newHeight = rect.bottom - e.clientY;
+        const minHeight = 90;
+        const maxHeight = rect.height - 100;
+        const clampedHeight = Math.max(minHeight, Math.min(newHeight, maxHeight));
+        termContainer.style.height = `${clampedHeight}px`;
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (isTermDragging) {
+          isTermDragging = false;
+          termResizer.classList.remove('resizing');
+          document.body.style.cursor = '';
+          document.body.style.userSelect = '';
+        }
+      });
+
+      // Double-click on terminal splitter resets height to default 240px
+      termResizer.addEventListener('dblclick', () => {
+        termContainer.style.height = '240px';
+      });
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // INTERACTIVE RUNTIME TERMINAL SANDBOX
+  // --------------------------------------------------------------------------
+  _initInteractiveTerminal() {
+    this.terminalHistory = [];
+    this.terminalHistoryIdx = -1;
+    this.isTerminalRunningProcess = false;
+
+    const terminalStream = document.getElementById('terminal-stream');
+    const cliInput = document.getElementById('terminal-cli-input');
+    const btnSendCli = document.getElementById('btn-terminal-send-cli');
+    const btnRunTerm = document.getElementById('btn-ws-run-term');
+    const btnKillTerm = document.getElementById('btn-ws-kill-term');
+    const btnClearTerm = document.getElementById('btn-ws-clear-term');
+
+    // Stream output listener from main process
+    if (window.api && window.api.onTerminalStreamOutput) {
+      window.api.onTerminalStreamOutput(({ text }) => {
+        if (!terminalStream) return;
+        terminalStream.textContent += text;
+        const lines = terminalStream.textContent.split('\n');
+        if (lines.length > 1000) {
+          terminalStream.textContent = lines.slice(lines.length - 1000).join('\n');
+        }
+        terminalStream.scrollTop = terminalStream.scrollHeight;
+      });
+    }
+
+    // Process exit listener
+    if (window.api && window.api.onTerminalProcessExit) {
+      window.api.onTerminalProcessExit(({ code, killed, error, cwd }) => {
+        this.isTerminalRunningProcess = false;
+        if (btnKillTerm) btnKillTerm.style.display = 'none';
+        if (btnRunTerm) btnRunTerm.style.display = 'inline-block';
+        if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'RUNTIME TERMINAL SANDBOX';
+
+        if (terminalStream) {
+          if (killed) {
+            terminalStream.textContent += '\r\n[Process terminated by user (Kill / Ctrl+C)]\r\n';
+          } else if (error) {
+            terminalStream.textContent += `\r\n[Process exited with error: ${error}]\r\n`;
+          } else {
+            terminalStream.textContent += `\r\n[Process exited with code ${code}]\r\n`;
+          }
+
+          terminalStream.scrollTop = terminalStream.scrollHeight;
+        }
+
+        if (cwd) {
+          if (this.terminalCwdTag) this.terminalCwdTag.textContent = cwd;
+          if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = cwd + '>';
+        }
+      });
+    }
+
+    // CLI Input submission
+    const sendCliCommand = async () => {
+      if (!cliInput) return;
+      const val = cliInput.value;
+      cliInput.value = '';
+
+      if (this.isTerminalRunningProcess) {
+        if (terminalStream) {
+          terminalStream.textContent += val + '\r\n';
+          terminalStream.scrollTop = terminalStream.scrollHeight;
+        }
+        if (window.api && window.api.sendTerminalStdin) {
+          await window.api.sendTerminalStdin({ input: val });
+        }
+        return;
+      }
+
+      const trimmed = val.trim();
+      if (!trimmed) return;
+
+      this.terminalHistory.push(trimmed);
+      this.terminalHistoryIdx = this.terminalHistory.length;
+
+      const promptText = (this.terminalCliPrompt ? this.terminalCliPrompt.textContent : 'C:\\workspace>') + ' ';
+      if (terminalStream) {
+        terminalStream.textContent += '\r\n' + promptText + trimmed + '\r\n';
+        terminalStream.scrollTop = terminalStream.scrollHeight;
+      }
+
+      this.isTerminalRunningProcess = true;
+      if (btnKillTerm) btnKillTerm.style.display = 'inline-block';
+      if (btnRunTerm) btnRunTerm.style.display = 'none';
+      if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'RUNNING PROCESS // Press Kill or Ctrl+C to stop';
+
+      const res = await window.api.runTerminalCommand({ command: trimmed });
+      if (res && res.isClear) {
+        if (terminalStream) terminalStream.textContent = '';
+        this.isTerminalRunningProcess = false;
+        if (btnKillTerm) btnKillTerm.style.display = 'none';
+        if (btnRunTerm) btnRunTerm.style.display = 'inline-block';
+        if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'RUNTIME TERMINAL SANDBOX';
+      } else if (res && res.isCd) {
+        this.isTerminalRunningProcess = false;
+        if (btnKillTerm) btnKillTerm.style.display = 'none';
+        if (btnRunTerm) btnRunTerm.style.display = 'inline-block';
+        if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'RUNTIME TERMINAL SANDBOX';
+        if (res.output && terminalStream) {
+          terminalStream.textContent += res.output;
+        }
+        if (res.cwd) {
+          if (this.terminalCwdTag) this.terminalCwdTag.textContent = res.cwd;
+          if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = res.cwd + '>';
+        }
+      }
+    };
+
+    if (cliInput) {
+      cliInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendCliCommand();
+        } else if (e.key === 'ArrowUp') {
+          if (this.terminalHistory.length > 0 && this.terminalHistoryIdx > 0) {
+            this.terminalHistoryIdx--;
+            cliInput.value = this.terminalHistory[this.terminalHistoryIdx] || '';
+          }
+        } else if (e.key === 'ArrowDown') {
+          if (this.terminalHistoryIdx < this.terminalHistory.length - 1) {
+            this.terminalHistoryIdx++;
+            cliInput.value = this.terminalHistory[this.terminalHistoryIdx] || '';
+          } else {
+            this.terminalHistoryIdx = this.terminalHistory.length;
+            cliInput.value = '';
+          }
+        } else if (e.ctrlKey && e.key === 'c') {
+          e.preventDefault();
+          if (window.api && window.api.killTerminalProcess) {
+            window.api.killTerminalProcess();
+          }
+        }
+      });
+    }
+
+    if (btnSendCli) {
+      btnSendCli.addEventListener('click', () => sendCliCommand());
+    }
+
+    if (btnKillTerm) {
+      btnKillTerm.addEventListener('click', async () => {
+        if (window.api && window.api.killTerminalProcess) {
+          await window.api.killTerminalProcess();
+        }
+      });
+    }
+
+    if (btnRunTerm) {
+      btnRunTerm.addEventListener('click', async () => {
+        if (cliInput && cliInput.value.trim().length > 0) {
+          sendCliCommand();
+          return;
+        }
+
+        const code = this.editorCode ? this.editorCode.value : '';
+        if (window.api && window.api.syncTerminalEditorFile) {
+          await window.api.syncTerminalEditorFile({ filename: 'solution.c', code });
+        }
+
+        if (terminalStream) {
+          terminalStream.textContent += '\r\n[Compiling solution.c with GCC and executing in terminal...]\r\n';
+          terminalStream.scrollTop = terminalStream.scrollHeight;
+        }
+
+        this.isTerminalRunningProcess = true;
+        if (btnKillTerm) btnKillTerm.style.display = 'inline-block';
+        if (btnRunTerm) btnRunTerm.style.display = 'none';
+        if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'RUNNING: solution.exe (Active)';
+
+        await window.api.runTerminalCommand({ command: 'gcc solution.c -o solution.exe && solution.exe' });
+      });
+    }
+
+    if (btnClearTerm) {
+      btnClearTerm.addEventListener('click', () => {
+        if (terminalStream) terminalStream.textContent = '[MASS-CODE RUNTIME]: Terminal output cleared.\r\n';
+      });
+    }
+
+  }
+
+  // --------------------------------------------------------------------------
+  // HOST MODE WORKSPACE STAGE FLOW
+  // --------------------------------------------------------------------------
+  _switchHostStage(stageKey) {
+    const panels = {
+      builder: document.getElementById('host-panel-builder'),
+      batches: document.getElementById('host-panel-batches'),
+      server: document.getElementById('host-panel-server'),
+      grading: document.getElementById('host-panel-grading')
+    };
+
+    // Update active tab buttons
+    this.hostTabs.forEach(btn => {
+      if (btn.dataset.tab === stageKey) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    // Show only active stage panel and hide all others
+    Object.keys(panels).forEach(key => {
+      const panel = panels[key];
+      if (!panel) return;
+      if (key === stageKey) {
+        panel.style.display = 'flex';
+        panel.classList.add('active');
+        if (this.hostWorkspaceContent) {
+          this.hostWorkspaceContent.scrollTop = 0;
+        }
+      } else {
+        panel.style.display = 'none';
+        panel.classList.remove('active');
+      }
+    });
+
+    // Handle stage-specific updates
+    if (stageKey === 'batches') {
+      this._renderBatchSelectOptions();
+      this._renderBatchAllocationsTable();
+    } else if (stageKey === 'server') {
+      this._refreshHostServerStatus();
+    } else if (stageKey === 'grading') {
+      this._loadAndRenderLeaderboard();
+    }
+  }
+
+  _chooseHostMode(mode) {
+    this.hostStep = 3;
+    this._setHostMode(mode);
+    if (this.hostModeSelectScreen) this.hostModeSelectScreen.style.display = 'none';
+    if (this.hostWorkspaceContent) this.hostWorkspaceContent.style.display = 'block';
+
+    const tabBatches = document.getElementById('tab-btn-batches');
+    const stageNumServer = document.getElementById('stage-num-server');
+    const stageNumGrading = document.getElementById('stage-num-grading');
+    const nextBtnBuilder = document.getElementById('btn-next-stage-builder');
+    const prevBtnServer = document.getElementById('btn-prev-stage-server');
+
+    if (mode === 'exam') {
+      if (tabBatches) tabBatches.style.display = 'inline-flex';
+      if (stageNumServer) stageNumServer.textContent = 'Stage 3:';
+      if (stageNumGrading) stageNumGrading.textContent = 'Stage 4:';
+      if (nextBtnBuilder) nextBtnBuilder.innerHTML = 'Next Stage: Batches &amp; Allocations →';
+      if (prevBtnServer) prevBtnServer.innerHTML = '← Previous Stage: Batches';
+    } else {
+      if (tabBatches) tabBatches.style.display = 'none';
+      if (stageNumServer) stageNumServer.textContent = 'Stage 2:';
+      if (stageNumGrading) stageNumGrading.textContent = 'Stage 3:';
+      if (nextBtnBuilder) nextBtnBuilder.innerHTML = 'Next Stage: Server &amp; LAN Distribution →';
+      if (prevBtnServer) prevBtnServer.innerHTML = '← Previous Stage: Questions';
+    }
+
+    // Default to Stage 1: Questions / Lab Experiments builder
+    this._switchHostStage('builder');
+  }
+
+  _handleHostBack() {
+    if (this.hostStep === 3) {
+      // Step 3 (Workspace) -> Step 2 (Session Mode Select)
+      this.hostStep = 2;
+      if (this.hostWorkspaceContent) this.hostWorkspaceContent.style.display = 'none';
+      if (this.hostModeSelectScreen) this.hostModeSelectScreen.style.display = 'flex';
+      if (this.btnHostEndSession) this.btnHostEndSession.style.display = 'none';
+      this.btnExitHost.style.display = 'inline-flex';
+    } else {
+      // Step 2 (Session Mode Select) -> Step 1 (Welcome Screen)
+      this.switchView('welcome');
+    }
+  }
+
+  _showHostModeSelectScreen() {
+    this.hostStep = 2;
+    if (this.hostModeSelectScreen) this.hostModeSelectScreen.style.display = 'flex';
+    if (this.hostWorkspaceContent) this.hostWorkspaceContent.style.display = 'none';
+    if (this.btnHostEndSession) this.btnHostEndSession.style.display = 'none';
+  }
+
+  // --------------------------------------------------------------------------
+  // CANDIDATE MODE FLOW (EXAM VS CONTEST)
+  // --------------------------------------------------------------------------
+  _launchCandidateEntry(mode) {
+    this.candidateMode = mode;
+    this.compStep = 3;
+    if (this.competitorModeSelectScreen) this.competitorModeSelectScreen.style.display = 'none';
+    if (this.compRegOverlay) this.compRegOverlay.style.display = 'flex';
+    this._setCandidateMode(mode);
+    if (this.btnExitComp) this.btnExitComp.style.display = 'inline-flex';
+  }
+
+  _handleCompBack() {
+    if (this.compStep === 3) {
+      // Step 3 (Candidate Registration) -> Step 2 (Competitor Mode Select)
+      this.compStep = 2;
+      if (this.compRegOverlay) this.compRegOverlay.style.display = 'none';
+      if (this.competitorModeSelectScreen) this.competitorModeSelectScreen.style.display = 'flex';
+      if (this.btnExitComp) this.btnExitComp.style.display = 'inline-flex';
+    } else {
+      // Step 2 (Competitor Mode Select) -> Step 1 (Welcome Screen)
+      this._exitCompetitorEntry();
+    }
+  }
+
+  _setCandidateMode(mode) {
+    this.candidateMode = mode;
+    if (mode === 'exam') {
+      if (this.compModeIndicatorTag) {
+        this.compModeIndicatorTag.textContent = '🎓 LAB EXAM MODE // Lab Experiments & Batches';
+        this.compModeIndicatorTag.className = 'candidate-pill mode-indicator-exam';
+      }
+      if (this.btnCompModeExam) this.btnCompModeExam.classList.add('active');
+      if (this.btnCompModeContest) this.btnCompModeContest.classList.remove('active');
+      if (this.compContestFields) this.compContestFields.style.display = 'none';
+      if (this.compExamNotice) this.compExamNotice.style.display = 'block';
+      if (this.compExamOtpGroup) this.compExamOtpGroup.style.display = 'block';
+      if (this.compNameGroup) this.compNameGroup.style.display = 'none';
+      if (this.btnCompStartContest) this.btnCompStartContest.style.display = 'none';
+      if (this.btnCompStartExam) this.btnCompStartExam.style.display = 'inline-block';
+      const title = document.getElementById('comp-reg-header-title');
+      const desc = document.getElementById('comp-reg-header-desc');
+      if (title) title.textContent = 'Lab Exam Candidate Station';
+      if (desc) desc.textContent = 'Enter your institutional USN and 4-digit Exam Access OTP to retrieve your allocated laboratory experiment.';
+    } else {
+      if (this.compModeIndicatorTag) {
+        this.compModeIndicatorTag.textContent = '🏆 CONTEST MODE // Multi-Tier Competitive';
+        this.compModeIndicatorTag.className = 'candidate-pill mode-indicator-contest';
+      }
+      if (this.btnCompModeContest) this.btnCompModeContest.classList.add('active');
+      if (this.btnCompModeExam) this.btnCompModeExam.classList.remove('active');
+      if (this.compContestFields) this.compContestFields.style.display = 'block';
+      if (this.compExamNotice) this.compExamNotice.style.display = 'none';
+      if (this.compExamOtpGroup) this.compExamOtpGroup.style.display = 'none';
+      if (this.compNameGroup) this.compNameGroup.style.display = 'block';
+      if (this.btnCompStartContest) this.btnCompStartContest.style.display = 'inline-block';
+      if (this.btnCompStartExam) this.btnCompStartExam.style.display = 'none';
+      const title = document.getElementById('comp-reg-header-title');
+      const desc = document.getElementById('comp-reg-header-desc');
+      if (title) title.textContent = 'Candidate Contest Entry';
+      if (desc) desc.textContent = 'Connect to the active contest, register your institutional identifier, and lock down workspace.';
+    }
+    this._checkCompStartButton();
+  }
+
+  async _handleStartExamSubmit() {
+    const usn = (this.compUsnInput?.value || '').trim().toUpperCase();
+    if (!usn) {
+      if (this.compUsnInput) this.compUsnInput.focus();
+      return this.showToast('Please enter your Institutional USN / Reg No.', 'warning');
+    }
+
+    const otp = (this.compExamOtpInput?.value || '').trim();
+    if (!otp || otp.length !== 4) {
+      if (this.compExamOtpInput) this.compExamOtpInput.focus();
+      return this.showToast('Please enter the 4-digit Exam Access OTP provided by your lab examiner.', 'warning');
+    }
+
+    let hostUrl = (this.compHostUrl.value || '').trim();
+    if (!hostUrl && this.discoveredHostUrl) {
+      hostUrl = this.discoveredHostUrl;
+      this.compHostUrl.value = hostUrl;
+    }
+    if (!hostUrl) {
+      hostUrl = 'http://localhost:8080';
+    }
+
+    this.showToast(`Connecting to Host (${hostUrl}) to verify credentials for ${usn}...`, 'info');
+    const res = await window.api.fetchExamAssignment({ hostUrl, usn, otp });
+
+    if (!res || !res.success) {
+      return this.showToast(res?.error || 'Failed to retrieve assigned experiment from Host. Ensure Host server is running, USN is enrolled, and OTP is correct.', 'error');
+    }
+
+    const { examTitle, batchName, duration, student, problem } = res;
+
+    // In Exam Mode, ONLY the mapped question is loaded! No other questions.
+    this.activeContest = {
+      title: examTitle || 'Lab Examination',
+      type: 'exam',
+      token: res.token || 'MASS2026',
+      duration: duration || 90,
+      problems: [problem],
+      batches: [{
+        name: batchName || 'Active Batch',
+        students: [student]
+      }]
+    };
+
+    const candidateName = student.name || student.usn;
+
+    this.competitor.usn = student.usn;
+    this.competitor.name = candidateName;
+    this.competitor.isSessionActive = true;
+    this.compStep = 4;
+    this.competitor.uptimeSeconds = 0;
+    this.competitor.problemCodes = { [problem.id]: problem.starterCode || '// Write solution here\n' };
+    this.competitor.evaluations = {};
+    this.competitor.activeProblemId = problem.id;
+    this.competitor.isExamMode = true;
+
+    // Initialize interactive terminal session for this student
+    if (window.api && window.api.initTerminalSession) {
+      const termRes = await window.api.initTerminalSession({ usn: student.usn });
+      if (termRes && termRes.cwd) {
+        if (this.terminalCwdTag) this.terminalCwdTag.textContent = termRes.cwd;
+        if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = termRes.cwd + '>';
+      }
+    }
+
+    // Switch to active kiosk workspace
+    this.compRegOverlay.style.display = 'none';
+    this.competitorWorkspace.style.display = 'flex';
+    this.competitorBankView.style.display = 'none';
+
+    // In Exam Mode, hide the Return to Bank and evaluation action buttons
+    if (this.btnBackToBank) this.btnBackToBank.style.display = 'none';
+    if (this.btnWsResetCode) this.btnWsResetCode.style.display = 'none';
+    if (this.btnWsRunSample) this.btnWsRunSample.style.display = 'none';
+    if (this.btnWsRunTests) this.btnWsRunTests.style.display = 'none';
+
+    this._openProblemWorkspace(problem.id);
+
+    // Kiosk lockdown
+    if (window.api && window.api.setSecurityMode) {
+      await window.api.setSecurityMode({ mode: 'kiosk' });
+    }
+
+    // Update navigation
+    this.navCandidateUsn.textContent = `${student.usn} (${candidateName})`;
+    this.navCandidatePill.style.display = 'inline-flex';
+    this.navTimerBox.style.display = 'inline-flex';
+    this.navKioskBadge.style.display = 'inline-flex';
+    this.btnEndSession.style.display = 'inline-flex';
+    this.btnSupervisorKey.style.display = 'inline-flex';
+    if (this.btnExitComp) this.btnExitComp.style.display = 'none';
+
+    this._startRelativeCountdown();
+    this.showToast(`Lab Exam Started! Allocated: ${problem.title}. Station locked down!`, 'success');
   }
 }
 

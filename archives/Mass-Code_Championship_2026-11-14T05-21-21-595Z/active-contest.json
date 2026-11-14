@@ -1,0 +1,397 @@
+{
+  "id": "MASS1208",
+  "type": "exam",
+  "title": "Mass-Code Championship",
+  "token": "MASS1208",
+  "durationMinutes": 60,
+  "language": "c",
+  "problems": [
+    {
+      "id": "p_pdf_1_8900",
+      "tier": "lab",
+      "difficulty": "Easy",
+      "title": "Question 1: Sum of Array Elements",
+      "category": "Algorithmic Challenge",
+      "maxPoints": 5,
+      "timeLimitMs": 2000,
+      "description": "Fix the logical and syntax errors in the given C program so that it reads an integer N followed by\nN space-separated integers, and prints their total sum.",
+      "starterCode": "#include <stdio.h>\nint main(void) {\nint n, i, sum;\nscanf(\"%d\", &n);\nint arr[100];\nfor (i = 1; i <= n; i++) {\nscanf(\"%d\", arr[i]);\nsum += arr[i];\n}\nprintf(\"%d\n\", sum)\nreturn 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_1_1",
+          "isSample": true,
+          "input": "4\n10 20 30 40\n",
+          "expectedOutput": "100\n\n-- 1 of 5 --\n"
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_2_8900",
+      "tier": "lab",
+      "difficulty": "Easy",
+      "title": "Question 2: Count Even and Odd Numbers",
+      "category": "Algorithmic Challenge",
+      "maxPoints": 5,
+      "timeLimitMs": 2000,
+      "description": "Read an integer N followed by N integers. Print the count of even numbers and odd numbers\nseparated by a single space.",
+      "starterCode": "#include <stdio.h>\nint main(void) {\n// Write your code here\nreturn 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_2_1",
+          "isSample": true,
+          "input": "5\n12 7 9 4 10\n",
+          "expectedOutput": "3 2\n"
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_3_8900",
+      "tier": "lab",
+      "difficulty": "Medium",
+      "title": "Question 3: Reverse a Number (Debugging)",
+      "category": "Algorithmic Challenge",
+      "maxPoints": 10,
+      "timeLimitMs": 2000,
+      "description": "Debug the program below so that it reverses the digits of a given positive integer N and prints\nthe reversed number.",
+      "starterCode": "#include <stdio.h>\nint main(void) {\nint n, rev = 0, rem;\nscanf(\"%d\", &n);\nwhile (n = 0) {\nrem = n / 10;\nrev = rev * 10 + rem;\nn %= 10;\n}\nprintf(\"%d\n\", rev);\nreturn 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_3_1",
+          "isSample": true,
+          "input": "12345\n",
+          "expectedOutput": "54321\n\n-- 2 of 5 --\n"
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_4_8900",
+      "tier": "lab",
+      "difficulty": "Medium",
+      "title": "Question 4: Prime Number Range Count",
+      "category": "Algorithmic Challenge",
+      "maxPoints": 10,
+      "timeLimitMs": 2000,
+      "description": "Given two positive integers L and R (1 <= L <= R <= 1000), count how many prime numbers exist\nbetween L and R inclusive.",
+      "starterCode": "#include <stdio.h>\nint main(void) {\n// Write your code here\nreturn 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_4_1",
+          "isSample": true,
+          "input": "10 20\n",
+          "expectedOutput": "4\n\n-- 3 of 5 --\n"
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_5_8900",
+      "tier": "lab",
+      "difficulty": "Hard",
+      "title": "Question 5: Matrix Row Maximums (Debugging)",
+      "category": "Algorithmic Challenge",
+      "maxPoints": 15,
+      "timeLimitMs": 2000,
+      "description": "Fix the bugs in the C code so it reads an R x C integer matrix and prints the maximum element of\neach row separated by spaces.",
+      "starterCode": "#include <stdio.h>\nint main(void) {\nint r, c, i, j;\nscanf(\"%d %d\", &r, &c);\nint mat[20][20];\nfor (i = 0; i < r; i++)\nfor (j = 0; j < c; j++)\nscanf(\"%d\", &mat[j][i]);\nfor (i = 0; i < r; i++) {\nint max = 0;\nfor (j = 0; j < c; j++) {\nif (mat[i][j] < max)\nmax = mat[i][j];\n}\nprintf(\"%d \", max);\n}\nreturn 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_5_1",
+          "isSample": true,
+          "input": "3 3\n1 5 3\n9 2 4\n6 8 7\n",
+          "expectedOutput": "5 9 8\n\n-- 4 of 5 --\n"
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_6_8900",
+      "tier": "lab",
+      "difficulty": "Hard",
+      "title": "Question 6: Second Largest Unique Element",
+      "category": "Algorithmic Challenge",
+      "maxPoints": 15,
+      "timeLimitMs": 2000,
+      "description": "Read an integer N (2 <= N <= 100) followed by N integers. Print the second largest distinct\nelement in the array. If all elements are equal, print -1.",
+      "starterCode": "#include <stdio.h>\nint main(void) {\n// Write your code here\nreturn 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_6_1",
+          "isSample": true,
+          "input": "6\n12 35 1 10 34 35\n",
+          "expectedOutput": "34\n\n-- 5 of 5 --\n"
+        }
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "id": "batch_1",
+      "name": "Batch 1 (Morning)",
+      "students": [
+        {
+          "usn": "4HG24CS001",
+          "name": "AKASH R J",
+          "assignedProblemId": "p_pdf_6_5770",
+          "assignedProblemTitle": "Experiment 6: Binary Tree Creation and Traversals",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS002",
+          "name": "ANJANEYA",
+          "assignedProblemId": "p_pdf_6_5770",
+          "assignedProblemTitle": "Experiment 6: Binary Tree Creation and Traversals",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS003",
+          "name": "ANUSH M N",
+          "assignedProblemId": "p_pdf_4_5770",
+          "assignedProblemTitle": "Experiment 4: Printer Queue Simulation",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS004",
+          "name": "ASHA T R",
+          "assignedProblemId": "p_pdf_7_5770",
+          "assignedProblemTitle": "Experiment 7: Infix Expression Validation & Postfix Conversion",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS005",
+          "name": "BHAVANA",
+          "assignedProblemId": "p_pdf_1_5769",
+          "assignedProblemTitle": "Experiment 1: Dynamic Memory Allocation & Library Book Management",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS006",
+          "name": "BHOOMIKA D K",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS007",
+          "name": "BHOOMIKA ISHWARAPPA RAJUR",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS008",
+          "name": "BHOOMIKA T",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS009",
+          "name": "CHAITHRA",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS010",
+          "name": "DARSHANA R",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS011",
+          "name": "DEEKSHITHA R O",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS012",
+          "name": "Deepthi shree BC",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS013",
+          "name": "DEVIDAS",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS014",
+          "name": "Dinesh K M",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS015",
+          "name": "GAGANA C C",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS016",
+          "name": "GANGOTHRI C N",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS017",
+          "name": "GOURAVVA SURESH YALASHETTI",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS018",
+          "name": "GOUTHAMI P",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS019",
+          "name": "GOWTHAM K R",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS020",
+          "name": "JAYALAKSHMI G",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS021",
+          "name": "JEEVAN BAHADDUR B K",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS022",
+          "name": "JNANAVI K V",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        }
+      ]
+    }
+  ],
+  "activeBatchId": "batch_1"
+}

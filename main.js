@@ -5,6 +5,7 @@ const os = require('os');
 const http = require('http');
 const dgram = require('dgram');
 const { spawn, exec, execSync } = require('child_process');
+const cEngine = require('./c-engine');
 
 let mainWindow = null;
 let currentSecurityMode = 'entry'; // 'entry' | 'kiosk'
@@ -28,7 +29,7 @@ function initRuntimeDirectories() {
     submissionsDir = path.join(app.getPath('desktop'), 'Mass-Code-Submissions');
     syncedSubmissionsDir = path.join(app.getPath('desktop'), 'Mass-Code-Synced-Submissions');
     archivesDir = path.join(app.getPath('desktop'), 'Mass-Code-Archives');
-    tempDir = path.join(app.getPath('temp'), 'mass-code-temp');
+    tempDir = path.join(baseDir, 'sandbox');
   }
   [sessionsDir, submissionsDir, syncedSubmissionsDir, archivesDir, tempDir, contestsDir].forEach((dir) => {
     try {
@@ -274,7 +275,102 @@ class HostServer {
             contestActive: !!this.activeContest,
             contestId: this.activeContest ? (this.activeContest.id || this.activeContest.token) : null,
             contestTitle: this.activeContest ? this.activeContest.title : null,
-            contestToken: this.activeContest ? this.activeContest.token : null
+            contestToken: this.activeContest ? this.activeContest.token : null,
+            contestMode: (this.activeContest && this.activeContest.type) ? this.activeContest.type : 'contest'
+          }));
+          return;
+        }
+
+        // Exam Assignment Retrieval: GET /api/exam-assignment?usn=...
+        if (req.method === 'GET' && (pathname === '/api/exam-assignment' || pathname === '/exam-assignment')) {
+          if (!this.activeContest) {
+            const activePath = path.join(contestsDir, 'active-contest.json');
+            if (fs.existsSync(activePath)) {
+              try { this.activeContest = JSON.parse(fs.readFileSync(activePath, 'utf-8')); } catch (_) { }
+            }
+          }
+
+          if (!this.activeContest) {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: false, error: 'No active contest/exam running on Host server.' }));
+            return;
+          }
+
+          const rawUsn = parsedUrl.searchParams.get('usn') || '';
+          const usn = rawUsn.trim().toUpperCase();
+          if (!usn) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: false, error: 'USN parameter is required.' }));
+            return;
+          }
+
+          const batches = this.activeContest.batches || [];
+          const activeBatchId = this.activeContest.activeBatchId;
+          const activeBatch = batches.find(b => b.id === activeBatchId) || batches[0];
+
+          if (!activeBatch) {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: false, error: 'No active batch configured on Host.' }));
+            return;
+          }
+
+          const student = (activeBatch.students || []).find(s => s.usn && s.usn.trim().toUpperCase() === usn);
+          if (!student) {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+              success: false,
+              error: `USN "${usn}" is not enrolled in the active batch ("${activeBatch.name}"). Please contact the lab examiner.`
+            }));
+            return;
+          }
+
+          if (!student.assignedProblemId) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+              success: false,
+              error: `No lab experiment allocated for ${usn} (${student.name || 'Student'}) yet. Please wait for the examiner to assign an experiment.`
+            }));
+            return;
+          }
+
+          // 4-Digit Exam Access OTP Validation
+          const rawOtp = parsedUrl.searchParams.get('otp') || '';
+          const reqOtp = rawOtp.trim();
+
+          // Ensure student record has an OTP if allocated
+          if (!student.otp) {
+            student.otp = Math.floor(1000 + Math.random() * 9000).toString();
+          }
+
+          const expectedOtp = String(student.otp).trim();
+          if (!reqOtp || reqOtp !== expectedOtp) {
+            res.writeHead(403, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+              success: false,
+              error: `Invalid 4-digit Exam Access OTP. Please check the OTP assigned next to your USN on the Host screen.`
+            }));
+            return;
+          }
+
+          const problem = (this.activeContest.problems || []).find(p => p.id === student.assignedProblemId);
+          if (!problem) {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+              success: false,
+              error: `Assigned experiment was not found in the question bank.`
+            }));
+            return;
+          }
+
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            success: true,
+            examTitle: this.activeContest.title || 'Lab Examination',
+            batchName: activeBatch.name,
+            duration: this.activeContest.duration || 90,
+            token: this.activeContest.token || 'MASS2026',
+            student,
+            problem
           }));
           return;
         }
@@ -573,27 +669,33 @@ function normalizeTokens(str) {
 
 async function compileAndEvaluate({ code, language = 'c', testCases = [], timeoutMs = 2000, maxPoints = 100 }, onProgress) {
   const sessionId = `eval_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const sessionDir = path.join(tempDir, 'sessions', sessionId);
+  try {
+    if (!fs.existsSync(sessionDir)) {
+      fs.mkdirSync(sessionDir, { recursive: true });
+    }
+  } catch (_) { }
 
   // ---------------------------------------------------------
   // PYTHON 3 EXECUTION PATH
   // ---------------------------------------------------------
   if (language === 'python' || language === 'py') {
     const py = findPythonExecutable();
-    const scriptPath = path.join(tempDir, `${sessionId}.py`);
+    const scriptPath = path.join(sessionDir, 'solution.py');
     fs.writeFileSync(scriptPath, code || '', 'utf-8');
 
     // Syntax validation via py_compile with multi-version fallback
     if (onProgress) onProgress({ phase: 'compiling', message: `Validating Python syntax (${path.basename(py.cmd)})...` });
     const syntaxRes = await new Promise((resolve) => {
       let stderr = '';
-      const proc = spawn(py.cmd, [...py.argsPrefix, '-m', 'py_compile', scriptPath], { cwd: tempDir, windowsHide: true });
+      const proc = spawn(py.cmd, [...py.argsPrefix, '-m', 'py_compile', scriptPath], { cwd: sessionDir, windowsHide: true, shell: true });
       proc.stderr.on('data', d => { stderr += d.toString(); });
       proc.on('close', codeVal => resolve({ success: codeVal === 0, stderr }));
       proc.on('error', err => resolve({ success: false, stderr: err.message }));
     });
 
     if (!syntaxRes.success) {
-      try { if (fs.existsSync(scriptPath)) fs.unlinkSync(scriptPath); } catch (_) { }
+      try { if (fs.existsSync(sessionDir)) fs.rmSync(sessionDir, { recursive: true, force: true }); } catch (_) { }
       return {
         success: false,
         phase: 'compilation',
@@ -623,14 +725,20 @@ async function compileAndEvaluate({ code, language = 'c', testCases = [], timeou
 
         let proc = null;
         try {
-          proc = spawn(py.cmd, [...py.argsPrefix, '-u', scriptPath], { cwd: tempDir, windowsHide: true });
+          proc = spawn(py.cmd, [...py.argsPrefix, '-u', scriptPath], { cwd: sessionDir, windowsHide: true, shell: true });
         } catch (e) {
           return resolve({ exitCode: -1, stdout: '', stderr: e.message, timedOut: false, durationMs: 0 });
         }
 
         const timer = setTimeout(() => {
           timedOut = true;
-          try { proc.kill('SIGKILL'); } catch (_) { }
+          try {
+            if (process.platform === 'win32' && proc && proc.pid) {
+              exec(`taskkill /pid ${proc.pid} /T /F`, () => {});
+            } else if (proc) {
+              proc.kill('SIGKILL');
+            }
+          } catch (_) { }
         }, timeoutMs);
 
         proc.stdout.on('data', d => { stdout += d.toString(); });
@@ -671,7 +779,7 @@ async function compileAndEvaluate({ code, language = 'c', testCases = [], timeou
       });
     }
 
-    try { if (fs.existsSync(scriptPath)) fs.unlinkSync(scriptPath); } catch (_) { }
+    try { if (fs.existsSync(sessionDir)) fs.rmSync(sessionDir, { recursive: true, force: true }); } catch (_) { }
 
     const earnedScore = testCases.length > 0 ? Math.round((passedCount / testCases.length) * maxPoints * 10) / 10 : 0;
     return {
@@ -691,8 +799,8 @@ async function compileAndEvaluate({ code, language = 'c', testCases = [], timeou
   // C (GCC) EXECUTION PATH
   // ---------------------------------------------------------
   const gccCmd = findGccExecutable();
-  const sourcePath = path.join(tempDir, `${sessionId}.c`);
-  const binaryPath = path.join(tempDir, `${sessionId}.exe`);
+  const sourcePath = path.join(sessionDir, 'solution.c');
+  const binaryPath = path.join(sessionDir, 'runner.exe');
   fs.writeFileSync(sourcePath, code || '', 'utf-8');
 
   if (onProgress) onProgress({ phase: 'compiling', message: `Invoking native compiler: ${path.basename(gccCmd)}` });
@@ -720,7 +828,7 @@ async function compileAndEvaluate({ code, language = 'c', testCases = [], timeou
     compileRes = await new Promise((resolve) => {
       let stdout = '';
       let stderr = '';
-      const proc = spawn(gccCmd, [sourcePath, '-o', binaryPath, ...flags], { env: runtimeEnv, windowsHide: true });
+      const proc = spawn(gccCmd, [sourcePath, '-o', binaryPath, ...flags], { cwd: sessionDir, env: runtimeEnv, windowsHide: true, shell: true });
       proc.stdout.on('data', d => { stdout += d.toString(); });
       proc.stderr.on('data', d => { stderr += d.toString(); });
       proc.on('close', codeVal => resolve({ success: codeVal === 0, stdout, stderr }));
@@ -740,21 +848,37 @@ async function compileAndEvaluate({ code, language = 'c', testCases = [], timeou
     }
   }
 
+  let useInProcessEngine = false;
+
   if (!compileRes.success) {
-    try { if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath); } catch (_) { }
-    return {
-      success: false,
-      phase: 'compilation',
-      compilerError: compileRes.stderr || 'Compilation failed.',
-      testResults: [],
-      totalScore: 0,
-      maxScore: maxPoints,
-      passedCount: 0,
-      totalCount: testCases.length
-    };
+    const errText = (compileRes.stderr || '').toLowerCase();
+    const isCodeSyntaxError = (errText.includes('error:') || errText.includes('fatal error:')) &&
+      !errText.includes('unrecognized') &&
+      !errText.includes('unsupported') &&
+      !errText.includes('cannot execute') &&
+      !errText.includes('relocation') &&
+      !errText.includes('permission denied') &&
+      !errText.includes('invalid option');
+
+    if (isCodeSyntaxError) {
+      try { if (fs.existsSync(sessionDir)) fs.rmSync(sessionDir, { recursive: true, force: true }); } catch (_) { }
+      return {
+        success: false,
+        phase: 'compilation',
+        compilerError: compileRes.stderr || 'Compilation failed.',
+        testResults: [],
+        totalScore: 0,
+        maxScore: maxPoints,
+        passedCount: 0,
+        totalCount: testCases.length
+      };
+    } else {
+      // Native GCC was blocked by OS security or relocation. Fallback to in-process C runtime
+      useInProcessEngine = true;
+    }
   }
 
-  await new Promise(r => setTimeout(r, 150));
+  await new Promise(r => setTimeout(r, 100));
 
   const testResults = [];
   let passedCount = 0;
@@ -764,58 +888,71 @@ async function compileAndEvaluate({ code, language = 'c', testCases = [], timeou
     const tc = testCases[i];
     if (onProgress) onProgress({ phase: 'running_test', index: i + 1, total: testCases.length });
 
-    const evalRes = await new Promise((resolve) => {
-      let attempts = 0;
-      const tryRun = () => {
-        attempts++;
-        const startTime = process.hrtime();
-        let stdout = '';
-        let stderr = '';
-        let timedOut = false;
-        let proc = null;
+    let evalRes = null;
 
-        try {
-          proc = spawn(binaryPath, [], { cwd: tempDir, env: runtimeEnv, windowsHide: true });
-        } catch (e) {
-          if (attempts < 3) {
-            setTimeout(tryRun, 150);
-            return;
+    if (!useInProcessEngine) {
+      evalRes = await new Promise((resolve) => {
+        let attempts = 0;
+        const tryRun = () => {
+          attempts++;
+          const startTime = process.hrtime();
+          let stdout = '';
+          let stderr = '';
+          let timedOut = false;
+          let proc = null;
+
+          try {
+            proc = spawn(binaryPath, [], { cwd: sessionDir, env: runtimeEnv, windowsHide: true, shell: true });
+          } catch (e) {
+            return resolve({ exitCode: -1, stdout: '', stderr: e.message, timedOut: false, durationMs: 0 });
           }
-          return resolve({ exitCode: -1, stdout: '', stderr: e.message, timedOut: false, durationMs: 0 });
-        }
 
-        const timer = setTimeout(() => {
-          timedOut = true;
-          try { proc.kill('SIGKILL'); } catch (_) { }
-        }, timeoutMs);
+          const timer = setTimeout(() => {
+            timedOut = true;
+            try {
+              if (process.platform === 'win32' && proc && proc.pid) {
+                exec(`taskkill /pid ${proc.pid} /T /F`, () => {});
+              } else if (proc) {
+                proc.kill('SIGKILL');
+              }
+            } catch (_) { }
+          }, timeoutMs);
 
-        proc.stdout.on('data', d => { stdout += d.toString(); });
-        proc.stderr.on('data', d => { stderr += d.toString(); });
+          proc.stdout.on('data', d => { stdout += d.toString(); });
+          proc.stderr.on('data', d => { stderr += d.toString(); });
 
-        proc.on('close', codeVal => {
-          clearTimeout(timer);
-          const diff = process.hrtime(startTime);
-          const durationMs = Math.round((diff[0] * 1e3 + diff[1] / 1e6) * 10) / 10;
-          resolve({ exitCode: codeVal, stdout, stderr, timedOut, durationMs });
-        });
+          proc.on('close', codeVal => {
+            clearTimeout(timer);
+            const diff = process.hrtime(startTime);
+            const durationMs = Math.round((diff[0] * 1e3 + diff[1] / 1e6) * 10) / 10;
+            resolve({ exitCode: codeVal, stdout, stderr, timedOut, durationMs });
+          });
 
-        proc.on('error', err => {
-          clearTimeout(timer);
-          if (attempts < 3) {
-            setTimeout(tryRun, 150);
-            return;
-          }
-          resolve({ exitCode: -1, stdout: '', stderr: err.message, timedOut: false, durationMs: 0 });
-        });
+          proc.on('error', err => {
+            clearTimeout(timer);
+            resolve({ exitCode: -1, stdout: '', stderr: err.message, timedOut: false, durationMs: 0 });
+          });
 
-        try {
-          if (tc.input) proc.stdin.write(tc.input);
-          proc.stdin.end();
-        } catch (_) { }
-      };
+          try {
+            if (tc.input) proc.stdin.write(tc.input);
+            proc.stdin.end();
+          } catch (_) { }
+        };
 
-      tryRun();
-    });
+        tryRun();
+      });
+
+      // Check if native binary execution was blocked by Device Guard / WDAC / Smart App Control (code 4551)
+      const isDeviceGuardBlocked = !evalRes || evalRes.exitCode === 4551 ||
+        (evalRes.stderr && (evalRes.stderr.includes('Device Guard') || evalRes.stderr.includes('Application Control') || evalRes.stderr.includes('policy')));
+      if (isDeviceGuardBlocked) {
+        useInProcessEngine = true;
+      }
+    }
+
+    if (useInProcessEngine) {
+      evalRes = await cEngine.executeC(code, tc.input || '', timeoutMs);
+    }
 
     totalCpuMs += evalRes.durationMs;
     const isPassed = !evalRes.timedOut && evalRes.exitCode === 0 && normalizeTokens(evalRes.stdout) === normalizeTokens(tc.expectedOutput || '');
@@ -838,8 +975,9 @@ async function compileAndEvaluate({ code, language = 'c', testCases = [], timeou
   }
 
   try {
-    if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath);
-    if (fs.existsSync(binaryPath)) fs.unlinkSync(binaryPath);
+    if (fs.existsSync(sessionDir)) {
+      fs.rmSync(sessionDir, { recursive: true, force: true });
+    }
   } catch (_) { }
 
   const earnedScore = testCases.length > 0 ? Math.round((passedCount / testCases.length) * maxPoints * 10) / 10 : 0;
@@ -924,6 +1062,35 @@ function createWindow() {
       mainWindow.show();
       mainWindow.focus();
       mainWindow.setAlwaysOnTop(true, 'screen-saver');
+    }
+  });
+
+  // Native Context Menu for text inputs & textareas (Active in Host Mode, blocked in Kiosk mode)
+  mainWindow.webContents.on('context-menu', (event, params) => {
+    if (currentSecurityMode === 'kiosk' || currentSecurityMode === 'thankyou') return;
+    const menuTemplate = [];
+
+    if (params.isEditable) {
+      menuTemplate.push(
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { type: 'separator' },
+        { role: 'selectAll' }
+      );
+    } else if (params.selectionText) {
+      menuTemplate.push(
+        { role: 'copy' },
+        { role: 'selectAll' }
+      );
+    }
+
+    if (menuTemplate.length > 0) {
+      const menu = Menu.buildFromTemplate(menuTemplate);
+      menu.popup({ window: mainWindow });
     }
   });
 
@@ -1308,13 +1475,14 @@ function parseQuestionsFromText(rawText, mode = 'auto') {
       currentChunk = {
         headerLine: trimmed,
         defaultTier: currentTier,
-        lines: [trimmed]
+        lines: [trimmed],
+        qNumber: qMatch[1] || qMatch[2] || qMatch[3] || qMatch[4] || (chunks.length + 1)
       };
     } else {
       if (currentChunk) {
         currentChunk.lines.push(line);
       } else {
-        const preMatch = trimmed.match(/(Easy|Medium|Hard)\s*(?:Tier|Questions|Section)?/i);
+        const preMatch = trimmed.match(/\b(Easy|Medium|Hard)\b/i);
         if (preMatch) {
           const t = preMatch[1].toLowerCase();
           if (['easy', 'medium', 'hard'].includes(t)) {
@@ -1333,7 +1501,8 @@ function parseQuestionsFromText(rawText, mode = 'auto') {
     chunks.push({
       headerLine: effectiveMode === 'exam' ? 'Experiment 1' : 'Problem 1',
       defaultTier: effectiveMode === 'exam' ? 'lab' : 'easy',
-      lines: lines
+      lines: lines,
+      qNumber: 1
     });
   }
 
@@ -1341,18 +1510,21 @@ function parseQuestionsFromText(rawText, mode = 'auto') {
 
   chunks.forEach((chunk, idx) => {
     const chunkText = chunk.lines.join('\n');
-    const qNum = idx + 1;
+    const qNum = chunk.qNumber || (idx + 1);
 
     let tier = effectiveMode === 'exam' ? 'lab' : (chunk.defaultTier || 'easy');
     let difficulty = effectiveMode === 'exam' ? 'Lab' : 'Easy';
 
     if (effectiveMode === 'contest') {
-      const tierMatch = chunkText.match(/\b(?:tier|difficulty|level)[\s:.\-—]+(easy|medium|hard)\b/i) ||
+      const headerTierMatch = chunk.headerLine.match(/\b(easy|medium|hard)\b/i);
+      const tierMatch = headerTierMatch ||
+        chunkText.match(/\b(?:tier|difficulty|level)[\s:.\-—]+(easy|medium|hard)\b/i) ||
         chunkText.match(/\[\s*(easy|medium|hard)\s*\]/i) ||
-        chunkText.match(/\b(easy|medium|hard)\s+(?:tier|level)\b/i);
+        chunkText.match(/\b(easy|medium|hard)\s+(?:tier|level)\b/i) ||
+        chunkText.match(/\b(easy|medium|hard)\b/i);
 
       if (tierMatch) {
-        const found = (tierMatch[2] || tierMatch[1]).toLowerCase();
+        const found = (tierMatch[1] || tierMatch[2] || tierMatch[0]).toLowerCase();
         if (['easy', 'medium', 'hard'].includes(found)) {
           tier = found;
         }
@@ -1360,56 +1532,63 @@ function parseQuestionsFromText(rawText, mode = 'auto') {
       difficulty = tier.charAt(0).toUpperCase() + tier.slice(1);
     }
 
-    // 2. Max Points: default 50 for Lab Exam, 5 for Easy, 10 for Medium, 15 for Hard
+    // 2. Max Points: check "10 Marks", "Marks: 10", "[10 Marks]", etc.
     let maxPoints = effectiveMode === 'exam' ? 50 : (tier === 'hard' ? 15 : (tier === 'medium' ? 10 : 5));
-    const ptsMatch = chunkText.match(/(?:max\s*points?|points?|marks?)\s*[:=\-—]?\s*(\d+)/i) ||
+    const ptsMatch = chunkText.match(/(\d+)\s*(?:marks?|points?|pts)\b/i) ||
+      chunkText.match(/(?:max\s*points?|points?|marks?)\s*[:=\-—]?\s*(\d+)/i) ||
       chunkText.match(/\[\s*(\d+)\s*(?:marks?|points?|pts)\s*\]/i) ||
       chunkText.match(/\(\s*(\d+)\s*(?:marks?|points?|pts)\s*\)/i);
     if (ptsMatch) {
-      const parsedPts = parseInt(ptsMatch[1], 10);
+      const parsedPts = parseInt(ptsMatch[1] || ptsMatch[2], 10);
       if (parsedPts > 0 && parsedPts <= 100) {
         maxPoints = parsedPts;
       }
     }
 
-    // 3. Title
-    let title = '';
+    // 3. Title Extraction
+    let rawTitle = '';
     const titleMatch = chunkText.match(/Title\s*[:=\-—]\s*([^\n]+)/i);
     if (titleMatch) {
-      title = titleMatch[1].trim();
+      rawTitle = titleMatch[1].trim();
     } else {
       let h = chunk.headerLine
         .replace(/^(?:Experiment|Exp\.?|Program|Prog\.?|Lab|Exercise|Question|Problem|Q\.?)\s*\d+[\s:.)\-—]*/i, '')
         .replace(/^\d+[\.)]\s*/, '')
         .replace(/\[\s*(?:Easy|Medium|Hard|Lab|\d+\s*Marks?|\d+\s*Pts)\s*\]/gi, '')
         .replace(/\(\s*(?:Easy|Medium|Hard|Lab|\d+\s*Marks?|\d+\s*Pts)\s*\)/gi, '')
+        .replace(/\b(?:Easy|Medium|Hard)\b/gi, '')
+        .replace(/[-–—:]\s*\d+\s*(?:marks?|points?|pts)\b/gi, '')
+        .replace(/\b\d+\s*(?:marks?|points?|pts)\b/gi, '')
         .trim();
-      if (h.length > 3) {
-        title = h;
+
+      if (h.length > 2) {
+        rawTitle = h;
       } else {
         const secondLine = (chunk.lines[1] || '').trim();
-        if (secondLine && !secondLine.match(/^(?:Points|Marks|Tier|Difficulty|Description)/i)) {
-          title = secondLine;
+        if (secondLine && !secondLine.match(/^(?:Points|Marks|Tier|Difficulty|Description|Problem Description|Aim)/i)) {
+          rawTitle = secondLine;
         } else {
-          title = effectiveMode === 'exam' ? `Experiment ${qNum}: Lab Program` : `Problem ${qNum}: Algorithmic Challenge`;
+          rawTitle = effectiveMode === 'exam' ? `Lab Program ${qNum}` : `Problem ${qNum}`;
         }
       }
     }
 
-    title = title.replace(/^[:\-—\s]+/, '').replace(/[:\-—\s]+$/, '');
+    rawTitle = rawTitle.replace(/^[:\-—\s]+/, '').replace(/[:\-—\s]+$/, '').trim();
+
+    let cleanTitle;
     if (effectiveMode === 'exam') {
-      if (!title.toLowerCase().startsWith('exp') && !title.toLowerCase().startsWith('prog') && !title.toLowerCase().startsWith('part')) {
-        title = `Exp ${qNum}: ${title}`;
-      }
+      cleanTitle = rawTitle.toLowerCase().startsWith('exp') || rawTitle.toLowerCase().startsWith('prog')
+        ? rawTitle
+        : `Experiment ${qNum}: ${rawTitle}`;
     } else {
-      if (!title.toLowerCase().startsWith('r') && !title.toLowerCase().startsWith('problem') && !title.toLowerCase().startsWith('q') && !title.toLowerCase().startsWith('p')) {
-        title = `P${qNum}: ${title}`;
-      }
+      cleanTitle = rawTitle.toLowerCase().startsWith('question') || rawTitle.toLowerCase().startsWith('problem')
+        ? rawTitle
+        : `Question ${qNum}: ${rawTitle}`;
     }
 
-    // 4. Starter Code
+    // 4. Starter Code with lookahead
     let starterCode = '';
-    const codeBlockMatch = chunkText.match(/(?:Starter\s*Code|Buggy\s*Code|Faulty\s*Code|Code(?:\s*Template)?)\s*[:=\-—]?\s*(?:```[a-z]*\s*)?\n([\s\S]*?)(?:```|\n\s*(?:Sample\s+Input|Test\s*Case|Input\s*:)|$)/i);
+    const codeBlockMatch = chunkText.match(/(?:Starter\s*Code|Buggy\s*Code|Faulty\s*Code|Code(?:\s*Template)?)\s*[:=\-—]?\s*(?:```[a-z]*\s*)?\n([\s\S]*?)(?:```|(?=\n\s*(?:Sample\s+Input|Test\s*Case|Input\s*:|Expected\s+Output))|$)/i);
     if (codeBlockMatch) {
       starterCode = codeBlockMatch[1].trim();
     } else {
@@ -1464,18 +1643,21 @@ function parseQuestionsFromText(rawText, mode = 'auto') {
       });
     }
 
-    // 6. Description
+    // 6. Description Extraction
     let desc = chunkText;
     desc = desc.replace(chunk.headerLine, '');
+    if (codeBlockMatch) {
+      desc = desc.replace(codeBlockMatch[0], '');
+    } else if (starterCode) {
+      desc = desc.replace(/(?:Starter\s*Code|Code)[\s\S]*?(?:return\s*0\s*;?\s*\}|\})/i, '');
+    }
+    desc = desc.replace(/(?:\bSample\s+Input|\bExpected\s+Output|\bSample\s+Output|\bTest\s*Case)[\s\S]*/gi, '');
+    desc = desc.replace(/^(?:Problem\s*Description|Description|Problem\s*Statement|Experiment\s*Aim|Aim)\s*[:=\-—]?\s*/gim, '');
     desc = desc.replace(/(?:tier|difficulty|level|points?|marks?)\s*[:=\-—][^\n]+/gi, '');
+    desc = desc.replace(/[-–—:]\s*\d+\s*(?:marks?|points?|pts)\b/gi, '');
     desc = desc.replace(/\[\s*(?:easy|medium|hard|lab|\d+\s*marks?|\d+\s*pts)\s*\]/gi, '');
-    desc = desc.replace(/\(\s*(?:easy|medium|hard|lab|\d+\s*marks?|\d+\s*pts)\s*\)/gi, '');
-    if (titleMatch) desc = desc.replace(titleMatch[0], '');
-    if (codeBlockMatch) desc = desc.replace(codeBlockMatch[0], '');
-    desc = desc.replace(/(?:\bSample\s+Input|\bSample\s+Output|\bExpected\s+Output|\bInput\s*\d*|\bOutput\s*\d*|\bTest\s*Case)[\s\S]*/gi, '');
-    desc = desc.replace(/^(?:Description|Problem\s*Statement|Experiment\s*Aim|Aim)\s*[:=\-—]?\s*/gim, '');
 
-    desc = desc.replace(/:\s*$/, '').trim();
+    desc = desc.trim();
     if (!desc) {
       desc = effectiveMode === 'exam'
         ? 'Implement the lab experiment as per specification, handle all edge cases, and pass the test cases.'
@@ -1486,8 +1668,8 @@ function parseQuestionsFromText(rawText, mode = 'auto') {
       id: `p_pdf_${qNum}_${Date.now() % 10000}`,
       tier: tier,
       difficulty: difficulty,
-      title: title,
-      category: effectiveMode === 'exam' ? 'Lab Experiment' : 'Debugging',
+      title: cleanTitle,
+      category: effectiveMode === 'exam' ? 'Lab Experiment' : 'Algorithmic Challenge',
       maxPoints: maxPoints,
       timeLimitMs: 2000,
       description: desc,
@@ -1701,6 +1883,56 @@ ipcMain.handle('sync:fetch-remote-contest', async (event, { hostUrl, contestCode
       req.on('timeout', () => {
         req.destroy();
         resolve({ success: false, error: `Connection timed out (10s) connecting to ${parsed.origin}. Check Host IP & Firewall.` });
+      });
+    } catch (err) {
+      resolve({ success: false, error: err.message });
+    }
+  });
+});
+
+ipcMain.handle('sync:fetch-exam-assignment', async (event, { hostUrl, usn, otp }) => {
+  return new Promise((resolve) => {
+    try {
+      let normalizedHost = (hostUrl || '').trim();
+      if (!normalizedHost.startsWith('http://') && !normalizedHost.startsWith('https://')) {
+        normalizedHost = `http://${normalizedHost}`;
+      }
+
+      const parsed = new URL(normalizedHost);
+      if (!parsed.port && !hostUrl.includes(':')) {
+        parsed.port = DEFAULT_HTTP_PORT.toString();
+      }
+
+      const safeUsn = encodeURIComponent((usn || '').trim().toUpperCase());
+      const safeOtp = encodeURIComponent((otp || '').trim());
+      const targetUrl = new URL(`/api/exam-assignment?usn=${safeUsn}&otp=${safeOtp}`, parsed.origin);
+
+      const req = http.get(targetUrl, { timeout: 10000 }, (res) => {
+        let body = '';
+        res.on('data', chunk => { body += chunk; });
+        res.on('end', () => {
+          try {
+            const data = JSON.parse(body);
+            resolve(data);
+          } catch (e) {
+            resolve({ success: false, error: 'Malformed JSON payload from host.' });
+          }
+        });
+      });
+      req.on('error', err => {
+        let msg = err.message;
+        if (err.code === 'ECONNREFUSED') {
+          msg = `Connection refused at ${parsed.origin}. Ensure Host server is running and port is correct.`;
+        } else if (err.code === 'ETIMEDOUT') {
+          msg = `Connection timed out to ${parsed.origin}. Ensure Host allows port 8080 through Windows Firewall.`;
+        } else if (err.code === 'EHOSTUNREACH') {
+          msg = `Host unreachable at ${parsed.origin}. Ensure both computers are on the same network.`;
+        }
+        resolve({ success: false, error: msg });
+      });
+      req.on('timeout', () => {
+        req.destroy();
+        resolve({ success: false, error: `Connection timed out (10s) connecting to ${parsed.origin}.` });
       });
     } catch (err) {
       resolve({ success: false, error: err.message });
@@ -1964,4 +2196,215 @@ ipcMain.handle('grading:export-csv', async (event, { records, contestTitle = 'Ma
 
   fs.writeFileSync(filePath, [headers.join(','), ...rows].join('\n'), 'utf-8');
   return { success: true, filePath };
+});
+
+// ============================================================================
+// INTERACTIVE RUNTIME TERMINAL SANDBOX & PROCESS EXECUTION ENGINE
+// ============================================================================
+let activeTerminalProc = null;
+let currentTerminalCwd = null;
+
+function getTerminalRuntimeEnv() {
+  const gccCmd = findGccExecutable();
+  const gccDir = path.dirname(gccCmd);
+  return {
+    ...process.env,
+    PATH: gccDir && gccDir !== '.' ? `${gccDir};${process.env.PATH || ''}` : (process.env.PATH || '')
+  };
+}
+
+ipcMain.handle('terminal:init-session', async (event, { usn = 'candidate' } = {}) => {
+  const safeUsn = (usn || 'candidate').replace(/[^a-zA-Z0-9_-]/g, '_');
+  const workspaceDir = path.join(tempDir, 'workspaces', safeUsn);
+  try {
+    if (!fs.existsSync(workspaceDir)) {
+      fs.mkdirSync(workspaceDir, { recursive: true });
+    }
+    currentTerminalCwd = workspaceDir;
+    return { success: true, cwd: workspaceDir };
+  } catch (err) {
+    currentTerminalCwd = tempDir;
+    return { success: false, cwd: tempDir, error: err.message };
+  }
+});
+
+ipcMain.handle('terminal:sync-editor-file', async (event, { filename = 'solution.c', code = '' } = {}) => {
+  try {
+    const targetDir = currentTerminalCwd || tempDir;
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+    const filePath = path.join(targetDir, filename);
+    fs.writeFileSync(filePath, code || '', 'utf-8');
+    return { success: true, filePath, cwd: targetDir };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('terminal:run-command', async (event, { command = '' } = {}) => {
+  const trimmed = (command || '').trim();
+  if (!trimmed) {
+    return { success: true, empty: true, cwd: currentTerminalCwd || tempDir };
+  }
+
+  // Native CD command handling
+  const isCd = trimmed === 'cd' || trimmed.startsWith('cd ') || trimmed.startsWith('cd/');
+  if (isCd) {
+    if (trimmed === 'cd') {
+      return { success: true, isCd: true, cwd: currentTerminalCwd, output: (currentTerminalCwd || tempDir) + '\r\n' };
+    }
+    const targetPath = trimmed.replace(/^cd\s*/i, '').trim();
+    const currentBase = currentTerminalCwd || tempDir;
+    const resolved = path.resolve(currentBase, targetPath);
+    try {
+      if (fs.existsSync(resolved) && fs.statSync(resolved).isDirectory()) {
+        currentTerminalCwd = resolved;
+        return { success: true, isCd: true, cwd: currentTerminalCwd, output: '' };
+      } else {
+        return { success: false, isCd: true, cwd: currentTerminalCwd, output: `The system cannot find the path specified: ${targetPath}\r\n` };
+      }
+    } catch (e) {
+      return { success: false, isCd: true, cwd: currentTerminalCwd, output: `${e.message}\r\n` };
+    }
+  }
+
+  // Clear screen
+  if (trimmed.toLowerCase() === 'cls' || trimmed.toLowerCase() === 'clear') {
+    return { success: true, isClear: true, cwd: currentTerminalCwd || tempDir };
+  }
+
+  // If another process is running, terminate it before starting new command
+  if (activeTerminalProc) {
+    const oldPid = activeTerminalProc.pid;
+    try {
+      if (process.platform === 'win32' && oldPid) {
+        exec(`taskkill /pid ${oldPid} /T /F`, () => {});
+      } else {
+        activeTerminalProc.kill('SIGKILL');
+      }
+    } catch (_) {}
+    activeTerminalProc = null;
+  }
+
+  const cwd = currentTerminalCwd || tempDir;
+  const runtimeEnv = getTerminalRuntimeEnv();
+
+  return new Promise((resolve) => {
+    try {
+      activeTerminalProc = spawn(trimmed, [], {
+        cwd,
+        shell: true,
+        env: runtimeEnv,
+        windowsHide: true
+      });
+
+      activeTerminalProc.stdout.on('data', (data) => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('terminal:stream-output', { text: data.toString() });
+        }
+      });
+
+      activeTerminalProc.stderr.on('data', (data) => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('terminal:stream-output', { text: data.toString() });
+        }
+      });
+
+      activeTerminalProc.on('close', async (code, signal) => {
+        activeTerminalProc = null;
+
+        if (code === 4551) {
+          // Device Guard policy blocked the native .exe.
+          // Fallback seamlessly to the in-process C runtime
+          let foundCode = '';
+          const potentialFiles = ['solution.c', 'file.c', 'main.c', 'test.c'];
+          for (const pf of potentialFiles) {
+            const pfp = path.join(cwd, pf);
+            if (fs.existsSync(pfp)) {
+              foundCode = fs.readFileSync(pfp, 'utf8');
+              break;
+            }
+          }
+
+          if (foundCode) {
+            const cRes = await cEngine.executeC(foundCode, '', 5000);
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              if (cRes.stdout) {
+                mainWindow.webContents.send('terminal:stream-output', { text: cRes.stdout + '\r\n' });
+              }
+              if (cRes.stderr) {
+                mainWindow.webContents.send('terminal:stream-output', { text: `[Runtime Notice: ${cRes.stderr}]\r\n` });
+              }
+              mainWindow.webContents.send('terminal:process-exit', { code: cRes.exitCode, cwd: currentTerminalCwd || tempDir });
+            }
+            return resolve({ success: true, exitCode: cRes.exitCode, cwd: currentTerminalCwd || tempDir });
+          }
+        }
+
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('terminal:process-exit', { code, signal, cwd: currentTerminalCwd || tempDir });
+        }
+        resolve({ success: true, exitCode: code, cwd: currentTerminalCwd || tempDir });
+      });
+
+      activeTerminalProc.on('error', (err) => {
+        activeTerminalProc = null;
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('terminal:stream-output', { text: `\r\n[Execution Error: ${err.message}]\r\n` });
+          mainWindow.webContents.send('terminal:process-exit', { code: -1, error: err.message, cwd: currentTerminalCwd || tempDir });
+        }
+        resolve({ success: false, error: err.message, cwd: currentTerminalCwd || tempDir });
+      });
+    } catch (err) {
+      activeTerminalProc = null;
+      resolve({ success: false, error: err.message, cwd: currentTerminalCwd || tempDir });
+    }
+  });
+});
+
+ipcMain.handle('terminal:send-stdin', async (event, { input = '' } = {}) => {
+  if (activeTerminalProc && activeTerminalProc.stdin && !activeTerminalProc.stdin.destroyed) {
+    try {
+      activeTerminalProc.stdin.write(input + '\n');
+      return { success: true };
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
+  }
+  return { success: false, error: 'No active running process waiting for stdin.' };
+});
+
+ipcMain.handle('terminal:kill-process', async () => {
+  if (activeTerminalProc) {
+    const pid = activeTerminalProc.pid;
+    try {
+      if (process.platform === 'win32' && pid) {
+        exec(`taskkill /pid ${pid} /T /F`, () => {});
+      } else {
+        activeTerminalProc.kill('SIGKILL');
+      }
+    } catch (_) {}
+    activeTerminalProc = null;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('terminal:stream-output', { text: '\r\n^C\r\n[Process terminated by user (Kill / Ctrl+C)]\r\n' });
+      mainWindow.webContents.send('terminal:process-exit', { code: -1, killed: true, cwd: currentTerminalCwd || tempDir });
+    }
+    return { success: true, killed: true };
+  }
+  return { success: true, noProcess: true };
+});
+
+ipcMain.handle('system:fix-security-policy', async () => {
+  const batPath = path.join(__dirname, 'fix_device_guard_and_defender.bat');
+  try {
+    if (fs.existsSync(batPath)) {
+      const cmd = `powershell -Command "Start-Process cmd.exe -Verb RunAs -ArgumentList '/c \"\"${batPath}\"\"'"`;
+      exec(cmd, () => {});
+      return { success: true };
+    }
+    return { success: false, error: 'fix_device_guard_and_defender.bat not found' };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
 });
