@@ -1,0 +1,998 @@
+{
+  "id": "MASS8641",
+  "type": "exam",
+  "title": "Mass-Code Championship",
+  "token": "MASS8641",
+  "durationMinutes": 60,
+  "language": "c",
+  "problems": [
+    {
+      "id": "p_pdf_1_7621",
+      "tier": "lab",
+      "difficulty": "Lab",
+      "title": "Experiment 1: Dynamic Memory Allocation & Library Book Management",
+      "category": "Lab Experiment",
+      "maxPoints": 50,
+      "timeLimitMs": 2000,
+      "description": "Develop a Program in C for the following:\na. Define a record (structure) titled Book with the following fields: Book_ID , Title , Author ,\nPrice , Availability Status (Available/Issued).\nb. Dynamically allocate memory to store the details of N books, where N is entered by the user.\nc. Implement the following functions:\ni. create() – To allocate memory and read the details of N books and store them in the\nallocated memory.\nii. display() – To display the details of all books available in the library.\niii. search() – To search for a book using Book ID and display the book details if found.\niv. issueBook() – To issue a book by updating its availability status and display an appropriate\nmessage.\nv. returnBook() – To return an issued book by updating its availability status and display an\nappropriate message.\nd. Build a menu-driven interface with the following options:\ni. Add Book Records.\nii. Display all Book Records.\niii. Search Book by Book ID.\niv. Issue a Book.\nv. Return a Book.\nvi. Exit.",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_1_1",
+          "isSample": true,
+          "input": "",
+          "expectedOutput": ""
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_2_7622",
+      "tier": "lab",
+      "difficulty": "Lab",
+      "title": "Experiment 2: Sparse Matrix Operations",
+      "category": "Lab Experiment",
+      "maxPoints": 50,
+      "timeLimitMs": 2000,
+      "description": "Develop a C program for processing sparse matrices using an appropriate data structure. The\nprogram shall accept suitable sparse matrix data, use an appropriate representation, and perform\noperations such as addition and transpose. Demonstrate the correctness of the solution using\nsuitable",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_2_1",
+          "isSample": true,
+          "input": "",
+          "expectedOutput": ""
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_3_7622",
+      "tier": "lab",
+      "difficulty": "Lab",
+      "title": "Experiment 3: Array Implementation of Stack",
+      "category": "Lab Experiment",
+      "maxPoints": 50,
+      "timeLimitMs": 2000,
+      "description": "Develop a menu driven Program in C for the following operations on STACK of Integers (Array\nImplementation of Stack with maximum size MAX > 15 ).\nData Structures Laboratory [1BCSL306] • 3rd Semester \tPage 1 of 4\n\n-- 1 of 4 --\n\na. Push an Element on to Stack.\nb. Pop an Element from Stack.\nc. Demonstrate Overflow and Underflow situations on Stack.\nd. Display the status of Stack at any given point of time.\ne. Exit.\nSupport structured program with appropriate functions for each of the above operations.",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_3_1",
+          "isSample": true,
+          "input": "",
+          "expectedOutput": ""
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_4_7622",
+      "tier": "lab",
+      "difficulty": "Lab",
+      "title": "Experiment 4: Printer Queue Simulation",
+      "category": "Lab Experiment",
+      "maxPoints": 50,
+      "timeLimitMs": 2000,
+      "description": "Develop a program in C for simulating a Printer Queue using Queue data structure with the following\noperations:\na. Add a print job to the Printer Queue.\nb. Process a print job from the Printer Queue (delete).\nc. Display the number of print jobs currently waiting in the Queue.\nd. Demonstrate Queue overflow and underflow conditions.\ne. Exit.",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_4_1",
+          "isSample": true,
+          "input": "",
+          "expectedOutput": ""
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_5_7622",
+      "tier": "lab",
+      "difficulty": "Lab",
+      "title": "Experiment 5: Polynomial Operations using Singly Circular Linked List",
+      "category": "Lab Experiment",
+      "maxPoints": 50,
+      "timeLimitMs": 2000,
+      "description": "Develop a Program in C for the following operations on Singly Circular Linked List (SCLL) with\nheader nodes.\na. Read the polynomial: degree of the polynomial, terms (coefficient and power).\nb. Represent the Polynomial in one variable based on degree.\nc. Find the sum of two polynomials POLY1 and POLY2 and store the result in POLYSUM .\nSupport the program with appropriate functions for each of the above operations.",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_5_1",
+          "isSample": true,
+          "input": "",
+          "expectedOutput": ""
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_6_7622",
+      "tier": "lab",
+      "difficulty": "Lab",
+      "title": "Experiment 6: Binary Tree Creation and Traversals",
+      "category": "Lab Experiment",
+      "maxPoints": 50,
+      "timeLimitMs": 2000,
+      "description": "Develop a Program in C for the following:\na. Create a Binary Tree ( createTree ) by inserting integer elements as keys entered by the user in\nlevel order.\nb. Implement the following functions:\ni. createTree() – Create a binary tree through key Insertions.\nii. preorder() – Display the elements using Preorder Traversal.\niii. inorder() – Display the elements using Inorder Traversal.\niv. postorder() – Display the elements using Postorder Traversal.\nData Structures Laboratory [1BCSL306] • 3rd Semester \tPage 2 of 4\n\n-- 2 of 4 --\n\nc. Develop a menu-driven interface with the following options:\ni. Create Binary Tree.\nii. Display Preorder Traversal.\niii. Display Inorder Traversal.\niv. Display Postorder Traversal.\nv. Exit.",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_6_1",
+          "isSample": true,
+          "input": "",
+          "expectedOutput": ""
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_7_7622",
+      "tier": "lab",
+      "difficulty": "Lab",
+      "title": "Experiment 7: Infix Expression Validation & Postfix Conversion",
+      "category": "Lab Experiment",
+      "maxPoints": 50,
+      "timeLimitMs": 2000,
+      "description": "A compiler design team needs a tool to convert arithmetic expressions from infix notation to postfix\nnotation for efficient  , [ , ] . Develop a C program that supports the\nfollowing:\na. Read an infix expression.\nb. Validate the expression for correct bracket nesting and syntax.\nc. Convert the valid infix expression to postfix notation.\nNote: An input expression is valid if:\nOpen brackets must be closed by the same type of brackets.\nOpen brackets must be closed in the correct order.\nEvery close bracket has a corresponding open bracket of the same type.\nOperators must have valid operands on both sides.",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_7_1",
+          "isSample": true,
+          "input": "",
+          "expectedOutput": ""
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_8_7622",
+      "tier": "lab",
+      "difficulty": "Lab",
+      "title": "Experiment 8: University Student Records Management",
+      "category": "Lab Experiment",
+      "maxPoints": 50,
+      "timeLimitMs": 2000,
+      "description": "A University wants to manage student records effectively. Each student record contains USN, Name,\nSemester (1–8), and Department. Choose suitable data structure (Singly Linked List / Doubly Linked\nList / Circular Linked Lists) and develop a menu-driven C program to manage these records with the\nfollowing operations:\na. Create a list of student records (choose any insertion method: beginning / end).\nb. View all student records.\nc. Display student records for a given semester.\nd. Insert the new student in the list after the given student’s name.\ne. Delete a student record (based on USN or Name).\nNote: For CIE Test and SEE, any ONE option from (c) to (e) may be asked along with options (a) &\n(b).\nData Structures Laboratory [1BCSL306] • 3rd Semester \tPage 3 of 4\n\n-- 3 of 4 --",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_8_1",
+          "isSample": true,
+          "input": "",
+          "expectedOutput": ""
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_9_7622",
+      "tier": "lab",
+      "difficulty": "Lab",
+      "title": "Experiment 9: Manufacturing Machine Parts Repository",
+      "category": "Lab Experiment",
+      "maxPoints": 50,
+      "timeLimitMs": 2000,
+      "description": "A manufacturing unit needs a system (repository) to manage machine parts used in assembly. Each\npart has:\nPart Number (alphanumeric, e.g., “P1001”, “BOLT23”)\nPart Name (e.g., “Bolt”, “Wheel”)\nModel Number (e.g., “M2024”, “X100”)\n(e.g., “Stainless steel ”)\nDevelop a C program to implement the following three operations:\na. Add a new part to the inventory/repository.\nb. Remove an obsolete part (by part number or model number).\nc. Search and display part details (by part number or model number).\nAll three operations happen frequently without any order. Choose suitable data structure that results\nin the best performance.",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_9_1",
+          "isSample": true,
+          "input": "",
+          "expectedOutput": ""
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_10_7622",
+      "tier": "lab",
+      "difficulty": "Lab",
+      "title": "Experiment 10: Hierarchical Data Management with Numeric Keys",
+      "category": "Lab Experiment",
+      "maxPoints": 50,
+      "timeLimitMs": 2000,
+      "description": "Develop a C program by selecting suitable data structure to manage hierarchical data/information\nhaving keys (numeric). The program shall provide appropriate operations such as insertion of\ninformation, traversal (display of all information), quick search for information based on the key.\nDemonstrate the solution using relevant",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_10_1",
+          "isSample": true,
+          "input": "",
+          "expectedOutput": ""
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_11_7622",
+      "tier": "lab",
+      "difficulty": "Lab",
+      "title": "Experiment 11: Indexed Employee Record Management",
+      "category": "Lab Experiment",
+      "maxPoints": 50,
+      "timeLimitMs": 2000,
+      "description": "Develop a C program to store employee records having fields: emp-no , name , designation ,\ndepartment using suitable Indexing mechanism. The program shall support record management\noperations such adding new employee, search for employee details based on emp-no , remove\nemployee record based on emp-no , and display employee records based on department .\nDemonstrate the correctness of the implementation using appropriate",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_11_1",
+          "isSample": true,
+          "input": "",
+          "expectedOutput": ""
+        }
+      ]
+    },
+    {
+      "id": "p_pdf_12_7622",
+      "tier": "lab",
+      "difficulty": "Lab",
+      "title": "Experiment 12: City Connectivity Graph Analysis",
+      "category": "Lab Experiment",
+      "maxPoints": 50,
+      "timeLimitMs": 2000,
+      "description": "A transportation department wants to analyse connectivity between cities. Each city has a City Name\nand cities are interconnected (not necessarily all) with roads. Develop a menu-driven C program with\nthe following operations:\na. Create a graph representing N cities with interconnecting roads.\nb. Display the graph representation.\nc. Print all cities reachable by road from a given city.\nd. Check whether any two given cities are connected via road.\nData Structures Laboratory [1BCSL306] • 3rd Semester \tPage 4 of 4\n\n-- 4 of 4 --",
+      "starterCode": "#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Write solution here\n    return 0;\n}\n",
+      "testCases": [
+        {
+          "id": "tc_12_1",
+          "isSample": true,
+          "input": "",
+          "expectedOutput": ""
+        }
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "id": "batch_1",
+      "name": "Batch 1 (Morning)",
+      "students": [
+        {
+          "usn": "4HG24CS001",
+          "name": "AKASH R J",
+          "assignedProblemId": "p_pdf_3_7622",
+          "assignedProblemTitle": "Experiment 3: Array Implementation of Stack",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "3284"
+        },
+        {
+          "usn": "4HG24CS002",
+          "name": "ANJANEYA",
+          "assignedProblemId": "p_pdf_1_7621",
+          "assignedProblemTitle": "Experiment 1: Dynamic Memory Allocation & Library Book Management",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "8651"
+        },
+        {
+          "usn": "4HG24CS003",
+          "name": "ANUSH M N",
+          "assignedProblemId": "p_pdf_11_7622",
+          "assignedProblemTitle": "Experiment 11: Indexed Employee Record Management",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "7638"
+        },
+        {
+          "usn": "4HG24CS004",
+          "name": "ASHA T R",
+          "assignedProblemId": "p_pdf_1_7621",
+          "assignedProblemTitle": "Experiment 1: Dynamic Memory Allocation & Library Book Management",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "5214"
+        },
+        {
+          "usn": "4HG24CS005",
+          "name": "BHAVANA",
+          "assignedProblemId": "p_pdf_5_7622",
+          "assignedProblemTitle": "Experiment 5: Polynomial Operations using Singly Circular Linked List",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "3970"
+        },
+        {
+          "usn": "4HG24CS006",
+          "name": "BHOOMIKA D K",
+          "assignedProblemId": "p_pdf_10_7622",
+          "assignedProblemTitle": "Experiment 10: Hierarchical Data Management with Numeric Keys",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "3712"
+        },
+        {
+          "usn": "4HG24CS007",
+          "name": "BHOOMIKA ISHWARAPPA RAJUR",
+          "assignedProblemId": "p_pdf_9_7622",
+          "assignedProblemTitle": "Experiment 9: Manufacturing Machine Parts Repository",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "1740"
+        },
+        {
+          "usn": "4HG24CS008",
+          "name": "BHOOMIKA T",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS009",
+          "name": "CHAITHRA",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS010",
+          "name": "DARSHANA R",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS011",
+          "name": "DEEKSHITHA R O",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS012",
+          "name": "Deepthi shree BC",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS013",
+          "name": "DEVIDAS",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS014",
+          "name": "Dinesh K M",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS015",
+          "name": "GAGANA C C",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS016",
+          "name": "GANGOTHRI C N",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS017",
+          "name": "GOURAVVA SURESH YALASHETTI",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS018",
+          "name": "GOUTHAMI P",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS019",
+          "name": "GOWTHAM K R",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS020",
+          "name": "JAYALAKSHMI G",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS021",
+          "name": "JEEVAN BAHADDUR B K",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS022",
+          "name": "JNANAVI K V",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        }
+      ]
+    },
+    {
+      "id": "batch_1794637314610",
+      "name": "Batch 2",
+      "students": [
+        {
+          "usn": "4HG24CS023",
+          "name": "KAVANA JAGADEESH HAMPANNANAVAR",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS024",
+          "name": "KRUPA",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS025",
+          "name": "LAKSHMANA",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS026",
+          "name": "LIKHITHA",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS027",
+          "name": "LIKHITHA K J",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS028",
+          "name": "LIKHITHA U S",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS029",
+          "name": "MALLIKARJUN",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS030",
+          "name": "MANDARA",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS031",
+          "name": "MARILINGAMMA",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS032",
+          "name": "MD ALE RASOOL",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS033",
+          "name": "MOHAMMED ANUS M",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS034",
+          "name": "NANDEESH S GAVAYI",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS035",
+          "name": "NANDITHA C R",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS036",
+          "name": "NIRMALA",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS037",
+          "name": "Nithin A",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS038",
+          "name": "PALLAVI",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS039",
+          "name": "PAVAN KUMAR H S",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS040",
+          "name": "POORNIMA A D",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS041",
+          "name": "PREETHI N L",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS042",
+          "name": "Prema V M",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS043",
+          "name": "PRIYA C R",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS044",
+          "name": "Priyanka Y C",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS045",
+          "name": "Punith.D",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        }
+      ]
+    },
+    {
+      "id": "batch_1794637325457",
+      "name": "Batch 3",
+      "students": [
+        {
+          "usn": "4HG24CS046",
+          "name": "RAKSHITA RAMAPPA BILAGI",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS047",
+          "name": "RAKSHITHA B",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS048",
+          "name": "RAKSHITHA S R",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS049",
+          "name": "RUSHIVAR S",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS050",
+          "name": "SAHANA S P",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS051",
+          "name": "SAMARTHA S",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS052",
+          "name": "SANJEEVINI M S",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS053",
+          "name": "SAVITA DODDARAMANNAVAR",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS054",
+          "name": "SHILPA LAGALI",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS055",
+          "name": "SOUMYA S",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS056",
+          "name": "Spoorthy",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS057",
+          "name": "THANUSHREE J",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS058",
+          "name": "USHA R",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS059",
+          "name": "USHA V",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS060",
+          "name": "VARSHINI",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        },
+        {
+          "usn": "4HG24CS061",
+          "name": "VISHWAS",
+          "assignedProblemId": null,
+          "assignedProblemTitle": "",
+          "chitPickType": "none",
+          "allocationMethod": "unassigned",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0
+        }
+      ]
+    }
+  ],
+  "activeBatchId": "batch_1"
+}

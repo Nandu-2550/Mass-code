@@ -4,9 +4,11 @@
    ========================================================================== */
 
 :root {
+  color-scheme: dark;
   --bg-app: #090d16;
   --bg-primary: #0e131f;
   --bg-secondary: #151b2b;
+  --bg-surface: #151b2b;
   --bg-card: #1a2236;
   --bg-hover: #222c44;
 
@@ -558,6 +560,18 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   gap: 16px;
 }
 
+.form-grid-4 {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr 1fr 1.4fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .form-grid-4 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -580,6 +594,27 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.15s ease;
+  color-scheme: dark;
+}
+
+select.form-control,
+select {
+  color-scheme: dark;
+  background-color: var(--bg-secondary);
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+select option {
+  background-color: #0f172a;
+  color: #f8fafc;
+  padding: 8px 12px;
+}
+
+select option:checked,
+select option:hover {
+  background-color: #2563eb;
+  color: #ffffff;
 }
 
 .form-control:focus {
@@ -1071,12 +1106,13 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   box-sizing: border-box;
 }
 
-/* Green-on-black terminal sandbox */
+/* Windows Command Prompt (CMD) Terminal */
 .terminal-sandbox {
   height: 240px;
   min-height: 90px;
   max-height: calc(100% - 100px);
-  background-color: #05070a;
+  background-color: #0c0c0c;
+  border-top: 1px solid #333333;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -1086,47 +1122,61 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
 
 .terminal-top {
   height: 32px;
-  background-color: #090d16;
-  border-bottom: 1px solid #1a233a;
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #2e2e2e;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 14px;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--color-emerald);
+  padding: 0 12px;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #cccccc;
   flex-shrink: 0;
   width: 100%;
   box-sizing: border-box;
+  user-select: none;
 }
 
-.terminal-stream {
+.terminal-screen {
   flex: 1 1 0%;
   min-height: 0;
-  padding: 12px 16px;
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  line-height: 1.45;
-  color: #39ff14;
+  padding: 10px 14px;
+  background-color: #0c0c0c;
   overflow-y: auto;
-  white-space: pre-wrap;
-  user-select: text;
-  text-shadow: 0 0 2px rgba(57, 255, 20, 0.4);
-  width: 100%;
+  font-family: 'Consolas', 'Lucida Console', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #cccccc;
   box-sizing: border-box;
+  cursor: text;
 }
 
-.terminal-cli-bar {
+.terminal-output-text {
+  white-space: pre-wrap;
+  word-break: break-all;
+  user-select: text;
+  color: #cccccc;
+  font-family: 'Consolas', 'Lucida Console', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.terminal-output-text::selection {
+  background: #ffffff;
+  color: #000000;
+}
+
+.terminal-active-line {
   display: flex;
   align-items: center;
-  background: #090d16;
-  border-bottom: 1px solid #1a233a;
-  padding: 6px 12px;
-  gap: 8px;
-  flex-shrink: 0;
   width: 100%;
   box-sizing: border-box;
+  font-family: 'Consolas', 'Lucida Console', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #cccccc;
+  margin-top: 2px;
 }
 
 .stage-nav-footer {
@@ -1843,23 +1893,15 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
 }
 
-/* Terminal Command Input CLI Bar */
-.terminal-cli-bar {
-  display: flex;
-  align-items: center;
-  background: #090d16;
-  border-bottom: 1px solid #1a233a;
-  border-top: none;
-  padding: 6px 12px;
-  gap: 8px;
-}
-
+/* Windows Command Prompt (CMD) Inline Input Line */
 .terminal-prompt {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #38bdf8;
-  white-space: nowrap;
+  font-family: 'Consolas', 'Lucida Console', 'Courier New', monospace;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #cccccc;
+  white-space: pre;
+  user-select: none;
+  flex-shrink: 0;
 }
 
 .terminal-cli-input {
@@ -1867,9 +1909,24 @@ input, textarea, .selectable, pre, code, .code-editor-textarea {
   background: transparent;
   border: none;
   outline: none;
-  color: #39ff14;
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
+  padding: 0;
+  margin: 0 0 0 6px;
+  color: #ffffff;
+  font-family: 'Consolas', 'Lucida Console', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  caret-color: #ffffff;
+  box-shadow: none;
+}
+
+.terminal-cli-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.terminal-cli-input::placeholder {
+  color: #555555;
+  font-style: normal;
 }
 
 

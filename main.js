@@ -641,6 +641,94 @@ function findPythonExecutable() {
   return cachedPythonInfo;
 }
 
+let cachedJavacPath = null;
+let cachedJavaPath = null;
+
+function findJavacExecutable() {
+  if (cachedJavacPath) return cachedJavacPath;
+
+  const candidates = ['javac'];
+
+  if (process.env.JAVA_HOME) {
+    candidates.push(path.join(process.env.JAVA_HOME, 'bin', 'javac.exe'));
+    candidates.push(path.join(process.env.JAVA_HOME, 'bin', 'javac'));
+  }
+  if (process.env.JDK_HOME) {
+    candidates.push(path.join(process.env.JDK_HOME, 'bin', 'javac.exe'));
+  }
+
+  const standardDirs = [
+    'C:\\Program Files\\Java',
+    'C:\\Program Files (x86)\\Java',
+    'C:\\Program Files\\Eclipse Adoptium',
+    'C:\\Program Files\\Amazon Corretto',
+    'C:\\Program Files\\Microsoft',
+    'C:\\Program Files\\BellSoft',
+    'C:\\Program Files\\Zulu',
+    'C:\\Java'
+  ];
+
+  for (const sDir of standardDirs) {
+    if (fs.existsSync(sDir)) {
+      try {
+        const subdirs = fs.readdirSync(sDir);
+        for (const sub of subdirs) {
+          const jc = path.join(sDir, sub, 'bin', 'javac.exe');
+          if (fs.existsSync(jc)) {
+            candidates.push(jc);
+          }
+        }
+      } catch (_) {}
+    }
+  }
+
+  const userProfile = process.env.USERPROFILE || '';
+  if (userProfile) {
+    candidates.push(
+      path.join(userProfile, 'scoop', 'apps', 'openjdk', 'current', 'bin', 'javac.exe')
+    );
+  }
+
+  for (const c of candidates) {
+    try {
+      if (c !== 'javac' && !fs.existsSync(c)) continue;
+      const cmd = c.includes(' ') ? `"${c}"` : c;
+      const out = execSync(`${cmd} -version`, { stdio: 'pipe', timeout: 1500 });
+      if (out !== undefined) {
+        cachedJavacPath = c;
+        return c;
+      }
+    } catch (_) {}
+  }
+
+  cachedJavacPath = 'javac';
+  return 'javac';
+}
+
+function findJavaExecutable() {
+  if (cachedJavaPath) return cachedJavaPath;
+
+  const javac = findJavacExecutable();
+  if (javac && path.isAbsolute(javac)) {
+    const javaCandidate = path.join(path.dirname(javac), 'java.exe');
+    if (fs.existsSync(javaCandidate)) {
+      cachedJavaPath = javaCandidate;
+      return javaCandidate;
+    }
+  }
+
+  if (process.env.JAVA_HOME) {
+    const j = path.join(process.env.JAVA_HOME, 'bin', 'java.exe');
+    if (fs.existsSync(j)) {
+      cachedJavaPath = j;
+      return j;
+    }
+  }
+
+  cachedJavaPath = 'java';
+  return 'java';
+}
+
 async function checkDiagnostics() {
   const gccCmd = findGccExecutable();
   const gcc = await new Promise((resolve) => {
@@ -659,7 +747,15 @@ async function checkDiagnostics() {
     });
   });
 
-  return { gcc, python, os: process.platform, arch: process.arch };
+  const javacCmd = findJavacExecutable();
+  const java = await new Promise((resolve) => {
+    exec(`"${javacCmd}" -version`, (err, stdout, stderr) => {
+      const out = stderr || stdout || '';
+      resolve({ available: !err, version: out ? out.split('\n')[0].trim() : null, command: javacCmd });
+    });
+  });
+
+  return { gcc, python, java, os: process.platform, arch: process.arch };
 }
 
 function normalizeTokens(str) {
@@ -786,6 +882,136 @@ async function compileAndEvaluate({ code, language = 'c', testCases = [], timeou
       success: true,
       phase: 'evaluated',
       compilerOutput: 'Python execution completed successfully.',
+      testResults,
+      totalScore: earnedScore,
+      maxScore: maxPoints,
+      passedCount,
+      totalCount: testCases.length,
+      totalExecutionTimeMs: Math.round(totalCpuMs * 10) / 10
+    };
+  }
+
+  // ---------------------------------------------------------
+  // JAVA (JDK) EXECUTION PATH
+  // ---------------------------------------------------------
+  if (language === 'java') {
+    const javacCmd = findJavacExecutable();
+    const javaCmd = findJavaExecutable();
+
+    // Detect public class name from Java code or fallback to Solution
+    let className = 'Solution';
+    const classMatch = (code || '').match(/public\s+class\s+([A-Za-z0-9_$]+)/);
+    if (classMatch && classMatch[1]) {
+      className = classMatch[1];
+    }
+
+    const sourcePath = path.join(sessionDir, `${className}.java`);
+    fs.writeFileSync(sourcePath, code || '', 'utf-8');
+
+    // Step 1: Compile with javac
+    if (onProgress) onProgress({ phase: 'compiling', message: `Compiling ${className}.java (${path.basename(javacCmd)})...` });
+    const compileRes = await new Promise((resolve) => {
+      let stderr = '';
+      let stdout = '';
+      const proc = spawn(javacCmd, [sourcePath], { cwd: sessionDir, windowsHide: true, shell: true });
+      proc.stdout.on('data', d => { stdout += d.toString(); });
+      proc.stderr.on('data', d => { stderr += d.toString(); });
+      proc.on('close', codeVal => resolve({ success: codeVal === 0, stderr: stderr || stdout }));
+      proc.on('error', err => resolve({ success: false, stderr: err.message }));
+    });
+
+    if (!compileRes.success) {
+      try { if (fs.existsSync(sessionDir)) fs.rmSync(sessionDir, { recursive: true, force: true }); } catch (_) { }
+      return {
+        success: false,
+        phase: 'compilation',
+        compilerError: compileRes.stderr || 'Java compilation failed. Ensure JDK is installed on this machine.',
+        testResults: [],
+        totalScore: 0,
+        maxScore: maxPoints,
+        passedCount: 0,
+        totalCount: testCases.length
+      };
+    }
+
+    // Step 2: Run test cases with java -cp . <className>
+    const testResults = [];
+    let passedCount = 0;
+    let totalCpuMs = 0;
+
+    for (let i = 0; i < testCases.length; i++) {
+      const tc = testCases[i];
+      if (onProgress) onProgress({ phase: 'running_test', index: i + 1, total: testCases.length });
+
+      const evalRes = await new Promise((resolve) => {
+        const startTime = process.hrtime();
+        let stdout = '';
+        let stderr = '';
+        let timedOut = false;
+
+        let proc = null;
+        try {
+          proc = spawn(javaCmd, ['-cp', '.', className], { cwd: sessionDir, windowsHide: true, shell: true });
+        } catch (e) {
+          return resolve({ exitCode: -1, stdout: '', stderr: e.message, timedOut: false, durationMs: 0 });
+        }
+
+        const timer = setTimeout(() => {
+          timedOut = true;
+          try {
+            if (process.platform === 'win32' && proc && proc.pid) {
+              exec(`taskkill /pid ${proc.pid} /T /F`, () => {});
+            } else if (proc) {
+              proc.kill('SIGKILL');
+            }
+          } catch (_) { }
+        }, timeoutMs);
+
+        proc.stdout.on('data', d => { stdout += d.toString(); });
+        proc.stderr.on('data', d => { stderr += d.toString(); });
+
+        proc.on('close', codeVal => {
+          clearTimeout(timer);
+          const diff = process.hrtime(startTime);
+          const durationMs = Math.round((diff[0] * 1e3 + diff[1] / 1e6) * 10) / 10;
+          resolve({ exitCode: codeVal, stdout, stderr, timedOut, durationMs });
+        });
+
+        proc.on('error', err => {
+          clearTimeout(timer);
+          resolve({ exitCode: -1, stdout: '', stderr: err.message, timedOut: false, durationMs: 0 });
+        });
+
+        try {
+          if (tc.input) proc.stdin.write(tc.input);
+          proc.stdin.end();
+        } catch (_) { }
+      });
+
+      totalCpuMs += evalRes.durationMs;
+      const isPassed = !evalRes.timedOut && evalRes.exitCode === 0 && normalizeTokens(evalRes.stdout) === normalizeTokens(tc.expectedOutput || '');
+      if (isPassed) passedCount++;
+
+      testResults.push({
+        index: i + 1,
+        isSample: !!tc.isSample,
+        passed: isPassed,
+        timedOut: evalRes.timedOut,
+        exitCode: evalRes.exitCode,
+        executionTimeMs: evalRes.durationMs,
+        input: tc.isSample ? tc.input : '[HIDDEN PARAMETERS]',
+        expectedOutput: tc.isSample ? tc.expectedOutput : '[HIDDEN]',
+        actualOutput: tc.isSample ? evalRes.stdout : (isPassed ? '[CORRECT]' : (evalRes.stderr ? `[ERROR: ${evalRes.stderr.trim()}]` : '[INCORRECT MATCH]'))
+      });
+    }
+
+    try { if (fs.existsSync(sessionDir)) fs.rmSync(sessionDir, { recursive: true, force: true }); } catch (_) { }
+
+    const earnedScore = testCases.length > 0 ? Math.round((passedCount / testCases.length) * maxPoints * 10) / 10 : 0;
+    return {
+      success: true,
+      phase: 'evaluated',
+      compilerOutput: 'Java execution completed successfully.',
       testResults,
       totalScore: earnedScore,
       maxScore: maxPoints,
@@ -2206,10 +2432,16 @@ let currentTerminalCwd = null;
 
 function getTerminalRuntimeEnv() {
   const gccCmd = findGccExecutable();
-  const gccDir = path.dirname(gccCmd);
+  const gccDir = gccCmd && path.isAbsolute(gccCmd) ? path.dirname(gccCmd) : '';
+  const py = findPythonExecutable();
+  const pyDir = py.cmd && path.isAbsolute(py.cmd) ? path.dirname(py.cmd) : '';
+  const javacCmd = findJavacExecutable();
+  const javaDir = javacCmd && path.isAbsolute(javacCmd) ? path.dirname(javacCmd) : '';
+
+  const extraDirs = [gccDir, pyDir, javaDir].filter(d => d && d !== '.' && fs.existsSync(d));
   return {
     ...process.env,
-    PATH: gccDir && gccDir !== '.' ? `${gccDir};${process.env.PATH || ''}` : (process.env.PATH || '')
+    PATH: extraDirs.length ? `${extraDirs.join(';')};${process.env.PATH || ''}` : (process.env.PATH || '')
   };
 }
 

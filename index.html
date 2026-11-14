@@ -216,7 +216,7 @@
               <h2 id="builder-config-heading">Contest Configuration</h2>
               <span id="builder-config-pill" class="candidate-pill">Configuration Metadata</span>
             </div>
-            <div class="form-grid-3">
+            <div class="form-grid-4">
               <div class="form-group">
                 <label id="lbl-contest-title">Contest Title</label>
                 <input type="text" id="host-contest-title" class="form-control" value="Mass-Code National Championship">
@@ -228,6 +228,14 @@
               <div class="form-group">
                 <label>Duration (Minutes)</label>
                 <input type="number" id="host-contest-duration" class="form-control" value="60">
+              </div>
+              <div class="form-group">
+                <label>Exam / Contest Language</label>
+                <select id="host-contest-language" class="form-control" style="font-weight: 700;">
+                  <option value="c" selected>C (GCC Native Sandbox)</option>
+                  <option value="python">Python 3 (Interactive)</option>
+                  <option value="java">Java (OpenJDK / JDK)</option>
+                </select>
               </div>
             </div>
           </div>
@@ -828,7 +836,7 @@
           <!-- Right Sub-Panel: Monospace Editor & Green Terminal Sandbox -->
           <section class="right-panel-workspace" id="ws-right-panel">
             <div class="editor-toolbar">
-              <span
+              <span id="editor-language-tag"
                 style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--color-cyan); font-weight: 700;">
                 C (GCC Native Sandbox)
               </span>
@@ -861,34 +869,28 @@
             <div class="terminal-sandbox" id="ws-terminal-container">
               <div class="terminal-top">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                  <span id="terminal-top-status">RUNTIME TERMINAL SANDBOX</span>
-                  <span id="terminal-cwd-tag" style="color: var(--color-cyan); font-family: var(--font-mono); font-size: 0.72rem;"></span>
+                  <span style="display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 15px; background: #000; border: 1px solid #555; border-radius: 2px; font-family: 'Consolas', monospace; font-size: 0.65rem; color: #fff; font-weight: bold; line-height: 1;">&gt;_</span>
+                  <span id="terminal-top-status" style="color: #e0e0e0; font-weight: 600;">Command Prompt</span>
+                  <span id="terminal-cwd-tag" style="color: #888888; font-family: 'Consolas', monospace; font-size: 0.74rem;"></span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                  <button id="btn-ws-run-term" class="btn btn-success btn-xs" style="font-weight: 700; padding: 2px 10px; font-size: 0.72rem;" title="Compile solution.c and run in Terminal (or execute input command)">
-                    ▶ Execute
+                  <button id="btn-ws-kill-term" class="btn btn-danger btn-xs" style="display: none; font-weight: 700; padding: 2px 10px; font-size: 0.72rem;" title="Safely terminate hanging process (Ctrl+C)">
+                    ⏹ Terminate (Ctrl+C)
                   </button>
-                  <button id="btn-ws-kill-term" class="btn btn-danger btn-xs" style="display: none; font-weight: 700; padding: 2px 10px; font-size: 0.72rem;" title="Safely terminate infinite loops or hanging process (Ctrl+C)">
-                    ⏹ Kill Process
-                  </button>
-                  <button id="btn-ws-clear-term" class="btn btn-secondary btn-xs" style="padding: 2px 10px; font-size: 0.72rem;" title="Clear terminal output">
-                    Clear
-                  </button>
-                  <span id="ws-autosave-tag" style="color: var(--text-muted); font-size: 0.68rem;">AUTOSAVE ACTIVE</span>
+                  <span id="ws-autosave-tag" style="color: #666; font-size: 0.68rem;">AUTOSAVE</span>
                 </div>
               </div>
 
-              <!-- Interactive Command Execution Line (ABOVE OUTPUT STREAM) -->
-              <div class="terminal-cli-bar">
-                <span id="terminal-cli-prompt" class="terminal-prompt">C:\workspace&gt;</span>
-                <input type="text" id="terminal-cli-input" class="terminal-cli-input" placeholder="Type shell command (e.g. gcc solution.c -o solution.exe && solution.exe, dir, cd ..) or program input..." autocomplete="off" spellcheck="false">
-                <button id="btn-terminal-send-cli" class="btn btn-secondary btn-xs" style="padding: 3px 12px; font-size: 0.72rem; font-weight: 700;">↵</button>
-              </div>
+              <!-- Unified Windows Command Prompt Console Screen -->
+              <div id="terminal-screen" class="terminal-screen">
+                <div id="terminal-stream" class="terminal-output-text">Microsoft Windows [Version 10.0.22631.4317]
+(c) Microsoft Corporation. All rights reserved.
 
-              <!-- Output Stream Terminal (BELOW EXECUTE LINE & RESIZABLE) -->
-              <div id="terminal-stream" class="terminal-stream">
-[MASS-CODE RUNTIME]: Native compiler and interactive terminal ready.
-Type shell commands (e.g. "gcc solution.c -o solution.exe && solution.exe", "dir", "cd ..") or click "▶ Execute".
+</div>
+                <div id="terminal-active-line" class="terminal-active-line">
+                  <span id="terminal-cli-prompt" class="terminal-prompt">C:\workspace&gt;</span>
+                  <input type="text" id="terminal-cli-input" class="terminal-cli-input" autocomplete="off" spellcheck="false" autofocus>
+                </div>
               </div>
             </div>
           </section>

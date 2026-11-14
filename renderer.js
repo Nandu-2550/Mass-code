@@ -110,6 +110,7 @@ class MassCodeApp {
     this.hostTitleInput = document.getElementById('host-contest-title');
     this.hostTokenInput = document.getElementById('host-contest-token');
     this.hostDurationInput = document.getElementById('host-contest-duration');
+    this.hostContestLanguage = document.getElementById('host-contest-language');
     this.hostProblemsList = document.getElementById('host-problems-list');
     this.btnHostAddProblem = document.getElementById('btn-host-add-problem');
     this.btnHostLoadSample = document.getElementById('btn-host-load-sample');
@@ -283,7 +284,9 @@ class MassCodeApp {
     this.clipboardToast = document.getElementById('clipboard-toast');
     this.terminalTopStatus = document.getElementById('terminal-top-status');
     this.terminalCwdTag = document.getElementById('terminal-cwd-tag');
+    this.terminalScreen = document.getElementById('terminal-screen');
     this.terminalStream = document.getElementById('terminal-stream');
+    this.terminalActiveLine = document.getElementById('terminal-active-line');
     this.terminalCliInput = document.getElementById('terminal-cli-input');
     this.terminalCliPrompt = document.getElementById('terminal-cli-prompt');
     this.btnTerminalSendCli = document.getElementById('btn-terminal-send-cli');
@@ -602,6 +605,12 @@ class MassCodeApp {
 
     // Host Actions
     this.btnHostAddProblem.addEventListener('click', () => this._addHostProblem());
+    if (this.hostContestLanguage) {
+      this.hostContestLanguage.addEventListener('change', () => {
+        this._syncCardsToHostProblems();
+        this._renderHostProblemCards();
+      });
+    }
     if (this.btnHostLoadSample) {
       this.btnHostLoadSample.addEventListener('click', () => this._loadDefaultContestTemplate());
     }
@@ -1166,6 +1175,12 @@ class MassCodeApp {
       if (termRes && termRes.cwd) {
         if (this.terminalCwdTag) this.terminalCwdTag.textContent = termRes.cwd;
         if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = termRes.cwd + '>';
+        if (this.terminalStream) {
+          this.terminalStream.textContent = `Microsoft Windows [Version 10.0.22631.4317]\r\n(c) Microsoft Corporation. All rights reserved.\r\n\r\n`;
+        }
+        if (this.terminalScreen) {
+          this.terminalScreen.scrollTop = this.terminalScreen.scrollHeight;
+        }
       }
     }
 
@@ -1554,13 +1569,70 @@ class MassCodeApp {
       if (this.wsSampleOutput) this.wsSampleOutput.textContent = sample ? sample.expectedOutput : '--';
     }
 
+    // Determine language of this problem
+    const lang = (prob.language && prob.language !== 'inherit') ? prob.language : ((this.activeContest && this.activeContest.language) || 'c');
+    this.competitor.currentLanguage = lang;
+
+    // Update language badge & placeholder in editor
+    const langTag = document.getElementById('editor-language-tag');
+    if (langTag) {
+      if (lang === 'python' || lang === 'py') {
+        langTag.textContent = 'Python 3 (Interactive Sandbox)';
+        langTag.style.color = '#f59e0b';
+      } else if (lang === 'java') {
+        langTag.textContent = 'Java (OpenJDK / JDK Sandbox)';
+        langTag.style.color = '#a78bfa';
+      } else {
+        langTag.textContent = 'C (GCC Native Sandbox)';
+        langTag.style.color = 'var(--color-cyan)';
+      }
+    }
+
+    if (this.editorCode) {
+      if (lang === 'python' || lang === 'py') {
+        this.editorCode.placeholder = '# Write Python solution here...';
+      } else if (lang === 'java') {
+        this.editorCode.placeholder = '// Write Java solution here...';
+      } else {
+        this.editorCode.placeholder = '// Write C solution here...';
+      }
+    }
+
+    if (this.terminalCliInput) {
+      if (lang === 'python' || lang === 'py') {
+        this.terminalCliInput.placeholder = 'Type command (e.g. python solution.py) or program input...';
+      } else if (lang === 'java') {
+        this.terminalCliInput.placeholder = 'Type command (e.g. javac Solution.java && java Solution) or program input...';
+      } else {
+        this.terminalCliInput.placeholder = 'Type command (e.g. gcc solution.c -o solution.exe) or program input...';
+      }
+    }
+
     // Populate Right Sub-Panel Code Editor
-    const code = this.competitor.problemCodes[prob.id] || prob.starterCode || '';
+    const defaultStarter = this._getDefaultStarterCode(lang);
+    const code = this.competitor.problemCodes[prob.id] || prob.starterCode || defaultStarter;
     this.editorCode.value = code;
     this._updateEditorGutter();
+    this._syncActiveEditorCodeToDisk();
 
     // Metrics
     this._updateWorkspaceMetrics(prob.id);
+  }
+
+  _syncActiveEditorCodeToDisk() {
+    if (!this.editorCode || !window.api || !window.api.syncTerminalEditorFile) return;
+    const code = this.editorCode.value || '';
+    const lang = (this.competitor && this.competitor.currentLanguage) || (this.activeContest && this.activeContest.language) || 'c';
+    let filename = 'solution.c';
+    if (lang === 'python' || lang === 'py') {
+      filename = 'solution.py';
+    } else if (lang === 'java') {
+      let className = 'Solution';
+      const match = code.match(/public\s+class\s+([A-Za-z0-9_$]+)/);
+      if (match && match[1]) className = match[1];
+      filename = `${className}.java`;
+    }
+    window.api.syncTerminalEditorFile({ filename, code });
   }
 
   _updateWorkspaceMetrics(problemId) {
@@ -1587,6 +1659,7 @@ class MassCodeApp {
         this.competitor.problemCodes[this.competitor.activeProblemId] = this.editorCode.value;
         this._autoSaveSessionSnapshot();
       }
+      this._syncActiveEditorCodeToDisk();
     });
 
     this.editorCode.addEventListener('scroll', () => {
@@ -1602,6 +1675,7 @@ class MassCodeApp {
         this.editorCode.value = this.editorCode.value.substring(0, start) + '    ' + this.editorCode.value.substring(end);
         this.editorCode.selectionStart = this.editorCode.selectionEnd = start + 4;
         this._updateEditorGutter();
+        this._syncActiveEditorCodeToDisk();
         return;
       }
 
@@ -1620,6 +1694,7 @@ class MassCodeApp {
             this._autoSaveSessionSnapshot();
           }
         }
+        this._syncActiveEditorCodeToDisk();
       }, 0);
     });
 
@@ -1634,6 +1709,7 @@ class MassCodeApp {
             this._autoSaveSessionSnapshot();
           }
         }
+        this._syncActiveEditorCodeToDisk();
       }, 0);
     });
 
@@ -1645,20 +1721,29 @@ class MassCodeApp {
     });
 
     // Reset Code
-    this.btnWsResetCode.addEventListener('click', () => {
-      const prob = (this.activeContest.problems || []).find(p => p.id === this.competitor.activeProblemId);
-      if (prob && confirm('Reset code to starter template? Current edits will be cleared.')) {
-        this.editorCode.value = prob.starterCode || '';
-        this.competitor.problemCodes[prob.id] = prob.starterCode || '';
-        this._updateEditorGutter();
-        this._autoSaveSessionSnapshot();
-      }
-    });
+    if (this.btnWsResetCode) {
+      this.btnWsResetCode.addEventListener('click', () => {
+        const prob = (this.activeContest.problems || []).find(p => p.id === this.competitor.activeProblemId);
+        if (prob && confirm('Reset code to starter template? Current edits will be cleared.')) {
+          this.editorCode.value = prob.starterCode || '';
+          this.competitor.problemCodes[prob.id] = prob.starterCode || '';
+          this._updateEditorGutter();
+          this._autoSaveSessionSnapshot();
+          this._syncActiveEditorCodeToDisk();
+        }
+      });
+    }
 
-    // Clear Terminal
-    this.btnWsClearTerm.addEventListener('click', () => {
-      this.terminalStream.innerHTML = '[MASS-CODE RUNTIME]: Terminal output cleared.';
-    });
+    // Clear Command Prompt (cls)
+    if (this.btnWsClearTerm) {
+      this.btnWsClearTerm.addEventListener('click', () => {
+        const dir = (this.terminalCwdTag && this.terminalCwdTag.textContent) || 'C:\\workspace';
+        this.terminalStream.textContent = `Microsoft Windows [Version 10.0.22631.4317]\r\n(c) Microsoft Corporation. All rights reserved.\r\n\r\n`;
+        if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = dir + '>';
+        if (this.terminalScreen) this.terminalScreen.scrollTop = 0;
+        if (this.terminalCliInput) this.terminalCliInput.focus();
+      });
+    }
 
     // HackerRank Style: Run Code (Sample Cases only)
     if (this.btnWsRunSample) {
@@ -1717,7 +1802,12 @@ class MassCodeApp {
 
     this.terminalStream.innerHTML = '';
     const runModeLabel = samplesOnly ? 'SAMPLE CASES ONLY' : 'FULL SUITE (SAMPLE & HIDDEN CASES)';
-    this._appendTerminalLine(`<span style="color: var(--color-cyan);">&gt; gcc -O2 temp.c -o temp.exe [${runModeLabel}]</span>`);
+    const effectiveLang = prob.language || this.activeContest.language || 'c';
+    let runModeCmd = 'gcc -O2 solution.c -o solution.exe';
+    if (effectiveLang === 'python' || effectiveLang === 'py') runModeCmd = 'python solution.py';
+    else if (effectiveLang === 'java') runModeCmd = 'javac Solution.java && java Solution';
+
+    this._appendTerminalLine(`<span style="color: var(--color-cyan);">&gt; ${runModeCmd} [${runModeLabel}]</span>`);
 
     // Determine target test cases
     let targetTestCases = prob.testCases || [];
@@ -1728,7 +1818,7 @@ class MassCodeApp {
 
     const result = await window.api.compileAndEvaluate({
       code: this.editorCode.value,
-      language: this.activeContest.language || 'c',
+      language: effectiveLang,
       testCases: targetTestCases,
       timeoutMs: prob.timeLimitMs || 2000,
       maxPoints: prob.maxPoints || 20
@@ -3033,6 +3123,9 @@ class MassCodeApp {
     this.hostTitleInput.value = contest.title || (determinedType === 'exam' ? 'College Lab Examination' : 'Mass-Code Championship');
     this.hostTokenInput.value = contest.token || contest.id || 'MASS2026';
     this.hostDurationInput.value = contest.durationMinutes || 60;
+    if (this.hostContestLanguage && contest.language) {
+      this.hostContestLanguage.value = contest.language;
+    }
     this.hostProblems = contest.problems || [];
     this.hostBatches = (contest.batches && contest.batches.length > 0) ? contest.batches : [
       { id: 'batch_1', name: 'Batch 1 (Morning)', students: [] }
@@ -3129,6 +3222,17 @@ class MassCodeApp {
     setTimeout(() => this._hidePdfImportStatus(), 7000);
   }
 
+  _getDefaultStarterCode(lang) {
+    const l = (lang || 'c').toLowerCase();
+    if (l === 'python' || l === 'py') {
+      return '# Write Python solution here\nimport sys\n\ndef main():\n    # Implement solution here\n    pass\n\nif __name__ == "__main__":\n    main()\n';
+    }
+    if (l === 'java') {
+      return 'import java.util.Scanner;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        // Implement solution here\n        \n    }\n}\n';
+    }
+    return '#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Implement solution here\n    return 0;\n}\n';
+  }
+
   _renderHostProblemCards() {
     this.hostProblemsList.innerHTML = '';
     this.hostProblems.forEach((p, idx) => {
@@ -3136,7 +3240,11 @@ class MassCodeApp {
       card.className = 'builder-problem-card';
       card.dataset.idx = idx;
 
-      const starterCode = p.starterCode || '#include <stdio.h>\n\nint main() {\n    return 0;\n}\n';
+      const defaultContestLang = (this.hostContestLanguage && this.hostContestLanguage.value) || 'c';
+      const effectiveLang = (!p.language || p.language === 'inherit') ? defaultContestLang : p.language;
+      const starterCode = p.starterCode || this._getDefaultStarterCode(effectiveLang);
+      const effectiveLangLabel = effectiveLang === 'python' ? 'Python 3' : (effectiveLang === 'java' ? 'Java' : 'C');
+
       const testCases = p.testCases && p.testCases.length > 0 ? p.testCases : [
         { id: `tc_${idx + 1}_1`, isSample: true, input: '', expectedOutput: '' }
       ];
@@ -3180,7 +3288,7 @@ class MassCodeApp {
           </div>
           <button class="btn btn-danger btn-sm btn-del-prob" data-idx="${idx}">${this.hostContestType === 'exam' ? 'Remove Experiment' : 'Remove Question'}</button>
         </div>
-        <div class="form-grid-3" style="margin-top: 10px;">
+        <div class="form-grid-4" style="margin-top: 10px;">
           <div class="form-group">
             <label>${this.hostContestType === 'exam' ? 'Category / Type' : 'Tier / Difficulty'}</label>
             <select class="form-control p-tier">
@@ -3191,6 +3299,15 @@ class MassCodeApp {
                 <option value="medium" ${p.tier === 'medium' ? 'selected' : ''}>Medium (Round 2)</option>
                 <option value="hard" ${p.tier === 'hard' ? 'selected' : ''}>Hard (Round 3)</option>
               `}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Language</label>
+            <select class="form-control p-lang">
+              <option value="inherit" ${(!p.language || p.language === 'inherit') ? 'selected' : ''}>Default (${defaultContestLang.toUpperCase()})</option>
+              <option value="c" ${p.language === 'c' ? 'selected' : ''}>C (GCC Native)</option>
+              <option value="python" ${p.language === 'python' ? 'selected' : ''}>Python 3</option>
+              <option value="java" ${p.language === 'java' ? 'selected' : ''}>Java (JDK)</option>
             </select>
           </div>
           <div class="form-group">
@@ -3207,7 +3324,7 @@ class MassCodeApp {
           <textarea class="form-control p-desc" rows="3" placeholder="Enter problem description, constraints, and instructions...">${this._escape(p.description)}</textarea>
         </div>
         <div class="form-group" style="margin-top: 10px;">
-          <label style="color: var(--color-cyan); font-weight: 700;">Starter Code (C Language)</label>
+          <label style="color: var(--color-cyan); font-weight: 700;">Starter Code (${effectiveLangLabel} Language)</label>
           <textarea class="form-control p-starter-code" rows="4" style="font-family: var(--font-mono); font-size: 0.82rem; background: rgba(0, 0, 0, 0.35);">${this._escape(starterCode)}</textarea>
         </div>
         <div class="form-group" style="margin-top: 12px;">
@@ -3231,6 +3348,25 @@ class MassCodeApp {
             this.hostProblems[idx].tier = selectedTier;
             if (this.hostContestType !== 'exam') {
               this.hostProblems[idx].maxPoints = selectedTier === 'hard' ? 15 : (selectedTier === 'medium' ? 10 : 5);
+            }
+          }
+          this._renderHostProblemCards();
+        });
+      }
+
+      // Event: Change Language dropdown
+      const langSelect = card.querySelector('.p-lang');
+      if (langSelect) {
+        langSelect.addEventListener('change', (e) => {
+          this._syncCardsToHostProblems();
+          const selectedLang = e.target.value;
+          const currentContestLang = (this.hostContestLanguage && this.hostContestLanguage.value) || 'c';
+          const effLang = selectedLang === 'inherit' ? currentContestLang : selectedLang;
+          if (this.hostProblems[idx]) {
+            this.hostProblems[idx].language = selectedLang;
+            const curStarter = this.hostProblems[idx].starterCode || '';
+            if (!curStarter.trim() || curStarter.includes('#include <stdio.h>') || curStarter.includes('import sys') || curStarter.includes('class Solution')) {
+              this.hostProblems[idx].starterCode = this._getDefaultStarterCode(effLang);
             }
           }
           this._renderHostProblemCards();
@@ -3295,6 +3431,8 @@ class MassCodeApp {
       if (!this.hostProblems[i]) return;
       this.hostProblems[i].title = card.querySelector('.p-title').value;
       this.hostProblems[i].tier = card.querySelector('.p-tier').value;
+      const langElem = card.querySelector('.p-lang');
+      if (langElem) this.hostProblems[i].language = langElem.value;
       this.hostProblems[i].maxPoints = parseInt(card.querySelector('.p-points').value) || 20;
       this.hostProblems[i].timeLimitMs = parseInt(card.querySelector('.p-timeout').value) || 2000;
       this.hostProblems[i].description = card.querySelector('.p-desc').value;
@@ -3385,6 +3523,8 @@ class MassCodeApp {
   _addHostProblem() {
     this._syncCardsToHostProblems();
     const idx = this.hostProblems.length + 1;
+    const defaultLang = (this.hostContestLanguage && this.hostContestLanguage.value) || 'c';
+    const defaultStarter = this._getDefaultStarterCode(defaultLang);
     if (this.hostContestType === 'exam') {
       this.hostProblems.push({
         id: `p_exp_${idx}`,
@@ -3393,8 +3533,9 @@ class MassCodeApp {
         category: 'Lab Experiment',
         maxPoints: 50,
         timeLimitMs: 2000,
+        language: 'inherit',
         description: 'Describe the lab experiment aim, requirements, and input/output specifications.',
-        starterCode: '#include <stdio.h>\n#include <stdlib.h>\n\nint main(void) {\n    // Implement lab experiment here\n    return 0;\n}\n',
+        starterCode: defaultStarter,
         testCases: [{ id: `tc_${idx}_1`, isSample: true, input: '5\n', expectedOutput: '10\n' }]
       });
     } else {
@@ -3405,8 +3546,9 @@ class MassCodeApp {
         category: 'General',
         maxPoints: 5,
         timeLimitMs: 2000,
+        language: 'inherit',
         description: 'Describe problem requirements, input/output specifications, and constraints.',
-        starterCode: '#include <stdio.h>\n\nint main() {\n    return 0;\n}\n',
+        starterCode: defaultStarter,
         testCases: [{ id: `tc_${idx}_1`, isSample: true, input: '5\n', expectedOutput: '10\n' }]
       });
     }
@@ -3435,14 +3577,18 @@ class MassCodeApp {
       });
     }
 
+    const contestLang = (this.hostContestLanguage && this.hostContestLanguage.value) || 'c';
     return {
       id: this.hostTokenInput.value.trim() || 'MASS-' + Date.now(),
       type: this.hostContestType || 'contest',
       title: this.hostTitleInput.value.trim() || (this.hostContestType === 'exam' ? 'College Lab Examination' : 'Mass-Code Contest'),
       token: this.hostTokenInput.value.trim() || 'MASS2026',
       durationMinutes: parseInt(this.hostDurationInput.value) || 60,
-      language: 'c',
-      problems: this.hostProblems,
+      language: contestLang,
+      problems: this.hostProblems.map(p => ({
+        ...p,
+        language: (p.language && p.language !== 'inherit') ? p.language : contestLang
+      })),
       batches: this.hostBatches || [],
       activeBatchId: this.activeBatchId || 'batch_1'
     };
@@ -3601,13 +3747,14 @@ class MassCodeApp {
       for (let pi = 0; pi < problems.length; pi++) {
         const p = problems[pi];
         maxContestScore += (p.maxPoints || 0);
-        const code = problemCodes[p.id] || problemCodes[`${p.id}_c`] || problemCodes[`${p.id}_python`] || p.starterCode || '';
+        const pLang = p.language || this.activeContest?.language || 'c';
+        const code = problemCodes[p.id] || problemCodes[`${p.id}_${pLang}`] || problemCodes[`${p.id}_c`] || problemCodes[`${p.id}_python`] || problemCodes[`${p.id}_java`] || p.starterCode || '';
 
         let evalRes = null;
         try {
           evalRes = await window.api.compileAndEvaluate({
             code,
-            language: this.activeContest?.language || 'c',
+            language: pLang,
             testCases: p.testCases || [],
             timeoutMs: p.timeLimitMs || 2500,
             maxPoints: p.maxPoints || 20
@@ -4059,11 +4206,24 @@ class MassCodeApp {
     this.isTerminalRunningProcess = false;
 
     const terminalStream = document.getElementById('terminal-stream');
+    const terminalScreen = document.getElementById('terminal-screen');
     const cliInput = document.getElementById('terminal-cli-input');
     const btnSendCli = document.getElementById('btn-terminal-send-cli');
     const btnRunTerm = document.getElementById('btn-ws-run-term');
     const btnKillTerm = document.getElementById('btn-ws-kill-term');
     const btnClearTerm = document.getElementById('btn-ws-clear-term');
+
+    const getCmdHeader = () => {
+      return `Microsoft Windows [Version 10.0.22631.4317]\r\n(c) Microsoft Corporation. All rights reserved.\r\n\r\n`;
+    };
+
+    if (terminalScreen && cliInput) {
+      terminalScreen.addEventListener('click', () => {
+        const selection = window.getSelection();
+        if (selection && selection.toString().length > 0) return;
+        cliInput.focus();
+      });
+    }
 
     // Stream output listener from main process
     if (window.api && window.api.onTerminalStreamOutput) {
@@ -4074,7 +4234,7 @@ class MassCodeApp {
         if (lines.length > 1000) {
           terminalStream.textContent = lines.slice(lines.length - 1000).join('\n');
         }
-        terminalStream.scrollTop = terminalStream.scrollHeight;
+        if (terminalScreen) terminalScreen.scrollTop = terminalScreen.scrollHeight;
       });
     }
 
@@ -4083,25 +4243,32 @@ class MassCodeApp {
       window.api.onTerminalProcessExit(({ code, killed, error, cwd }) => {
         this.isTerminalRunningProcess = false;
         if (btnKillTerm) btnKillTerm.style.display = 'none';
-        if (btnRunTerm) btnRunTerm.style.display = 'inline-block';
-        if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'RUNTIME TERMINAL SANDBOX';
+        if (btnRunTerm) btnRunTerm.style.display = 'none';
+        if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'Command Prompt';
+        if (cliInput) cliInput.placeholder = '';
 
         if (terminalStream) {
           if (killed) {
-            terminalStream.textContent += '\r\n[Process terminated by user (Kill / Ctrl+C)]\r\n';
+            terminalStream.textContent += '\r\n^C\r\n';
           } else if (error) {
-            terminalStream.textContent += `\r\n[Process exited with error: ${error}]\r\n`;
-          } else {
-            terminalStream.textContent += `\r\n[Process exited with code ${code}]\r\n`;
+            terminalStream.textContent += `\r\n[Error: ${error}]\r\n`;
+          } else if (code !== 0 && code !== undefined && code !== null) {
+            terminalStream.textContent += `\r\n[Exited with code ${code}]\r\n`;
           }
 
-          terminalStream.scrollTop = terminalStream.scrollHeight;
+          if (terminalStream.textContent && !terminalStream.textContent.endsWith('\n')) {
+            terminalStream.textContent += '\r\n';
+          }
         }
 
-        if (cwd) {
-          if (this.terminalCwdTag) this.terminalCwdTag.textContent = cwd;
-          if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = cwd + '>';
+        const curCwd = cwd || (this.terminalCwdTag && this.terminalCwdTag.textContent) || 'C:\\workspace';
+        if (this.terminalCwdTag) this.terminalCwdTag.textContent = curCwd;
+        if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = curCwd + '>';
+        if (cliInput) {
+          cliInput.value = '';
+          cliInput.focus();
         }
+        if (terminalScreen) terminalScreen.scrollTop = terminalScreen.scrollHeight;
       });
     }
 
@@ -4114,7 +4281,7 @@ class MassCodeApp {
       if (this.isTerminalRunningProcess) {
         if (terminalStream) {
           terminalStream.textContent += val + '\r\n';
-          terminalStream.scrollTop = terminalStream.scrollHeight;
+          if (terminalScreen) terminalScreen.scrollTop = terminalScreen.scrollHeight;
         }
         if (window.api && window.api.sendTerminalStdin) {
           await window.api.sendTerminalStdin({ input: val });
@@ -4123,41 +4290,66 @@ class MassCodeApp {
       }
 
       const trimmed = val.trim();
-      if (!trimmed) return;
+      const curCwd = (this.terminalCwdTag && this.terminalCwdTag.textContent) || 'C:\\workspace';
+      const promptText = (this.terminalCliPrompt && this.terminalCliPrompt.textContent) || (curCwd + '>');
+
+      // Auto-sync active code to workspace file on disk before executing
+      this._syncActiveEditorCodeToDisk();
+
+      if (!trimmed) {
+        if (terminalStream) {
+          terminalStream.textContent += promptText + '\r\n';
+          if (terminalScreen) terminalScreen.scrollTop = terminalScreen.scrollHeight;
+        }
+        return;
+      }
 
       this.terminalHistory.push(trimmed);
       this.terminalHistoryIdx = this.terminalHistory.length;
 
-      const promptText = (this.terminalCliPrompt ? this.terminalCliPrompt.textContent : 'C:\\workspace>') + ' ';
       if (terminalStream) {
-        terminalStream.textContent += '\r\n' + promptText + trimmed + '\r\n';
-        terminalStream.scrollTop = terminalStream.scrollHeight;
+        terminalStream.textContent += promptText + ' ' + val + '\r\n';
+        if (terminalScreen) terminalScreen.scrollTop = terminalScreen.scrollHeight;
+      }
+
+      if (trimmed.toLowerCase() === 'cls' || trimmed.toLowerCase() === 'clear') {
+        if (terminalStream) terminalStream.textContent = getCmdHeader();
+        if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = curCwd + '>';
+        if (terminalScreen) terminalScreen.scrollTop = 0;
+        cliInput.focus();
+        return;
       }
 
       this.isTerminalRunningProcess = true;
+      if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = '';
       if (btnKillTerm) btnKillTerm.style.display = 'inline-block';
       if (btnRunTerm) btnRunTerm.style.display = 'none';
-      if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'RUNNING PROCESS // Press Kill or Ctrl+C to stop';
+      if (this.terminalTopStatus) this.terminalTopStatus.textContent = `Command Prompt - ${trimmed}`;
+      if (cliInput) cliInput.placeholder = '';
 
       const res = await window.api.runTerminalCommand({ command: trimmed });
       if (res && res.isClear) {
-        if (terminalStream) terminalStream.textContent = '';
+        if (terminalStream) terminalStream.textContent = getCmdHeader();
         this.isTerminalRunningProcess = false;
         if (btnKillTerm) btnKillTerm.style.display = 'none';
-        if (btnRunTerm) btnRunTerm.style.display = 'inline-block';
-        if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'RUNTIME TERMINAL SANDBOX';
+        if (btnRunTerm) btnRunTerm.style.display = 'none';
+        if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'Command Prompt';
+        if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = curCwd + '>';
+        if (terminalScreen) terminalScreen.scrollTop = 0;
+        cliInput.focus();
       } else if (res && res.isCd) {
         this.isTerminalRunningProcess = false;
         if (btnKillTerm) btnKillTerm.style.display = 'none';
-        if (btnRunTerm) btnRunTerm.style.display = 'inline-block';
-        if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'RUNTIME TERMINAL SANDBOX';
+        if (btnRunTerm) btnRunTerm.style.display = 'none';
+        if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'Command Prompt';
         if (res.output && terminalStream) {
           terminalStream.textContent += res.output;
         }
-        if (res.cwd) {
-          if (this.terminalCwdTag) this.terminalCwdTag.textContent = res.cwd;
-          if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = res.cwd + '>';
-        }
+        const newCwd = res.cwd || curCwd;
+        if (this.terminalCwdTag) this.terminalCwdTag.textContent = newCwd;
+        if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = newCwd + '>';
+        if (terminalScreen) terminalScreen.scrollTop = terminalScreen.scrollHeight;
+        cliInput.focus();
       }
     };
 
@@ -4208,27 +4400,49 @@ class MassCodeApp {
         }
 
         const code = this.editorCode ? this.editorCode.value : '';
-        if (window.api && window.api.syncTerminalEditorFile) {
-          await window.api.syncTerminalEditorFile({ filename: 'solution.c', code });
+        const activeLang = (this.competitor && this.competitor.currentLanguage) || (this.activeContest && this.activeContest.language) || 'c';
+
+        let filename = 'solution.c';
+        let execCmd = 'gcc solution.c -o solution.exe && solution.exe';
+
+        if (activeLang === 'python' || activeLang === 'py') {
+          filename = 'solution.py';
+          execCmd = 'python solution.py';
+        } else if (activeLang === 'java') {
+          let className = 'Solution';
+          const match = (code || '').match(/public\s+class\s+([A-Za-z0-9_$]+)/);
+          if (match && match[1]) className = match[1];
+          filename = `${className}.java`;
+          execCmd = `javac ${filename} && java ${className}`;
         }
 
+        if (window.api && window.api.syncTerminalEditorFile) {
+          await window.api.syncTerminalEditorFile({ filename, code });
+        }
+
+        const promptText = (this.terminalCliPrompt ? this.terminalCliPrompt.textContent : 'C:\\workspace>') + ' ';
         if (terminalStream) {
-          terminalStream.textContent += '\r\n[Compiling solution.c with GCC and executing in terminal...]\r\n';
+          terminalStream.textContent += '\r\n' + promptText + execCmd + '\r\n';
           terminalStream.scrollTop = terminalStream.scrollHeight;
         }
 
         this.isTerminalRunningProcess = true;
         if (btnKillTerm) btnKillTerm.style.display = 'inline-block';
         if (btnRunTerm) btnRunTerm.style.display = 'none';
-        if (this.terminalTopStatus) this.terminalTopStatus.textContent = 'RUNNING: solution.exe (Active)';
+        if (this.terminalTopStatus) this.terminalTopStatus.textContent = `Command Prompt - ${filename}`;
+        if (cliInput) cliInput.placeholder = 'Enter program input here (press Enter)...';
 
-        await window.api.runTerminalCommand({ command: 'gcc solution.c -o solution.exe && solution.exe' });
+        await window.api.runTerminalCommand({ command: execCmd });
       });
     }
 
     if (btnClearTerm) {
       btnClearTerm.addEventListener('click', () => {
-        if (terminalStream) terminalStream.textContent = '[MASS-CODE RUNTIME]: Terminal output cleared.\r\n';
+        const curCwd = (this.terminalCwdTag && this.terminalCwdTag.textContent) || 'C:\\workspace';
+        if (terminalStream) terminalStream.textContent = getCmdHeader();
+        if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = curCwd + '>';
+        if (terminalScreen) terminalScreen.scrollTop = 0;
+        if (cliInput) cliInput.focus();
       });
     }
 
@@ -4459,6 +4673,12 @@ class MassCodeApp {
       if (termRes && termRes.cwd) {
         if (this.terminalCwdTag) this.terminalCwdTag.textContent = termRes.cwd;
         if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = termRes.cwd + '>';
+        if (this.terminalStream) {
+          this.terminalStream.textContent = `Microsoft Windows [Version 10.0.22631.4317]\r\n(c) Microsoft Corporation. All rights reserved.\r\n\r\n`;
+        }
+        if (this.terminalScreen) {
+          this.terminalScreen.scrollTop = this.terminalScreen.scrollHeight;
+        }
       }
     }
 

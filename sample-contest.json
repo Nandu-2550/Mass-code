@@ -1,13 +1,13 @@
 {
-  "id": "MASS4687",
+  "id": "MASS8910",
   "type": "exam",
   "title": "Mass-Code Championship",
-  "token": "MASS4687",
+  "token": "MASS8910",
   "durationMinutes": 60,
   "language": "c",
   "problems": [
     {
-      "id": "p_pdf_1_561",
+      "id": "p_pdf_1_7537",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 1: Dynamic Memory Allocation & Library Book Management",
@@ -23,10 +23,11 @@
           "input": "",
           "expectedOutput": ""
         }
-      ]
+      ],
+      "language": "c"
     },
     {
-      "id": "p_pdf_2_561",
+      "id": "p_pdf_2_7537",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 2: Sparse Matrix Operations",
@@ -42,10 +43,11 @@
           "input": "",
           "expectedOutput": ""
         }
-      ]
+      ],
+      "language": "c"
     },
     {
-      "id": "p_pdf_3_561",
+      "id": "p_pdf_3_7537",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 3: Array Implementation of Stack",
@@ -61,10 +63,11 @@
           "input": "",
           "expectedOutput": ""
         }
-      ]
+      ],
+      "language": "c"
     },
     {
-      "id": "p_pdf_4_561",
+      "id": "p_pdf_4_7537",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 4: Printer Queue Simulation",
@@ -80,10 +83,11 @@
           "input": "",
           "expectedOutput": ""
         }
-      ]
+      ],
+      "language": "c"
     },
     {
-      "id": "p_pdf_5_561",
+      "id": "p_pdf_5_7537",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 5: Polynomial Operations using Singly Circular Linked List",
@@ -99,10 +103,11 @@
           "input": "",
           "expectedOutput": ""
         }
-      ]
+      ],
+      "language": "c"
     },
     {
-      "id": "p_pdf_6_561",
+      "id": "p_pdf_6_7537",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 6: Binary Tree Creation and Traversals",
@@ -118,10 +123,11 @@
           "input": "",
           "expectedOutput": ""
         }
-      ]
+      ],
+      "language": "c"
     },
     {
-      "id": "p_pdf_7_561",
+      "id": "p_pdf_7_7538",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 7: Infix Expression Validation & Postfix Conversion",
@@ -137,10 +143,11 @@
           "input": "",
           "expectedOutput": ""
         }
-      ]
+      ],
+      "language": "c"
     },
     {
-      "id": "p_pdf_8_561",
+      "id": "p_pdf_8_7538",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 8: University Student Records Management",
@@ -156,10 +163,11 @@
           "input": "",
           "expectedOutput": ""
         }
-      ]
+      ],
+      "language": "c"
     },
     {
-      "id": "p_pdf_9_561",
+      "id": "p_pdf_9_7538",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 9: Manufacturing Machine Parts Repository",
@@ -175,10 +183,11 @@
           "input": "",
           "expectedOutput": ""
         }
-      ]
+      ],
+      "language": "c"
     },
     {
-      "id": "p_pdf_10_561",
+      "id": "p_pdf_10_7538",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 10: Hierarchical Data Management with Numeric Keys",
@@ -194,10 +203,11 @@
           "input": "",
           "expectedOutput": ""
         }
-      ]
+      ],
+      "language": "c"
     },
     {
-      "id": "p_pdf_11_561",
+      "id": "p_pdf_11_7538",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 11: Indexed Employee Record Management",
@@ -213,10 +223,11 @@
           "input": "",
           "expectedOutput": ""
         }
-      ]
+      ],
+      "language": "c"
     },
     {
-      "id": "p_pdf_12_561",
+      "id": "p_pdf_12_7538",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 12: City Connectivity Graph Analysis",
@@ -232,7 +243,8 @@
           "input": "",
           "expectedOutput": ""
         }
-      ]
+      ],
+      "language": "c"
     }
   ],
   "batches": [
@@ -243,41 +255,44 @@
         {
           "usn": "4HG24CS001",
           "name": "AKASH R J",
-          "assignedProblemId": "p_pdf_5_561",
-          "assignedProblemTitle": "Experiment 5: Polynomial Operations using Singly Circular Linked List",
+          "assignedProblemId": "p_pdf_11_7538",
+          "assignedProblemTitle": "Experiment 11: Indexed Employee Record Management",
           "chitPickType": "none",
           "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "otp": "1106"
+          "changeOfExpRemarks": "",
+          "otp": "7177"
         },
         {
           "usn": "4HG24CS002",
           "name": "ANJANEYA",
-          "assignedProblemId": "p_pdf_1_561",
-          "assignedProblemTitle": "Experiment 1: Dynamic Memory Allocation & Library Book Management",
+          "assignedProblemId": "p_pdf_11_7538",
+          "assignedProblemTitle": "Experiment 11: Indexed Employee Record Management",
           "chitPickType": "none",
           "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "otp": "3358"
+          "changeOfExpRemarks": "",
+          "otp": "3407"
         },
         {
           "usn": "4HG24CS003",
           "name": "ANUSH M N",
-          "assignedProblemId": "p_pdf_2_561",
-          "assignedProblemTitle": "Experiment 2: Sparse Matrix Operations",
+          "assignedProblemId": "p_pdf_3_7537",
+          "assignedProblemTitle": "Experiment 3: Array Implementation of Stack",
           "chitPickType": "none",
           "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "otp": "7086"
+          "changeOfExpRemarks": "",
+          "otp": "4328"
         },
         {
           "usn": "4HG24CS004",
@@ -289,19 +304,23 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS005",
           "name": "BHAVANA",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_11_7538",
+          "assignedProblemTitle": "Experiment 11: Indexed Employee Record Management",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": "7581"
         },
         {
           "usn": "4HG24CS006",
@@ -313,7 +332,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS007",
@@ -325,7 +346,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS008",
@@ -337,7 +360,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS009",
@@ -349,7 +374,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS010",
@@ -361,7 +388,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS011",
@@ -373,7 +402,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS012",
@@ -385,7 +416,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS013",
@@ -397,7 +430,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS014",
@@ -409,7 +444,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS015",
@@ -421,7 +458,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS016",
@@ -433,7 +472,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS017",
@@ -445,7 +486,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS018",
@@ -457,7 +500,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS019",
@@ -469,7 +514,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS020",
@@ -481,7 +528,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS021",
@@ -493,7 +542,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         },
         {
           "usn": "4HG24CS022",
@@ -505,7 +556,9 @@
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
-          "penalty": 0
+          "penalty": 0,
+          "changeOfExpRemarks": "",
+          "otp": null
         }
       ]
     }
