@@ -17,11 +17,7 @@
          ==================================================================== -->
     <header class="main-header">
       <div class="brand-wrapper">
-        <img src="assets/logo.png" alt="Mass-Code Logo" class="brand-logo-img">
-        <div class="brand-text-block">
-          <div class="brand-title">MASS<span>-CODE</span></div>
-          <div class="brand-tag">OFFLINE COMPETITIVE PLATFORM</div>
-        </div>
+        <img id="brand-home-logo" src="assets/glad-logo.png" alt="GLAD Club Logo" class="brand-glad-logo" title="GLAD - Department of CSE, GEC Mosalehosahalli">
       </div>
 
       <div class="header-center">
@@ -44,7 +40,8 @@
 
       <div class="header-right">
         <!-- Return to Final Summary (Review Mode) -->
-        <button id="btn-review-back-to-ty" class="btn btn-secondary btn-sm" style="display: none;" title="Return to Final Summary">
+        <button id="btn-review-back-to-ty" class="btn btn-secondary btn-sm" style="display: none;"
+          title="Return to Final Summary">
           ← Return to Final Summary
         </button>
 
@@ -60,7 +57,8 @@
         </button>
 
         <!-- End Contest Session Button (Host Mode) -->
-        <button id="btn-host-end-session" class="btn btn-danger btn-sm" style="display: none; font-weight: 700;" title="End Active Contest Session & Reset">
+        <button id="btn-host-end-session" class="btn btn-danger btn-sm" style="display: none; font-weight: 700;"
+          title="End Active Contest Session & Reset">
           🛑 End Contest Session
         </button>
 
@@ -84,56 +82,35 @@
         <div class="welcome-logo-container">
           <img src="assets/logo.png" alt="Mass-Code Brand Logo" class="welcome-logo-img">
           <h1 class="welcome-header-title">MASS<span>-CODE</span></h1>
-          <p class="welcome-subtitle">
-            Universal, offline-first competitive programming and examination platform. Engineered with isolated native
-            compiler sandboxes, monotonic relative timing, and tamper-proof kiosk window security.
-          </p>
+          <h2 class="welcome-who-title">Who are you...?</h2>
         </div>
 
-        <!-- Exactly Two Operational Modules -->
-        <div class="modules-grid">
-          <!-- Module 1: Host Mode -->
-          <div id="card-enter-host" class="module-card card-host">
-            <div class="module-icon">🛠</div>
-            <h2 class="module-title">Host Mode</h2>
-            <p class="module-desc">
-              Author multi-tier contests, manage hidden test cases, host LAN distribution, and review real-time
-              competitive grading with tie-breaking algorithms.
-            </p>
-            <span class="module-tag">Full Computing Freedom // Non-Kiosk</span>
-            <button class="btn btn-primary" style="margin-top: 8px; width: 100%;">
-              Launch Host Workspace →
-            </button>
+        <!-- Role Selection Boxes -->
+        <div class="modules-grid-minimal">
+          <!-- Box 1: HOST -->
+          <div id="card-enter-host" class="role-box role-host">
+            <div class="role-icon-halo">
+              <span class="role-icon">⚡</span>
+            </div>
+            <span class="role-title">HOST</span>
+            <span class="role-desc">Create &amp; Proctor Sessions</span>
+            <div class="role-action-pill">
+              <span>Launch Host</span>
+              <span class="role-arrow">→</span>
+            </div>
           </div>
 
-          <!-- Module 2: Competitor Mode -->
-          <div id="card-enter-competitor" class="module-card card-competitor">
-            <div class="module-icon">⚡</div>
-            <h2 class="module-title">Competitor Mode</h2>
-            <p class="module-desc">
-              Enter secure, fullscreen kiosk confinement with blocked OS shortcuts. Solve questions across Easy, Medium,
-              and Hard tiers in an isolated C/C++ compiler sandbox.
-            </p>
-            <span class="module-tag">Kiosk Lockdown // Fullscreen Active</span>
-            <button class="btn btn-success" style="margin-top: 8px; width: 100%;">
-              Enter Competition Mode →
-            </button>
-          </div>
-        </div>
-
-        <!-- System Diagnostic Bar -->
-        <div class="welcome-diag-bar">
-          <div class="diag-item">
-            <span>Compiler:</span>
-            <span id="welcome-gcc-status" class="status-ok">Scanning...</span>
-          </div>
-          <div class="diag-item">
-            <span>Architecture:</span>
-            <span id="welcome-arch-status" style="color: var(--color-cyan);">--</span>
-          </div>
-          <div class="diag-item">
-            <span>Local LAN IP:</span>
-            <span id="welcome-ip-status">--</span>
+          <!-- Box 2: candidate -->
+          <div id="card-enter-competitor" class="role-box role-candidate">
+            <div class="role-icon-halo">
+              <span class="role-icon">💻</span>
+            </div>
+            <span class="role-title">CANDIDATE</span>
+            <span class="role-desc">Participate &amp; Submit Solutions</span>
+            <div class="role-action-pill">
+              <span>Enter Portal</span>
+              <span class="role-arrow">→</span>
+            </div>
           </div>
         </div>
       </div>
@@ -145,38 +122,44 @@
     <main id="view-host" class="app-view">
       <!-- HOST MODE SELECTION SCREEN (SHOWN WHEN ENTERING HOST MODE) -->
       <div id="host-mode-select-screen" class="host-mode-select-container">
-        <div class="host-mode-select-box">
-          <div style="text-align: center; margin-bottom: 24px;">
-            <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">Select Host Session Mode</h1>
-            <p style="font-size: 0.9rem; color: var(--text-secondary);">Choose the operational mode to open the complete host workspace without tab switching.</p>
+        <div class="host-mode-select-box" style="text-align: center;">
+          <div class="welcome-logo-container" style="margin-bottom: 8px;">
+            <img src="assets/logo.png" alt="Mass-Code Brand Logo" class="welcome-logo-img"
+              style="width: 68px; height: 68px;">
+            <span class="brand-badge-pill">HOST WORKSPACE</span>
+            <h2 class="welcome-who-title">What you are going to Host...?</h2>
           </div>
-          <div class="host-mode-cards-grid">
-            <div id="card-host-mode-contest" class="host-mode-choice-card">
-              <div class="host-mode-choice-icon">🏆</div>
-              <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">Contest Mode</h2>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;">
-                Multi-tier competitive programming with <strong>Easy, Medium, and Hard</strong> tiers, test cases, countdown timer, and live ranked leaderboard.
-              </p>
-              <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;">
-                <span class="badge-tier-easy" style="font-size: 0.72rem;">EASY (5 Marks)</span>
-                <span class="badge-tier-medium" style="font-size: 0.72rem;">MEDIUM (10 Marks)</span>
-                <span class="badge-tier-hard" style="font-size: 0.72rem;">HARD (15 Marks)</span>
+          <div class="modules-grid-minimal">
+            <!-- Box 1: contest -->
+            <div id="card-host-mode-contest" class="role-box role-contest">
+              <div class="role-icon-halo">
+                <span class="role-icon">🏆</span>
               </div>
-              <button type="button" class="btn btn-primary" style="width: 100%; font-weight: 700; padding: 12px;">Launch Contest Host Workspace →</button>
-            </div>
-            <div id="card-host-mode-exam" class="host-mode-choice-card card-exam">
-              <div class="host-mode-choice-icon">🎓</div>
-              <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">Lab Exam Mode</h2>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;">
-                Formal college laboratory examination. Setup <strong>Lab Experiments</strong>, manage <strong>Batches &amp; USNs</strong>, perform <strong>Random or Chit Draw Allocations</strong>, and track <strong>Change of Experiment</strong> penalties.
-              </p>
-              <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;">
-                <span class="badge-tier-lab" style="font-size: 0.72rem;">LAB EXPERIMENTS</span>
-                <span class="candidate-pill" style="font-size: 0.72rem;">Batch &amp; USN Mapping</span>
-                <span class="candidate-pill" style="font-size: 0.72rem;">Change of Exp</span>
+              <span class="role-title">CONTEST</span>
+              <span class="role-desc">Competitive Programming Arena</span>
+              <div class="role-action-pill">
+                <span>Host Contest</span>
+                <span class="role-arrow">→</span>
               </div>
-              <button type="button" class="btn btn-success" style="width: 100%; font-weight: 700; padding: 12px;">Launch Lab Exam Workspace →</button>
             </div>
+
+            <!-- Box 2: exam -->
+            <div id="card-host-mode-exam" class="role-box role-exam">
+              <div class="role-icon-halo">
+                <span class="role-icon">🎓</span>
+              </div>
+              <span class="role-title">EXAM</span>
+              <span class="role-desc">College Lab Examination</span>
+              <div class="role-action-pill">
+                <span>Host Exam</span>
+                <span class="role-arrow">→</span>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 32px;">
+            <button id="btn-back-from-host-select" type="button" class="btn-subtle-back">
+              ← Back to Main Menu
+            </button>
           </div>
         </div>
       </div>
@@ -187,7 +170,8 @@
         <div class="host-mode-bar">
           <div class="host-mode-left">
             <span class="mode-label">Active Host Session:</span>
-            <span id="host-mode-indicator-tag" class="candidate-pill mode-indicator-contest" style="font-size: 0.85rem; font-weight: 800; padding: 6px 14px;">
+            <span id="host-mode-indicator-tag" class="candidate-pill mode-indicator-contest"
+              style="font-size: 0.85rem; font-weight: 800; padding: 6px 14px;">
               CONTEST MODE // Multi-Tier Competitive
             </span>
           </div>
@@ -197,352 +181,403 @@
         </div>
 
         <!-- Quick Stage Navigation Pills -->
-        <nav class="host-subnav" style="padding: 6px 20px; background: rgba(15, 23, 42, 0.4); border-bottom: 1px solid var(--border-subtle);">
+        <nav class="host-subnav"
+          style="padding: 6px 20px; background: rgba(15, 23, 42, 0.4); border-bottom: 1px solid var(--border-subtle);">
           <div class="host-tabs">
-            <button id="tab-btn-builder" class="host-tab-btn active" data-tab="builder"><span class="stage-step-num">Stage 1:</span> Contest Questions</button>
+            <button id="tab-btn-builder" class="host-tab-btn active" data-tab="builder"><span
+                class="stage-step-num">Stage 1:</span> Contest Questions</button>
             <button id="tab-btn-batches" class="host-tab-btn" data-tab="batches" style="display: none;">
               <span class="stage-step-num">Stage 2:</span> 👥 Batches &amp; Allocations
             </button>
-            <button id="tab-btn-server" class="host-tab-btn" data-tab="server"><span class="stage-step-num" id="stage-num-server">Stage 2:</span> Server &amp; LAN Distribution</button>
-            <button id="tab-btn-grading" class="host-tab-btn" data-tab="grading"><span class="stage-step-num" id="stage-num-grading">Stage 3:</span> Grading Reporter &amp; Leaderboard</button>
+            <button id="tab-btn-server" class="host-tab-btn" data-tab="server"><span class="stage-step-num"
+                id="stage-num-server">Stage 2:</span> Server &amp; LAN Distribution</button>
+            <button id="tab-btn-grading" class="host-tab-btn" data-tab="grading"><span class="stage-step-num"
+                id="stage-num-grading">Stage 3:</span> Grading Reporter &amp; Leaderboard</button>
           </div>
         </nav>
 
-      <!-- TAB 1: CONTEST BUILDER -->
-      <section id="host-panel-builder" class="host-content-panel active">
-        <div class="builder-box">
-          <div class="card-panel">
-            <div class="card-panel-header">
-              <h2 id="builder-config-heading">Contest Configuration</h2>
-              <span id="builder-config-pill" class="candidate-pill">Configuration Metadata</span>
-            </div>
-            <div class="form-grid-4">
-              <div class="form-group">
-                <label id="lbl-contest-title">Contest Title</label>
-                <input type="text" id="host-contest-title" class="form-control" value="Mass-Code National Championship">
+        <!-- TAB 1: CONTEST BUILDER -->
+        <section id="host-panel-builder" class="host-content-panel active">
+          <div class="builder-box">
+            <div class="card-panel">
+              <div class="card-panel-header">
+                <h2 id="builder-config-heading">Contest Configuration</h2>
+                <span id="builder-config-pill" class="candidate-pill">Configuration Metadata</span>
               </div>
-              <div class="form-group">
-                <label id="lbl-contest-token">Contest Token / PIN</label>
-                <input type="text" id="host-contest-token" class="form-control" value="MASS2026">
-              </div>
-              <div class="form-group">
-                <label>Duration (Minutes)</label>
-                <input type="number" id="host-contest-duration" class="form-control" value="60">
-              </div>
-              <div class="form-group">
-                <label>Exam / Contest Language</label>
-                <select id="host-contest-language" class="form-control" style="font-weight: 700;">
-                  <option value="c" selected>C (GCC Native Sandbox)</option>
-                  <option value="python">Python 3 (Interactive)</option>
-                  <option value="java">Java (OpenJDK / JDK)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Problem Stack with Easy, Medium, Hard Tiers or Lab Experiments -->
-          <div class="card-panel">
-            <div class="card-panel-header">
-              <h2 id="builder-bank-heading">Multi-Tier Question Bank</h2>
-              <div style="display: flex; gap: 8px;">
-                <button id="btn-host-import-pdf-bank" class="btn btn-secondary btn-sm" style="border: 1px solid var(--color-cyan); color: var(--color-cyan); font-weight: 700;">
-                  📄 Import from PDF
-                </button>
-                <button id="btn-host-add-problem" class="btn btn-success btn-sm">+ Add New Question</button>
-              </div>
-            </div>
-
-            <!-- Offline PDF Question Paper Dropzone -->
-            <div id="host-pdf-dropzone" class="pdf-dropzone">
-              <div class="pdf-dropzone-inner">
-                <span class="pdf-dropzone-icon">📄</span>
-                <div class="pdf-dropzone-text">
-                  <div class="pdf-dropzone-title">
-                    <strong id="pdf-dropzone-title-text">Import Questions from PDF (Offline Auto-Fill)</strong>
-                  </div>
-                  <div id="host-pdf-dropzone-subtitle" class="pdf-dropzone-subtitle">
-                    Drag &amp; drop a question paper PDF here, or <span id="link-browse-pdf" class="pdf-browse-link">browse file</span>. Auto-detects Tiers (Easy/Medium/Hard), Marks, Starter Code &amp; Test Cases.
-                  </div>
+              <div class="form-grid-4">
+                <div class="form-group">
+                  <label id="lbl-contest-title">Contest Title</label>
+                  <input type="text" id="host-contest-title" class="form-control"
+                    value="Mass-Code National Championship">
                 </div>
-                <button id="btn-browse-pdf-zone" type="button" class="btn btn-secondary btn-sm" style="border: 1px solid var(--color-cyan); color: var(--color-cyan); font-weight: 700;">
-                  Choose PDF
+                <div class="form-group">
+                  <label id="lbl-contest-token">Contest Token / PIN</label>
+                  <input type="text" id="host-contest-token" class="form-control" value="MASS2026">
+                </div>
+                <div class="form-group">
+                  <label>Duration (Minutes)</label>
+                  <input type="number" id="host-contest-duration" class="form-control" value="60">
+                </div>
+                <div class="form-group">
+                  <label>Exam / Contest Language</label>
+                  <select id="host-contest-language" class="form-control" style="font-weight: 700;">
+                    <option value="c" selected>C (GCC Native Sandbox)</option>
+                    <option value="python">Python 3 (Interactive)</option>
+                    <option value="java">Java (OpenJDK / JDK)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Problem Stack with Easy, Medium, Hard Tiers or Lab Experiments -->
+            <div class="card-panel">
+              <div class="card-panel-header">
+                <h2 id="builder-bank-heading">Multi-Tier Question Bank</h2>
+                <div style="display: flex; gap: 8px;">
+                  <button id="btn-host-import-pdf-bank" class="btn btn-secondary btn-sm"
+                    style="border: 1px solid var(--color-cyan); color: var(--color-cyan); font-weight: 700;">
+                    📄 Import from PDF
+                  </button>
+                  <button id="btn-host-add-problem" class="btn btn-success btn-sm">+ Add New Question</button>
+                </div>
+              </div>
+
+              <!-- Offline PDF Question Paper Dropzone -->
+              <div id="host-pdf-dropzone" class="pdf-dropzone">
+                <div class="pdf-dropzone-inner">
+                  <span class="pdf-dropzone-icon">📄</span>
+                  <div class="pdf-dropzone-text">
+                    <div class="pdf-dropzone-title">
+                      <strong id="pdf-dropzone-title-text">Import Questions from PDF (Offline Auto-Fill)</strong>
+                    </div>
+                    <div id="host-pdf-dropzone-subtitle" class="pdf-dropzone-subtitle">
+                      Drag &amp; drop a question paper PDF here, or <span id="link-browse-pdf"
+                        class="pdf-browse-link">browse file</span>. Auto-detects Tiers (Easy/Medium/Hard), Marks,
+                      Starter Code &amp; Test Cases.
+                    </div>
+                  </div>
+                  <button id="btn-browse-pdf-zone" type="button" class="btn btn-secondary btn-sm"
+                    style="border: 1px solid var(--color-cyan); color: var(--color-cyan); font-weight: 700;">
+                    Choose PDF
+                  </button>
+                </div>
+                <input type="file" id="host-pdf-file-input" accept=".pdf,application/pdf" style="display: none;">
+                <div id="host-pdf-status" class="pdf-status-banner" style="display: none;">
+                  <span id="host-pdf-status-spinner">⏳</span>
+                  <span id="host-pdf-status-text">Parsing PDF offline...</span>
+                </div>
+              </div>
+
+              <div id="host-problems-list" style="display: flex; flex-direction: column; gap: 16px; margin-top: 14px;">
+                <!-- Dynamically populated problem builder cards -->
+              </div>
+            </div>
+
+            <!-- Stage 1 Footer Navigation -->
+            <div class="stage-nav-footer">
+              <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                Stage 1: Questions &amp; Test Cases Configured
+              </div>
+              <button id="btn-next-stage-builder" class="btn btn-primary" type="button"
+                style="font-weight: 700; padding: 10px 22px;">
+                Next Stage: Server &amp; LAN Distribution →
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB: BATCHES & USN EXPERIMENT ALLOCATIONS (EXAM MODE) -->
+        <section id="host-panel-batches" class="host-content-panel">
+          <div class="builder-box">
+            <!-- Batch Selector & Overview Card -->
+            <div class="card-panel">
+              <div class="card-panel-header">
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                  <h2>🎓 Lab Exam Batches &amp; Allocations</h2>
+                  <span id="batch-stats-pill" class="candidate-pill">0 Students • 0 Allocated</span>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button id="btn-create-batch" class="btn btn-secondary btn-sm">+ Create New Batch</button>
+                  <button id="btn-rename-batch" class="btn btn-secondary btn-sm">✏️ Rename</button>
+                  <button id="btn-delete-batch" class="btn btn-secondary btn-sm" style="color: var(--color-rose);">🗑
+                    Delete</button>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 10px;">
+                <label style="font-size: 0.84rem; font-weight: 700; color: var(--text-secondary);">Active Batch:</label>
+                <select id="host-batch-select" class="form-control"
+                  style="min-width: 240px; width: auto; font-weight: 700;">
+                  <!-- Populated dynamically -->
+                </select>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                  Only students in the currently selected active batch will receive their assigned lab experiment when
+                  connecting over LAN.
+                </span>
+              </div>
+            </div>
+
+            <!-- Student Management & Experiment Assignment Toolbar -->
+            <div class="card-panel"
+              style="flex-direction: row; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button id="btn-import-usns" class="btn btn-primary btn-sm">
+                  📥 Import / Paste USNs
+                </button>
+                <button id="btn-add-student-single" class="btn btn-secondary btn-sm">
+                  + Add Student
+                </button>
+                <button id="btn-random-assign-all" class="btn btn-success btn-sm" style="font-weight: 700;">
+                  🎲 Random Chit Allocation (All)
+                </button>
+                <button id="btn-reset-batch-allocations" class="btn btn-outline btn-sm"
+                  style="color: var(--color-amber); border-color: var(--color-amber);">
+                  🔄 Reset Allocations
                 </button>
               </div>
-              <input type="file" id="host-pdf-file-input" accept=".pdf,application/pdf" style="display: none;">
-              <div id="host-pdf-status" class="pdf-status-banner" style="display: none;">
-                <span id="host-pdf-status-spinner">⏳</span>
-                <span id="host-pdf-status-text">Parsing PDF offline...</span>
+              <div style="display: flex; gap: 8px;">
+                <button id="btn-export-allocations-csv" class="btn btn-secondary btn-sm">
+                  📤 Export Allocation Sheet (CSV)
+                </button>
               </div>
             </div>
 
-            <div id="host-problems-list" style="display: flex; flex-direction: column; gap: 16px; margin-top: 14px;">
-              <!-- Dynamically populated problem builder cards -->
+            <!-- Allocations Table -->
+            <div class="card-panel" style="padding: 0; overflow-x: auto;">
+              <table class="leaderboard-table">
+                <thead id="allocations-thead">
+                  <tr>
+                    <th style="width: 45px; text-align: center;">#</th>
+                    <th style="width: 140px;">USN</th>
+                    <th>Candidate Name</th>
+                    <th>Assigned Lab Experiment</th>
+                    <th style="text-align: center; width: 110px; color: var(--color-cyan);">Exam OTP</th>
+                    <th style="text-align: center; width: 140px;">Chit Pick Type</th>
+                    <th>Change of Experiment Status</th>
+                    <th style="text-align: center; width: 230px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="batch-students-tbody">
+                  <tr>
+                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                      No students added to this batch yet. Click "Import / Paste USNs" to load candidate records.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Stage 2 Footer Navigation (Exam Mode) -->
+            <div class="stage-nav-footer">
+              <button id="btn-prev-stage-batches" class="btn btn-secondary" type="button">
+                ← Previous Stage: Lab Experiments
+              </button>
+              <button id="btn-next-stage-batches" class="btn btn-primary" type="button"
+                style="font-weight: 700; padding: 10px 22px;">
+                Next Stage: Server &amp; LAN Distribution →
+              </button>
             </div>
           </div>
+        </section>
 
-          <!-- Stage 1 Footer Navigation -->
-          <div class="stage-nav-footer">
-            <div style="font-size: 0.85rem; color: var(--text-secondary);">
-              Stage 1: Questions &amp; Test Cases Configured
+        <!-- TAB 2: SERVER & LAN DISTRIBUTION -->
+        <section id="host-panel-server" class="host-content-panel">
+          <div class="builder-box">
+            <!-- Host Server Launch Banner (Stage 3) -->
+            <div class="card-panel"
+              style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, rgba(0, 229, 255, 0.08), rgba(0, 200, 83, 0.08)); border: 1px solid rgba(0, 200, 83, 0.4); padding: 20px 24px; margin-bottom: 16px;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">Ready to Conduct
+                    the Test?</h3>
+                  <span id="server-status-pill-badge" class="candidate-pill"
+                    style="color: var(--color-emerald); border-color: var(--color-emerald);">Host Broadcast</span>
+                </div>
+                <p style="font-size: 0.86rem; color: var(--text-secondary); margin: 6px 0 0 0;">
+                  Click below to start broadcasting this test live across the lab LAN. Competitor PCs can pull the
+                  questions immediately.
+                </p>
+              </div>
+              <button id="btn-host-deploy-bottom" class="btn btn-success"
+                style="padding: 12px 28px; font-weight: 800; font-size: 1rem; box-shadow: 0 0 15px rgba(0, 200, 83, 0.35); white-space: nowrap;">
+                HOST(start Local server)
+              </button>
             </div>
-            <button id="btn-next-stage-builder" class="btn btn-primary" type="button" style="font-weight: 700; padding: 10px 22px;">
-              Next Stage: Server &amp; LAN Distribution →
-            </button>
-          </div>
-        </div>
-      </section>
 
-      <!-- TAB: BATCHES & USN EXPERIMENT ALLOCATIONS (EXAM MODE) -->
-      <section id="host-panel-batches" class="host-content-panel">
-        <div class="builder-box">
-          <!-- Batch Selector & Overview Card -->
-          <div class="card-panel">
-            <div class="card-panel-header">
+            <div class="card-panel">
+              <div class="card-panel-header">
+                <h2>Distribution Server Status</h2>
+                <button id="btn-host-toggle-server" class="btn btn-success btn-sm">HOST(start Local server)</button>
+              </div>
+              <p style="font-size: 0.88rem; color: var(--text-secondary);">
+                Broadcasts contest configurations across the offline laboratory local area network (LAN) and accepts
+                candidate submissions at <code>/sync-result</code>.
+              </p>
+              <div style="display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap;">
+                <div class="candidate-pill">Port: <span id="server-port-val">8080</span></div>
+                <div class="candidate-pill">Active Contest: <span id="server-contest-val">MASS2026</span></div>
+                <div class="candidate-pill">Status: <span id="server-state-val"
+                    style="color: var(--color-emerald);">Running</span></div>
+                <div class="candidate-pill" style="border-color: var(--color-cyan); color: var(--color-cyan);">UDP
+                  Broadcast: <span id="server-udp-val">Active (Port 45454)</span></div>
+              </div>
+              <div id="server-ip-badges" style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;"></div>
+            </div>
+
+            <!-- Router Port Forwarding & Manual IP Details Card -->
+            <div class="card-panel"
+              style="border-left: 4px solid var(--color-cyan); background: rgba(56, 189, 248, 0.04);">
+              <div class="card-panel-header">
+                <h2 style="color: var(--color-cyan); display: flex; align-items: center; gap: 8px;">
+                  <span>🌐</span> Router Port Forwarding &amp; Lab Connection Details
+                </h2>
+                <button id="btn-copy-host-url" class="btn btn-outline btn-sm">📋 Copy Endpoint URL</button>
+              </div>
+              <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 12px;">
+                Forward these ports in your router so lab computers or outside machines can connect to this host:
+              </p>
+              <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 14px;">
+                <div
+                  style="background: var(--bg-surface); padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-color);">
+                  <div
+                    style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">
+                    Host IP (Forward To This LAN IP)</div>
+                  <div id="router-host-ip"
+                    style="font-size: 1.25rem; font-weight: 700; color: #38bdf8; font-family: var(--font-mono); margin-top: 4px;">
+                    127.0.0.1</div>
+                </div>
+                <div
+                  style="background: var(--bg-surface); padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-color);">
+                  <div
+                    style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">
+                    HTTP Port (TCP Forward)</div>
+                  <div id="router-host-port"
+                    style="font-size: 1.25rem; font-weight: 700; color: #34d399; font-family: var(--font-mono); margin-top: 4px;">
+                    8080 (TCP)</div>
+                </div>
+                <div
+                  style="background: var(--bg-surface); padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-color);">
+                  <div
+                    style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">
+                    Auto-Discovery Port (UDP)</div>
+                  <div
+                    style="font-size: 1.25rem; font-weight: 700; color: #a78bfa; font-family: var(--font-mono); margin-top: 4px;">
+                    45454 (UDP)</div>
+                </div>
+                <div
+                  style="background: var(--bg-surface); padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-color);">
+                  <div
+                    style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">
+                    Active Contest PIN</div>
+                  <div id="router-host-pin"
+                    style="font-size: 1.25rem; font-weight: 700; color: #fbbf24; font-family: var(--font-mono); margin-top: 4px;">
+                    MASS2026</div>
+                </div>
+              </div>
+              <div
+                style="font-size: 0.88rem; background: var(--bg-surface); padding: 12px 16px; border-radius: 6px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <span><strong>Full Endpoint URL:</strong> <code id="router-full-url"
+                    style="color: #38bdf8; font-size: 1rem; margin-left: 6px;">http://localhost:8080</code></span>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Enter this in student PCs if auto-discovery
+                  is blocked by firewall</span>
+              </div>
+            </div>
+
+            <!-- Student Connection Guide Card -->
+            <div class="card-panel">
+              <div class="card-panel-header">
+                <h2>Student Lab Connection Instructions</h2>
+              </div>
+              <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
+                <div>1. Instruct students on lab PCs to launch <strong>Mass-Code</strong> and select <strong>Competitor
+                    Mode</strong>.</div>
+                <div>2. The app will <strong>automatically detect</strong> this host on the network via UDP.</div>
+                <div>3. If entering manually, set Host URL to one of the Endpoints shown above (e.g., <code
+                    style="color: var(--color-cyan);">http://&lt;HOST_IP&gt;:8080</code>).</div>
+                <div>4. Contest PIN: <strong id="server-guide-pin"
+                    style="color: var(--color-cyan); font-family: var(--font-mono); font-size: 1rem;">MASS2026</strong>.
+                </div>
+                <div>5. Students click <strong>"Pull Config Over LAN"</strong> (or "Auto-Connect"), enter their USN
+                  &amp;
+                  Name, and start the test.</div>
+              </div>
+            </div>
+
+            <!-- Stage Server Footer Navigation -->
+            <div class="stage-nav-footer">
+              <button id="btn-prev-stage-server" class="btn btn-secondary" type="button">
+                ← Previous Stage
+              </button>
+              <button id="btn-next-stage-server" class="btn btn-primary" type="button"
+                style="font-weight: 700; padding: 10px 22px;">
+                Next Stage: Grading Reporter &amp; Leaderboard →
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: GRADING REPORTER & LEADERBOARD -->
+        <section id="host-panel-grading" class="host-content-panel">
+          <div class="builder-box">
+            <div class="card-panel" style="flex-direction: row; justify-content: space-between; align-items: center;">
               <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                <h2>🎓 Lab Exam Batches &amp; Allocations</h2>
-                <span id="batch-stats-pill" class="candidate-pill">0 Students • 0 Allocated</span>
+                <button id="btn-host-scan-folder" class="btn btn-primary btn-sm">Scan Submissions Folder</button>
+                <button id="btn-host-grade-all" class="btn btn-outline btn-sm"
+                  style="color: var(--color-cyan); border-color: var(--color-cyan); font-weight: 700;">
+                  ⚡ Auto-Grade / Run All Tests
+                </button>
+                <span id="grading-count-label" style="font-size: 0.85rem; color: var(--text-secondary);">0 candidate
+                  submissions loaded</span>
               </div>
               <div style="display: flex; gap: 8px;">
-                <button id="btn-create-batch" class="btn btn-secondary btn-sm">+ Create New Batch</button>
-                <button id="btn-rename-batch" class="btn btn-secondary btn-sm">✏️ Rename</button>
-                <button id="btn-delete-batch" class="btn btn-secondary btn-sm" style="color: var(--color-rose);">🗑 Delete</button>
+                <button id="btn-host-clear-history" class="btn btn-secondary btn-sm"
+                  style="border: 1px solid var(--color-rose); color: var(--color-rose);"
+                  title="Archive and Clear Leaderboard History">
+                  🗑 Clear / Reset History
+                </button>
+                <button id="btn-host-export-csv" class="btn btn-secondary btn-sm">Export CSV Leaderboard</button>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 10px;">
-              <label style="font-size: 0.84rem; font-weight: 700; color: var(--text-secondary);">Active Batch:</label>
-              <select id="host-batch-select" class="form-control" style="min-width: 240px; width: auto; font-weight: 700;">
-                <!-- Populated dynamically -->
-              </select>
-              <span style="font-size: 0.8rem; color: var(--text-muted);">
-                Only students in the currently selected active batch will receive their assigned lab experiment when connecting over LAN.
-              </span>
-            </div>
-          </div>
 
-          <!-- Student Management & Experiment Assignment Toolbar -->
-          <div class="card-panel" style="flex-direction: row; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-              <button id="btn-import-usns" class="btn btn-primary btn-sm">
-                📥 Import / Paste USNs
+            <div class="card-panel" style="padding: 0; overflow-x: auto;">
+              <table class="leaderboard-table">
+                <thead id="leaderboard-thead">
+                  <tr>
+                    <th style="width: 55px; text-align: center;">Rank</th>
+                    <th>USN</th>
+                    <th>Candidate Name</th>
+                    <th style="color: var(--color-emerald); text-align: center;">Easy (R1)</th>
+                    <th style="color: var(--color-amber); text-align: center;">Medium (R2)</th>
+                    <th style="color: var(--color-rose); text-align: center;">Hard (R3)</th>
+                    <th style="text-align: center;">Total Score</th>
+                    <th style="text-align: center;">Solved</th>
+                    <th>Elapsed</th>
+                    <th>CPU Exec</th>
+                    <th>Violations</th>
+                    <th style="text-align: center;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="host-leaderboard-tbody">
+                  <tr>
+                    <td colspan="12" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                      No submissions scanned yet. Click "Scan Submissions Folder" to load candidate records.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Stage Grading Footer Navigation -->
+            <div class="stage-nav-footer">
+              <button id="btn-prev-stage-grading" class="btn btn-secondary" type="button">
+                ← Previous Stage: Server &amp; LAN Distribution
               </button>
-              <button id="btn-add-student-single" class="btn btn-secondary btn-sm">
-                + Add Student
-              </button>
-              <button id="btn-reset-batch-allocations" class="btn btn-outline btn-sm" style="color: var(--color-amber); border-color: var(--color-amber);">
-                🔄 Reset Allocations
-              </button>
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <button id="btn-export-allocations-csv" class="btn btn-secondary btn-sm">
-                📤 Export Allocation Sheet (CSV)
-              </button>
-            </div>
-          </div>
-
-          <!-- Allocations Table -->
-          <div class="card-panel" style="padding: 0; overflow-x: auto;">
-            <table class="leaderboard-table">
-              <thead id="leaderboard-thead">
-                <tr>
-                  <th style="width: 45px; text-align: center;">#</th>
-                  <th style="width: 140px;">USN</th>
-                  <th>Candidate Name</th>
-                  <th>Assigned Lab Experiment</th>
-                  <th style="text-align: center; width: 110px; color: var(--color-cyan);">Exam OTP</th>
-                  <th style="text-align: center; width: 140px;">Chit Pick Type</th>
-                  <th>Change of Experiment Status</th>
-                  <th style="text-align: center; width: 230px;">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="batch-students-tbody">
-                <tr>
-                  <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 32px;">
-                    No students added to this batch yet. Click "Import / Paste USNs" to load candidate records.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Stage 2 Footer Navigation (Exam Mode) -->
-          <div class="stage-nav-footer">
-            <button id="btn-prev-stage-batches" class="btn btn-secondary" type="button">
-              ← Previous Stage: Lab Experiments
-            </button>
-            <button id="btn-next-stage-batches" class="btn btn-primary" type="button" style="font-weight: 700; padding: 10px 22px;">
-              Next Stage: Server &amp; LAN Distribution →
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- TAB 2: SERVER & LAN DISTRIBUTION -->
-      <section id="host-panel-server" class="host-content-panel">
-        <div class="builder-box">
-          <!-- Host Server Launch Banner (Stage 3) -->
-          <div class="card-panel"
-            style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, rgba(0, 229, 255, 0.08), rgba(0, 200, 83, 0.08)); border: 1px solid rgba(0, 200, 83, 0.4); padding: 20px 24px; margin-bottom: 16px;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">Ready to Conduct the Test?</h3>
-                <span id="server-status-pill-badge" class="candidate-pill"
-                  style="color: var(--color-emerald); border-color: var(--color-emerald);">Host Broadcast</span>
-              </div>
-              <p style="font-size: 0.86rem; color: var(--text-secondary); margin: 6px 0 0 0;">
-                Click below to start broadcasting this test live across the lab LAN. Competitor PCs can pull the questions immediately.
-              </p>
-            </div>
-            <button id="btn-host-deploy-bottom" class="btn btn-success"
-              style="padding: 12px 28px; font-weight: 800; font-size: 1rem; box-shadow: 0 0 15px rgba(0, 200, 83, 0.35); white-space: nowrap;">
-              HOST(start Local server)
-            </button>
-          </div>
-
-          <div class="card-panel">
-            <div class="card-panel-header">
-              <h2>Distribution Server Status</h2>
-              <button id="btn-host-toggle-server" class="btn btn-success btn-sm">HOST(start Local server)</button>
-            </div>
-            <p style="font-size: 0.88rem; color: var(--text-secondary);">
-              Broadcasts contest configurations across the offline laboratory local area network (LAN) and accepts
-              candidate submissions at <code>/sync-result</code>.
-            </p>
-            <div style="display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap;">
-              <div class="candidate-pill">Port: <span id="server-port-val">8080</span></div>
-              <div class="candidate-pill">Active Contest: <span id="server-contest-val">MASS2026</span></div>
-              <div class="candidate-pill">Status: <span id="server-state-val"
-                  style="color: var(--color-emerald);">Running</span></div>
-              <div class="candidate-pill" style="border-color: var(--color-cyan); color: var(--color-cyan);">UDP
-                Broadcast: <span id="server-udp-val">Active (Port 45454)</span></div>
-            </div>
-            <div id="server-ip-badges" style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;"></div>
-          </div>
-
-          <!-- Router Port Forwarding & Manual IP Details Card -->
-          <div class="card-panel" style="border-left: 4px solid var(--color-cyan); background: rgba(56, 189, 248, 0.04);">
-            <div class="card-panel-header">
-              <h2 style="color: var(--color-cyan); display: flex; align-items: center; gap: 8px;">
-                <span>🌐</span> Router Port Forwarding &amp; Lab Connection Details
-              </h2>
-              <button id="btn-copy-host-url" class="btn btn-outline btn-sm">📋 Copy Endpoint URL</button>
-            </div>
-            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 12px;">
-              Forward these ports in your router so lab computers or outside machines can connect to this host:
-            </p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 14px;">
-              <div style="background: var(--bg-surface); padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-color);">
-                <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Host IP (Forward To This LAN IP)</div>
-                <div id="router-host-ip" style="font-size: 1.25rem; font-weight: 700; color: #38bdf8; font-family: var(--font-mono); margin-top: 4px;">127.0.0.1</div>
-              </div>
-              <div style="background: var(--bg-surface); padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-color);">
-                <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">HTTP Port (TCP Forward)</div>
-                <div id="router-host-port" style="font-size: 1.25rem; font-weight: 700; color: #34d399; font-family: var(--font-mono); margin-top: 4px;">8080 (TCP)</div>
-              </div>
-              <div style="background: var(--bg-surface); padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-color);">
-                <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Auto-Discovery Port (UDP)</div>
-                <div style="font-size: 1.25rem; font-weight: 700; color: #a78bfa; font-family: var(--font-mono); margin-top: 4px;">45454 (UDP)</div>
-              </div>
-              <div style="background: var(--bg-surface); padding: 12px 14px; border-radius: 6px; border: 1px solid var(--border-color);">
-                <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Active Contest PIN</div>
-                <div id="router-host-pin" style="font-size: 1.25rem; font-weight: 700; color: #fbbf24; font-family: var(--font-mono); margin-top: 4px;">MASS2026</div>
+              <div style="font-size: 0.85rem; color: var(--color-emerald); font-weight: 700;">
+                Final Stage // Candidate Submissions &amp; Auto-Grading
               </div>
             </div>
-            <div style="font-size: 0.88rem; background: var(--bg-surface); padding: 12px 16px; border-radius: 6px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-              <span><strong>Full Endpoint URL:</strong> <code id="router-full-url" style="color: #38bdf8; font-size: 1rem; margin-left: 6px;">http://localhost:8080</code></span>
-              <span style="font-size: 0.8rem; color: var(--text-muted);">Enter this in student PCs if auto-discovery is blocked by firewall</span>
-            </div>
           </div>
-
-          <!-- Student Connection Guide Card -->
-          <div class="card-panel">
-            <div class="card-panel-header">
-              <h2>Student Lab Connection Instructions</h2>
-            </div>
-            <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.8;">
-              <div>1. Instruct students on lab PCs to launch <strong>Mass-Code</strong> and select <strong>Competitor
-                  Mode</strong>.</div>
-              <div>2. The app will <strong>automatically detect</strong> this host on the network via UDP.</div>
-              <div>3. If entering manually, set Host URL to one of the Endpoints shown above (e.g., <code
-                  style="color: var(--color-cyan);">http://&lt;HOST_IP&gt;:8080</code>).</div>
-              <div>4. Contest PIN: <strong id="server-guide-pin"
-                  style="color: var(--color-cyan); font-family: var(--font-mono); font-size: 1rem;">MASS2026</strong>.
-              </div>
-              <div>5. Students click <strong>"Pull Config Over LAN"</strong> (or "Auto-Connect"), enter their USN &amp;
-                Name, and start the test.</div>
-            </div>
-          </div>
-
-          <!-- Stage Server Footer Navigation -->
-          <div class="stage-nav-footer">
-            <button id="btn-prev-stage-server" class="btn btn-secondary" type="button">
-              ← Previous Stage
-            </button>
-            <button id="btn-next-stage-server" class="btn btn-primary" type="button" style="font-weight: 700; padding: 10px 22px;">
-              Next Stage: Grading Reporter &amp; Leaderboard →
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- TAB 3: GRADING REPORTER & LEADERBOARD -->
-      <section id="host-panel-grading" class="host-content-panel">
-        <div class="builder-box">
-          <div class="card-panel" style="flex-direction: row; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-              <button id="btn-host-scan-folder" class="btn btn-primary btn-sm">Scan Submissions Folder</button>
-              <button id="btn-host-grade-all" class="btn btn-outline btn-sm" style="color: var(--color-cyan); border-color: var(--color-cyan); font-weight: 700;">
-                ⚡ Auto-Grade / Run All Tests
-              </button>
-              <span id="grading-count-label" style="font-size: 0.85rem; color: var(--text-secondary);">0 candidate
-                submissions loaded</span>
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <button id="btn-host-clear-history" class="btn btn-secondary btn-sm" style="border: 1px solid var(--color-rose); color: var(--color-rose);" title="Archive and Clear Leaderboard History">
-                🗑 Clear / Reset History
-              </button>
-              <button id="btn-host-export-csv" class="btn btn-secondary btn-sm">Export CSV Leaderboard</button>
-            </div>
-          </div>
-
-          <div class="card-panel" style="padding: 0; overflow-x: auto;">
-            <table class="leaderboard-table">
-              <thead id="leaderboard-thead">
-                <tr>
-                  <th style="width: 55px; text-align: center;">Rank</th>
-                  <th>USN</th>
-                  <th>Candidate Name</th>
-                  <th style="color: var(--color-emerald); text-align: center;">Easy (R1)</th>
-                  <th style="color: var(--color-amber); text-align: center;">Medium (R2)</th>
-                  <th style="color: var(--color-rose); text-align: center;">Hard (R3)</th>
-                  <th style="text-align: center;">Total Score</th>
-                  <th style="text-align: center;">Solved</th>
-                  <th>Elapsed</th>
-                  <th>CPU Exec</th>
-                  <th>Violations</th>
-                  <th style="text-align: center;">Action</th>
-                </tr>
-              </thead>
-              <tbody id="host-leaderboard-tbody">
-                <tr>
-                  <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 32px;">
-                    No submissions scanned yet. Click "Scan Submissions Folder" to load candidate records.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Stage Grading Footer Navigation -->
-          <div class="stage-nav-footer">
-            <button id="btn-prev-stage-grading" class="btn btn-secondary" type="button">
-              ← Previous Stage: Server &amp; LAN Distribution
-            </button>
-            <div style="font-size: 0.85rem; color: var(--color-emerald); font-weight: 700;">
-              Final Stage // Candidate Submissions &amp; Auto-Grading
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
       </div><!-- End of #host-workspace-content -->
     </main>
 
@@ -552,38 +587,44 @@
     <main id="view-competitor" class="app-view">
       <!-- COMPETITOR MODE SELECTION SCREEN (STEP 2: SELECT MODE) -->
       <div id="competitor-mode-select-screen" class="host-mode-select-container">
-        <div class="host-mode-select-box">
-          <div style="text-align: center; margin-bottom: 24px;">
-            <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 6px;">Select Competitor Session Mode</h1>
-            <p style="font-size: 0.9rem; color: var(--text-secondary);">Choose whether you are participating in a Multi-Tier Coding Contest or a College Lab Examination.</p>
+        <div class="host-mode-select-box" style="text-align: center;">
+          <div class="welcome-logo-container" style="margin-bottom: 8px;">
+            <img src="assets/logo.png" alt="Mass-Code Brand Logo" class="welcome-logo-img"
+              style="width: 68px; height: 68px;">
+            <span class="brand-badge-pill">CANDIDATE PORTAL</span>
+            <h2 class="welcome-who-title">Why are you here for...?</h2>
           </div>
-          <div class="host-mode-cards-grid">
-            <div id="card-comp-mode-contest" class="host-mode-choice-card">
-              <div class="host-mode-choice-icon">🏆</div>
-              <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">Contest Mode</h2>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;">
-                Multi-tier competitive programming with <strong>Easy, Medium, and Hard</strong> tiers, test cases, countdown timer, and live ranked leaderboard.
-              </p>
-              <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;">
-                <span class="badge-tier-easy" style="font-size: 0.72rem;">EASY (5 Marks)</span>
-                <span class="badge-tier-medium" style="font-size: 0.72rem;">MEDIUM (10 Marks)</span>
-                <span class="badge-tier-hard" style="font-size: 0.72rem;">HARD (15 Marks)</span>
+          <div class="modules-grid-minimal">
+            <!-- Box 1: Contest -->
+            <div id="card-comp-mode-contest" class="role-box role-contest">
+              <div class="role-icon-halo">
+                <span class="role-icon">🏆</span>
               </div>
-              <button type="button" class="btn btn-primary" style="width: 100%; font-weight: 700; padding: 12px;">Launch Contest Station →</button>
-            </div>
-            <div id="card-comp-mode-exam" class="host-mode-choice-card card-exam">
-              <div class="host-mode-choice-icon">🎓</div>
-              <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">Lab Exam Mode</h2>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;">
-                Formal college laboratory examination. Connect with your institutional USN, receive your allocated <strong>Lab Experiment</strong>, and lock down workspace.
-              </p>
-              <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px;">
-                <span class="badge-tier-lab" style="font-size: 0.72rem;">LAB EXPERIMENTS</span>
-                <span class="candidate-pill" style="font-size: 0.72rem;">Batch &amp; USN Mapping</span>
-                <span class="candidate-pill" style="font-size: 0.72rem;">Change of Exp</span>
+              <span class="role-title">CONTEST</span>
+              <span class="role-desc">Join Ranked Competitive Match</span>
+              <div class="role-action-pill">
+                <span>Join Contest</span>
+                <span class="role-arrow">→</span>
               </div>
-              <button type="button" class="btn btn-success" style="width: 100%; font-weight: 700; padding: 12px;">Launch Lab Exam Station →</button>
             </div>
+
+            <!-- Box 2: Exam -->
+            <div id="card-comp-mode-exam" class="role-box role-exam">
+              <div class="role-icon-halo">
+                <span class="role-icon">🎓</span>
+              </div>
+              <span class="role-title">EXAM</span>
+              <span class="role-desc">Join Lab Examination Station</span>
+              <div class="role-action-pill">
+                <span>Enter Exam</span>
+                <span class="role-arrow">→</span>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 32px;">
+            <button id="btn-back-from-comp-select" type="button" class="btn-subtle-back">
+              ← Back to Main Menu
+            </button>
           </div>
         </div>
       </div>
@@ -598,7 +639,8 @@
               Connect to the host workstation, verify credentials, and lock down workspace.
             </p>
             <div style="margin-top: 8px;">
-              <span id="comp-mode-indicator-tag" class="candidate-pill mode-indicator-contest" style="font-size: 0.8rem; font-weight: 800;">
+              <span id="comp-mode-indicator-tag" class="candidate-pill mode-indicator-contest"
+                style="font-size: 0.8rem; font-weight: 800;">
                 CONTEST MODE // Multi-Tier Competitive
               </span>
             </div>
@@ -625,28 +667,23 @@
             </button>
           </div>
 
-          <!-- Host Server URL (Common) -->
+          <!-- Host Server Selection (Dropdown, not editable) -->
           <div class="form-group">
-            <label>Host Server URL <span style="font-size: 0.72rem; color: var(--text-muted);">(Auto-discovered or manual)</span></label>
-            <input type="text" id="comp-host-url" class="form-control" placeholder="http://192.168.x.x:8080" value="">
-            <small style="font-size: 0.76rem; color: var(--color-cyan); display: block; margin-top: 4px;">Enter the Host Laptop IP &amp; Port shown on the Host screen (e.g., <code>http://192.168.1.136:8080</code>)</small>
+            <label>Host Server</label>
+            <select id="comp-host-select" class="form-control"
+              style="font-family: var(--font-mono); font-size: 0.88rem; cursor: pointer;">
+              <option value="http://localhost:8080">📡 Searching LAN for Host Server...</option>
+            </select>
+            <input type="hidden" id="comp-host-url" value="">
           </div>
 
           <!-- CONTEST MODE SPECIFIC FIELDS -->
           <div id="comp-contest-fields">
-            <div class="form-group">
-              <label>Contest Code / PIN</label>
-              <input type="text" id="comp-pin-input" class="form-control" value="MASS2026" placeholder="e.g. MASS2026">
-            </div>
-
-            <div style="display: flex; gap: 8px;">
-              <button id="btn-comp-pull-lan" class="btn btn-secondary btn-sm" style="flex: 1;">Pull Config Over LAN</button>
-              <button id="btn-comp-load-local" class="btn btn-secondary btn-sm" style="flex: 1;">Load Config File</button>
-            </div>
+            <input type="hidden" id="comp-pin-input" value="any">
 
             <!-- Active Contest Sync Status Display -->
             <div id="comp-contest-status-box"
-              style="background: rgba(255, 255, 255, 0.03); border: 1px dashed var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+              style="background: rgba(255, 255, 255, 0.03); border: 1px dashed var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 4px; display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <div style="font-size: 0.70rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">
                   Contest Questions Status</div>
@@ -659,30 +696,25 @@
             </div>
           </div>
 
-          <!-- LAB EXAM MODE NOTICE BANNER -->
-          <div id="comp-exam-notice" style="display: none; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 12px;">
-            <div style="font-size: 0.80rem; font-weight: 700; color: var(--color-amber);">🎓 Lab Exam Mode Active</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">
-              Enter your USN and 4-digit Exam Access OTP to retrieve and lock down your assigned laboratory experiment.
-            </div>
-          </div>
-
           <!-- Student Credentials (Common) -->
           <div style="border-top: 1px solid var(--border-subtle); padding-top: 16px;">
             <div class="form-group">
-              <label>Student Institutional USN / Reg No <span style="color: var(--color-rose);">*</span></label>
+              <label style="display: block; margin-bottom: 6px;">Student Institutional USN / Reg No <span style="color: var(--color-rose);">*</span></label>
               <input type="text" id="comp-usn-input" class="form-control" placeholder="e.g. 4GM21CS001"
-                style="font-family: var(--font-mono); font-weight: 700; text-transform: uppercase;">
+                style="display: block; width: 100%; font-family: var(--font-mono); font-weight: 700; text-transform: uppercase;">
             </div>
-            <div class="form-group" id="comp-exam-otp-group" style="display: none; margin-top: 10px;">
-              <label>4-Digit Exam Access OTP <span style="color: var(--color-rose);">*</span></label>
+            <div class="form-group" id="comp-exam-otp-group" style="display: none; margin-top: 14px;">
+              <label style="display: block; margin-bottom: 6px;">4-Digit Exam Access OTP <span style="color: var(--color-rose);">*</span></label>
               <input type="text" id="comp-exam-otp-input" class="form-control" placeholder="e.g. 4819" maxlength="4"
-                style="font-family: var(--font-mono); font-weight: 800; font-size: 1.15rem; letter-spacing: 6px; text-align: center;">
-              <small style="font-size: 0.74rem; color: var(--color-cyan); display: block; margin-top: 4px;">Enter the 4-digit OTP shown in the Host Batches table next to your USN.</small>
+                style="display: block; width: 100%; font-family: var(--font-mono); font-weight: 800; font-size: 1.15rem; letter-spacing: 6px; text-align: center;">
+              <small style="font-size: 0.74rem; color: var(--color-cyan); display: block; margin-top: 6px;">Enter the
+                4-digit OTP shown in the Host Batches table next to your USN.</small>
             </div>
-            <div class="form-group" id="comp-name-group" style="margin-top: 10px;">
-              <label>Full Name <span style="font-size: 0.72rem; color: var(--text-muted);">(Optional / Auto-fetched from batch)</span></label>
-              <input type="text" id="comp-name-input" class="form-control" placeholder="Candidate Name">
+            <div class="form-group" id="comp-name-group" style="margin-top: 14px;">
+              <label style="display: block; margin-bottom: 6px;">Full Name <span style="font-size: 0.72rem; color: var(--text-muted);">(Optional / Auto-fetched from
+                  batch)</span></label>
+              <input type="text" id="comp-name-input" class="form-control" placeholder="Candidate Name"
+                style="display: block; width: 100%;">
             </div>
           </div>
 
@@ -761,11 +793,13 @@
 
             <div class="problem-statement-scroll">
               <!-- Change of Experiment Notice Banner (Exam Mode) -->
-              <div id="ws-change-of-exp-notice" class="change-of-exp-banner" style="display: none; margin-bottom: 14px;">
+              <div id="ws-change-of-exp-notice" class="change-of-exp-banner"
+                style="display: none; margin-bottom: 14px;">
                 <span style="font-size: 1.25rem;">⚠</span>
                 <div style="flex: 1;">
                   <strong style="color: var(--color-amber);">CHANGE OF EXPERIMENT RECORDED</strong>
-                  <div id="ws-change-of-exp-details" style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
+                  <div id="ws-change-of-exp-details"
+                    style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
                     Original: Exp 1 ➔ Assigned: Exp 3 (Penalty: -5 Marks per lab exam regulations)
                   </div>
                 </div>
@@ -774,9 +808,12 @@
               <!-- Question Header Bar (Title, Highlighted Difficulty Badge, Marks) -->
               <div class="ws-problem-header-container">
                 <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                  <h1 id="ws-problem-title" style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--text-main);">Question Title</h1>
+                  <h1 id="ws-problem-title"
+                    style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--text-main);">Question Title
+                  </h1>
                   <span id="ws-problem-tier-tag" class="badge-tier-medium">MEDIUM</span>
-                  <span id="ws-problem-points" style="font-size: 1.05rem; font-weight: 700; color: var(--text-main);">— 10 Marks</span>
+                  <span id="ws-problem-points" style="font-size: 1.05rem; font-weight: 700; color: var(--text-main);">—
+                    10 Marks</span>
                 </div>
               </div>
 
@@ -789,18 +826,22 @@
               </div>
 
               <!-- HackerRank Style Sample Test Cases Box -->
-              <div id="ws-sample-cases-container" style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
+              <div id="ws-sample-cases-container"
+                style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
                 <div class="sample-case-box">
-                  <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-cyan); text-transform: uppercase;">
+                  <div
+                    style="font-size: 0.8rem; font-weight: 700; color: var(--color-cyan); text-transform: uppercase;">
                     Sample Test Case 0
                   </div>
                   <div class="sample-grid">
                     <div>
-                      <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Sample Input</label>
+                      <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Sample
+                        Input</label>
                       <pre id="ws-sample-input">--</pre>
                     </div>
                     <div>
-                      <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Expected Output</label>
+                      <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Expected
+                        Output</label>
                       <pre id="ws-sample-output">--</pre>
                     </div>
                   </div>
@@ -809,7 +850,7 @@
             </div>
 
             <!-- Execution Metrics Bottom Drawer -->
-            <div class="workspace-metrics-drawer">
+            <div id="workspace-metrics-drawer" class="workspace-metrics-drawer">
               <div>
                 <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Problem
                   Score:</span>
@@ -831,24 +872,37 @@
           </aside>
 
           <!-- Resizable Vertical Splitter -->
-          <div id="workspace-resizer" class="workspace-resizer" title="Drag horizontally to resize problem description and coding workspace"></div>
+          <div id="workspace-resizer" class="workspace-resizer"
+            title="Drag horizontally to resize problem description and coding workspace"></div>
 
           <!-- Right Sub-Panel: Monospace Editor & Green Terminal Sandbox -->
           <section class="right-panel-workspace" id="ws-right-panel">
             <div class="editor-toolbar">
-              <span id="editor-language-tag"
-                style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--color-cyan); font-weight: 700;">
-                C (GCC Native Sandbox)
-              </span>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="editor-file-tab">
+                  <span id="editor-file-icon" class="file-icon icon-c">🔷</span>
+                  <span id="editor-filename" class="file-name">solution.c</span>
+                  <span id="editor-sync-status" class="file-sync-pill">● Synced</span>
+                </div>
+                <span id="editor-language-tag"
+                  style="font-family: var(--font-mono); font-size: 0.76rem; color: var(--text-secondary); font-weight: 600;">
+                  C (GCC Native Sandbox)
+                </span>
+              </div>
               <div style="display: flex; gap: 8px; align-items: center;">
-                <button id="btn-ws-toggle-expand" class="btn btn-secondary btn-sm" title="Toggle full-width code workspace" style="font-weight: 600;">
+                <span id="editor-cursor-pos" class="editor-cursor-pill">Ln 1, Col 1</span>
+                <button id="btn-ws-toggle-expand" class="btn btn-secondary btn-sm"
+                  title="Toggle full-width code workspace" style="font-weight: 600;">
                   ⛶ Expand Workspace
                 </button>
                 <button id="btn-ws-reset-code" class="btn btn-secondary btn-sm">Reset Code</button>
-                <button id="btn-ws-run-sample" class="btn btn-secondary btn-sm" style="border: 1px solid var(--color-cyan); color: var(--color-cyan); font-weight: 700;" title="Test code against visible Sample Cases">
+                <button id="btn-ws-run-sample" class="btn btn-secondary btn-sm"
+                  style="border: 1px solid var(--color-cyan); color: var(--color-cyan); font-weight: 700;"
+                  title="Test code against visible Sample Cases">
                   ▶ Run Code (Samples)
                 </button>
-                <button id="btn-ws-run-tests" class="btn btn-success btn-sm" style="font-weight: 700;" title="Submit &amp; evaluate against all Sample and Hidden Test Cases">
+                <button id="btn-ws-run-tests" class="btn btn-success btn-sm" style="font-weight: 700;"
+                  title="Submit &amp; evaluate against all Sample and Hidden Test Cases">
                   ⚡ Submit &amp; Grade (All Cases)
                 </button>
               </div>
@@ -859,7 +913,8 @@
               <div id="editor-gutter" class="line-numbers-gutter">1</div>
               <textarea id="editor-code" class="code-editor-textarea" spellcheck="false" autocomplete="off"
                 autocapitalize="off" placeholder="// Write C solution here..."></textarea>
-              <div id="clipboard-toast" class="clipboard-toast">⚠ CLIPBOARD ACTIONS OUTSIDE WORKSPACE ARE RESTRICTED</div>
+              <div id="clipboard-toast" class="clipboard-toast">⚠ CLIPBOARD ACTIONS OUTSIDE WORKSPACE ARE RESTRICTED
+              </div>
             </div>
 
             <!-- Resizable Horizontal Splitter between Editor and Terminal -->
@@ -869,12 +924,16 @@
             <div class="terminal-sandbox" id="ws-terminal-container">
               <div class="terminal-top">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 15px; background: #000; border: 1px solid #555; border-radius: 2px; font-family: 'Consolas', monospace; font-size: 0.65rem; color: #fff; font-weight: bold; line-height: 1;">&gt;_</span>
+                  <span
+                    style="display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 15px; background: #000; border: 1px solid #555; border-radius: 2px; font-family: 'Consolas', monospace; font-size: 0.65rem; color: #fff; font-weight: bold; line-height: 1;">&gt;_</span>
                   <span id="terminal-top-status" style="color: #e0e0e0; font-weight: 600;">Command Prompt</span>
-                  <span id="terminal-cwd-tag" style="color: #888888; font-family: 'Consolas', monospace; font-size: 0.74rem;"></span>
+                  <span id="terminal-cwd-tag"
+                    style="color: #888888; font-family: 'Consolas', monospace; font-size: 0.74rem;"></span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                  <button id="btn-ws-kill-term" class="btn btn-danger btn-xs" style="display: none; font-weight: 700; padding: 2px 10px; font-size: 0.72rem;" title="Safely terminate hanging process (Ctrl+C)">
+                  <button id="btn-ws-kill-term" class="btn btn-danger btn-xs"
+                    style="display: none; font-weight: 700; padding: 2px 10px; font-size: 0.72rem;"
+                    title="Safely terminate hanging process (Ctrl+C)">
                     ⏹ Terminate (Ctrl+C)
                   </button>
                   <span id="ws-autosave-tag" style="color: #666; font-size: 0.68rem;">AUTOSAVE</span>
@@ -884,12 +943,13 @@
               <!-- Unified Windows Command Prompt Console Screen -->
               <div id="terminal-screen" class="terminal-screen">
                 <div id="terminal-stream" class="terminal-output-text">Microsoft Windows [Version 10.0.22631.4317]
-(c) Microsoft Corporation. All rights reserved.
+                  (c) Microsoft Corporation. All rights reserved.
 
-</div>
+                </div>
                 <div id="terminal-active-line" class="terminal-active-line">
                   <span id="terminal-cli-prompt" class="terminal-prompt">C:\workspace&gt;</span>
-                  <input type="text" id="terminal-cli-input" class="terminal-cli-input" autocomplete="off" spellcheck="false" autofocus>
+                  <input type="text" id="terminal-cli-input" class="terminal-cli-input" autocomplete="off"
+                    spellcheck="false" autofocus>
                 </div>
               </div>
             </div>
@@ -904,78 +964,90 @@
     <main id="view-thankyou" class="app-view">
       <div class="thankyou-card" style="max-width: 840px; max-height: 92vh; overflow-y: auto;">
         <div class="thankyou-icon">✓</div>
+        <div id="ty-receipt-pill" class="receipt-header-badge" style="margin-top: -6px; margin-bottom: 8px;">● Official
+          Session Submission Receipt</div>
         <h1 id="ty-header-title" style="font-size: 1.8rem; font-weight: 800; color: var(--text-main);">
           Thank You for Participating!
         </h1>
-        <p id="ty-header-desc" style="font-size: 0.95rem; color: var(--text-secondary); max-width: 600px; line-height: 1.6;">
+        <p id="ty-header-desc"
+          style="font-size: 0.95rem; color: var(--text-secondary); max-width: 600px; line-height: 1.6;">
           Your competitive programming session has ended. All your solutions across all rounds and tiers have
           been automatically executed against all test cases and finalized into an immutable audit package.
         </p>
 
         <!-- Final Summary Cards (Contest Mode only) -->
         <div id="ty-contest-scores-section" style="width: 100%; display: flex; flex-direction: column; gap: 14px;">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; width: 100%;">
-          <div class="card-panel" style="padding: 16px; align-items: center;">
-            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Total Score</span>
-            <span id="ty-total-score"
-              style="font-size: 1.6rem; font-weight: 900; font-family: var(--font-mono); color: var(--color-emerald);">0
-              / 100</span>
+          <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; width: 100%;">
+            <div class="card-panel" style="padding: 16px; align-items: center;">
+              <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Total Score</span>
+              <span id="ty-total-score"
+                style="font-size: 1.6rem; font-weight: 900; font-family: var(--font-mono); color: var(--color-emerald);">0
+                / 100</span>
+            </div>
+            <div class="card-panel" style="padding: 16px; align-items: center;">
+              <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Contest
+                Duration</span>
+              <span id="ty-duration"
+                style="font-size: 1.6rem; font-weight: 900; font-family: var(--font-mono); color: var(--color-cyan);">00:00:00</span>
+            </div>
+            <div class="card-panel" style="padding: 16px; align-items: center;">
+              <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Problems
+                Solved</span>
+              <span id="ty-solved-count"
+                style="font-size: 1.6rem; font-weight: 900; font-family: var(--font-mono); color: var(--color-amber);">0
+                / 0</span>
+            </div>
           </div>
-          <div class="card-panel" style="padding: 16px; align-items: center;">
-            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Contest
-              Duration</span>
-            <span id="ty-duration"
-              style="font-size: 1.6rem; font-weight: 900; font-family: var(--font-mono); color: var(--color-cyan);">00:00:00</span>
-          </div>
-          <div class="card-panel" style="padding: 16px; align-items: center;">
-            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Problems Solved</span>
-            <span id="ty-solved-count"
-              style="font-size: 1.6rem; font-weight: 900; font-family: var(--font-mono); color: var(--color-amber);">0 / 0</span>
-          </div>
-        </div>
 
-        <!-- Round & Tier Score Breakdown -->
-        <div style="width: 100%;">
-          <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; text-align: left; letter-spacing: 0.5px;">
-            Score Breakdown by Round &amp; Tier
+          <!-- Round & Tier Score Breakdown -->
+          <div style="width: 100%;">
+            <div
+              style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; text-align: left; letter-spacing: 0.5px;">
+              Score Breakdown by Round &amp; Tier
+            </div>
+            <div id="ty-round-cards-container"
+              style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; width: 100%;">
+              <!-- Dynamically populated round cards -->
+            </div>
           </div>
-          <div id="ty-round-cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; width: 100%;">
-            <!-- Dynamically populated round cards -->
-          </div>
-        </div>
 
-        <!-- Detailed Programs Test Suite Table -->
-        <div style="width: 100%;">
-          <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; text-align: left; letter-spacing: 0.5px;">
-            Program &amp; Test Suite Results
+          <!-- Detailed Programs Test Suite Table -->
+          <div style="width: 100%;">
+            <div
+              style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; text-align: left; letter-spacing: 0.5px;">
+              Program &amp; Test Suite Results
+            </div>
+            <div class="card-panel"
+              style="padding: 0; overflow-x: auto; width: 100%; border: 1px solid var(--border-subtle);">
+              <table class="leaderboard-table" style="width: 100%; font-size: 0.82rem;">
+                <thead>
+                  <tr>
+                    <th style="width: 40px; text-align: center;">#</th>
+                    <th>Round / Tier</th>
+                    <th>Problem Title</th>
+                    <th style="text-align: center;">Test Cases</th>
+                    <th style="text-align: center;">Score</th>
+                    <th style="text-align: center;">CPU Time</th>
+                    <th style="text-align: center;">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="ty-programs-tbody">
+                  <!-- Dynamically populated program rows -->
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div class="card-panel" style="padding: 0; overflow-x: auto; width: 100%; border: 1px solid var(--border-subtle);">
-            <table class="leaderboard-table" style="width: 100%; font-size: 0.82rem;">
-              <thead>
-                <tr>
-                  <th style="width: 40px; text-align: center;">#</th>
-                  <th>Round / Tier</th>
-                  <th>Problem Title</th>
-                  <th style="text-align: center;">Test Cases</th>
-                  <th style="text-align: center;">Score</th>
-                  <th style="text-align: center;">CPU Time</th>
-                  <th style="text-align: center;">Status</th>
-                </tr>
-              </thead>
-              <tbody id="ty-programs-tbody">
-                <!-- Dynamically populated program rows -->
-              </tbody>
-            </table>
-          </div>
-        </div>
         </div>
 
         <div class="card-panel"
           style="width: 100%; padding: 16px; font-family: var(--font-mono); font-size: 0.85rem; text-align: left;">
           <div>Candidate: <strong id="ty-candidate-usn">--</strong></div>
-          <div id="ty-audit-package-line" style="margin-top: 6px;">Audit Package: <strong id="ty-payload-file">FINAL_USN.json</strong></div>
+          <div id="ty-audit-package-line" style="margin-top: 6px;">Audit Package: <strong
+              id="ty-payload-file">FINAL_USN.json</strong></div>
           <div style="margin-top: 6px;">Save Status: <span id="ty-sync-status"
-              style="color: var(--color-emerald); font-weight: 700;">✔ Final package saved to submissions/FINAL_USN.json</span></div>
+              style="color: var(--color-emerald); font-weight: 700;">✔ Final package saved to
+              submissions/FINAL_USN.json</span></div>
         </div>
 
         <div style="display: flex; gap: 12px; margin-top: 14px; justify-content: center; flex-wrap: wrap; width: 100%;">
@@ -1001,7 +1073,8 @@
           ⚠ Terminate Contest Session?
         </h3>
         <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
-          Are you sure you want to end your session? The platform will automatically execute all test cases across all rounds, calculate final scores, lift kiosk confinement, and submit your results.
+          Are you sure you want to end your session? The platform will automatically execute all test cases across all
+          rounds, calculate final scores, lift kiosk confinement, and submit your results.
         </p>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
           <button id="btn-cancel-end-session" class="btn btn-secondary">Resume Contest</button>
@@ -1013,7 +1086,8 @@
     <!-- 1c. Host End Session & Reset Confirmation Modal -->
     <div id="modal-host-end-session" class="modal-overlay">
       <div class="modal-dialog" style="max-width: 520px;">
-        <h3 style="color: var(--color-rose); font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+        <h3
+          style="color: var(--color-rose); font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
           <span>🛑</span> End Contest Session &amp; Reset Host?
         </h3>
         <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin-top: 10px;">
@@ -1027,7 +1101,8 @@
         </ul>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
           <button id="btn-cancel-host-end-session" class="btn btn-secondary">Cancel</button>
-          <button id="btn-confirm-host-end-session" class="btn btn-danger" style="font-weight: 800;">Yes, End Session &amp; Reset Host</button>
+          <button id="btn-confirm-host-end-session" class="btn btn-danger" style="font-weight: 800;">Yes, End Session
+            &amp; Reset Host</button>
         </div>
       </div>
     </div>
@@ -1039,13 +1114,18 @@
         <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--color-cyan); margin-bottom: 6px;">
           Evaluating All Contest Rounds
         </h3>
-        <p id="eval-progress-status" style="font-size: 0.88rem; color: var(--text-secondary); min-height: 24px; margin-bottom: 14px;">
+        <p id="eval-progress-status"
+          style="font-size: 0.88rem; color: var(--text-secondary); min-height: 24px; margin-bottom: 14px;">
           Running test cases across all programs...
         </p>
-        <div style="background: rgba(255, 255, 255, 0.08); border-radius: 999px; height: 10px; width: 100%; overflow: hidden; border: 1px solid var(--border-subtle);">
-          <div id="eval-progress-bar" style="background: linear-gradient(90deg, var(--color-cyan), var(--color-emerald)); height: 100%; width: 0%; transition: width 0.25s ease-out;"></div>
+        <div
+          style="background: rgba(255, 255, 255, 0.08); border-radius: 999px; height: 10px; width: 100%; overflow: hidden; border: 1px solid var(--border-subtle);">
+          <div id="eval-progress-bar"
+            style="background: linear-gradient(90deg, var(--color-cyan), var(--color-emerald)); height: 100%; width: 0%; transition: width 0.25s ease-out;">
+          </div>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 0.78rem; color: var(--text-muted); font-family: var(--font-mono);">
           <span id="eval-progress-count">0 / 0 Programs Evaluated</span>
           <span id="eval-progress-percent">0%</span>
         </div>
@@ -1101,15 +1181,19 @@
           <h3 id="inspect-title" style="font-size: 1.15rem; font-weight: 800;">Candidate Submission Details</h3>
           <button id="btn-close-inspector" class="btn btn-secondary btn-sm">✕</button>
         </div>
-        <div style="display: flex; flex-wrap: wrap; gap: 20px; font-family: var(--font-mono); font-size: 0.88rem; margin-top: 12px; background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-          <div>Candidate: <strong id="inspect-usn" style="color: var(--color-cyan);">--</strong> (<span id="inspect-name">--</span>)</div>
+        <div
+          style="display: flex; flex-wrap: wrap; gap: 20px; font-family: var(--font-mono); font-size: 0.88rem; margin-top: 12px; background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <div>Candidate: <strong id="inspect-usn" style="color: var(--color-cyan);">--</strong> (<span
+              id="inspect-name">--</span>)</div>
           <div>Total Score: <strong id="inspect-score" style="color: var(--color-emerald);">0</strong></div>
           <div id="inspect-time">Elapsed Time: <strong>--</strong></div>
         </div>
 
         <!-- Round / Tier Breakdown Container in Inspector -->
         <div style="margin-top: 14px;">
-          <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Round &amp; Tier Performance</label>
+          <label
+            style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Round
+            &amp; Tier Performance</label>
           <div id="inspect-rounds-container" style="display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap;">
             <!-- Dynamically injected round pills -->
           </div>
@@ -1117,8 +1201,11 @@
 
         <!-- Problem / Program Evaluation Table in Inspector -->
         <div style="margin-top: 14px;">
-          <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Evaluated Programs &amp; Test Results</label>
-          <div style="overflow-x: auto; margin-top: 6px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);">
+          <label
+            style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Evaluated
+            Programs &amp; Test Results</label>
+          <div
+            style="overflow-x: auto; margin-top: 6px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);">
             <table class="leaderboard-table" style="width: 100%; font-size: 0.8rem;">
               <thead>
                 <tr>
@@ -1138,7 +1225,9 @@
         </div>
 
         <div style="margin-top: 14px;">
-          <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Source Code Logs</label>
+          <label
+            style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Source
+            Code Logs</label>
           <pre id="inspect-code-area"
             style="background-color: #070a10; border: 1px solid var(--border-subtle); padding: 14px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-code); max-height: 280px; overflow-y: auto;"></pre>
         </div>
@@ -1148,33 +1237,41 @@
     <!-- 5. Import USNs into Batch Modal -->
     <div id="modal-import-usns" class="modal-overlay">
       <div class="modal-dialog" style="max-width: 600px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
           <h3 style="font-size: 1.15rem; font-weight: 800;">📥 Import Student USNs to Batch</h3>
           <button id="btn-close-import-usns" class="btn btn-secondary btn-sm">✕</button>
         </div>
         <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 10px;">
-          Paste student USNs below. Supports single USN per line (e.g. <code>4HG21CS001</code>) or comma/tab-separated CSV format with Name (e.g. <code>4HG21CS001, Arun Kumar</code>).
+          Paste student USNs below. Supports single USN per line (e.g. <code>4HG21CS001</code>) or comma/tab-separated
+          CSV format with Name (e.g. <code>4HG21CS001, Arun Kumar</code>).
         </p>
         <div class="form-group" style="margin-top: 10px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <label style="margin: 0; font-weight: 700;">USN List / CSV Roster Data:</label>
             <div style="display: flex; gap: 8px;">
-              <button type="button" id="btn-paste-clipboard-usns" class="btn btn-secondary btn-sm" style="font-size: 0.76rem; padding: 4px 10px; border: 1px solid var(--color-cyan); color: var(--color-cyan); font-weight: 700;">
+              <button type="button" id="btn-paste-clipboard-usns" class="btn btn-secondary btn-sm"
+                style="font-size: 0.76rem; padding: 4px 10px; border: 1px solid var(--color-cyan); color: var(--color-cyan); font-weight: 700;">
                 📋 Paste from Clipboard
               </button>
-              <button type="button" id="btn-browse-csv-usns" class="btn btn-secondary btn-sm" style="font-size: 0.76rem; padding: 4px 10px;">
+              <button type="button" id="btn-browse-csv-usns" class="btn btn-secondary btn-sm"
+                style="font-size: 0.76rem; padding: 4px 10px;">
                 📁 Upload CSV File
               </button>
               <input type="file" id="input-file-csv-usns" accept=".csv,.txt" style="display: none;">
             </div>
           </div>
-          <textarea id="import-usns-textarea" class="form-control" rows="8" placeholder="Paste your CSV or USN list here...&#10;4HG21CS001, Arun Kumar&#10;4HG21CS002, Bhavana S&#10;4HG21CS003&#10;4HG21CS004" style="font-family: var(--font-mono); font-size: 0.84rem;"></textarea>
+          <textarea id="import-usns-textarea" class="form-control" rows="8"
+            placeholder="Paste your CSV or USN list here...&#10;4HG21CS001, Arun Kumar&#10;4HG21CS002, Bhavana S&#10;4HG21CS003&#10;4HG21CS004"
+            style="font-family: var(--font-mono); font-size: 0.84rem;"></textarea>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
-          <span style="font-size: 0.75rem; color: var(--text-muted);">Duplicate USNs in this batch will be updated.</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Duplicate USNs in this batch will be
+            updated.</span>
           <div style="display: flex; gap: 8px;">
             <button id="btn-cancel-import-usns" class="btn btn-secondary">Cancel</button>
-            <button id="btn-confirm-import-usns" class="btn btn-primary" style="font-weight: 700;">Add Students to Batch</button>
+            <button id="btn-confirm-import-usns" class="btn btn-primary" style="font-weight: 700;">Add Students to
+              Batch</button>
           </div>
         </div>
       </div>
@@ -1183,18 +1280,21 @@
     <!-- 6. Change of Experiment Modal -->
     <div id="modal-change-of-exp" class="modal-overlay">
       <div class="modal-dialog" style="max-width: 600px; border-left: 4px solid var(--color-amber);">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
           <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--color-amber);">
             🔄 Grant "Change of Experiment" (Lab Regulation)
           </h3>
           <button id="btn-close-change-of-exp" class="btn btn-secondary btn-sm">✕</button>
         </div>
-        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-sm); padding: 12px; margin-top: 12px;">
+        <div
+          style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-sm); padding: 12px; margin-top: 12px;">
           <div style="font-size: 0.88rem; color: var(--text-main);">
             Candidate: <strong id="coe-student-label" style="color: var(--color-cyan);">4HG21CS001</strong>
           </div>
           <div style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">
-            Current Assigned Experiment: <strong id="coe-current-exp-title" style="color: var(--color-rose);">Exp 1: Singly Linked List</strong>
+            Current Assigned Experiment: <strong id="coe-current-exp-title" style="color: var(--color-rose);">Exp 1:
+              Singly Linked List</strong>
           </div>
         </div>
         <div class="form-group" style="margin-top: 14px;">
@@ -1203,7 +1303,8 @@
             <select id="coe-new-exp-select" class="form-control" style="flex: 1; font-weight: 600;">
               <!-- Dynamically populated options -->
             </select>
-            <button type="button" id="btn-coe-random-roll" class="btn btn-secondary btn-sm" style="white-space: nowrap; font-weight: 700;">
+            <button type="button" id="btn-coe-random-roll" class="btn btn-secondary btn-sm"
+              style="white-space: nowrap; font-weight: 700;">
               🎲 Random Roll
             </button>
           </div>
@@ -1214,11 +1315,13 @@
         </div>
         <div class="form-group" style="margin-top: 10px;">
           <label>Audit Remarks / Invigilator Note:</label>
-          <input type="text" id="coe-remarks" class="form-control" value="Student requested change of experiment per lab regulations">
+          <input type="text" id="coe-remarks" class="form-control"
+            value="Student requested change of experiment per lab regulations">
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
           <button id="btn-cancel-change-of-exp" class="btn btn-secondary">Cancel</button>
-          <button id="btn-confirm-change-of-exp" class="btn btn-success" style="font-weight: 700; background: var(--color-amber); border-color: var(--color-amber); color: #000;">
+          <button id="btn-confirm-change-of-exp" class="btn btn-success"
+            style="font-weight: 700; background: var(--color-amber); border-color: var(--color-amber); color: #000;">
             ✔ Record &amp; Apply Change of Exp
           </button>
         </div>
@@ -1228,13 +1331,15 @@
     <!-- 7. Add Single Student Modal -->
     <div id="modal-single-student" class="modal-overlay">
       <div class="modal-dialog" style="max-width: 480px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
           <h3 style="font-size: 1.15rem; font-weight: 800;">+ Add Student to Batch</h3>
           <button id="btn-close-single-student" class="btn btn-secondary btn-sm">✕</button>
         </div>
         <div class="form-group" style="margin-top: 14px;">
           <label>Candidate USN / Roll No: <span style="color: var(--color-rose);">*</span></label>
-          <input type="text" id="single-student-usn" class="form-control" placeholder="e.g. 4HG21CS001" style="font-family: var(--font-mono); text-transform: uppercase; font-weight: 700;">
+          <input type="text" id="single-student-usn" class="form-control" placeholder="e.g. 4HG21CS001"
+            style="font-family: var(--font-mono); text-transform: uppercase; font-weight: 700;">
         </div>
         <div class="form-group" style="margin-top: 10px;">
           <label>Candidate Name (Optional):</label>
@@ -1264,7 +1369,8 @@
         </p>
         <div class="form-group">
           <label>Batch Name: <span style="color: var(--color-rose);">*</span></label>
-          <input type="text" id="create-batch-name-input" class="form-control" placeholder="e.g. Batch 2 (Afternoon)" style="font-weight: 700;">
+          <input type="text" id="create-batch-name-input" class="form-control" placeholder="e.g. Batch 2 (Afternoon)"
+            style="font-weight: 700;">
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
           <button id="btn-cancel-create-batch" class="btn btn-secondary">Cancel</button>
@@ -1284,7 +1390,8 @@
         </p>
         <div class="form-group">
           <label>New Batch Name: <span style="color: var(--color-rose);">*</span></label>
-          <input type="text" id="rename-batch-name-input" class="form-control" placeholder="Enter new batch name" style="font-weight: 700;">
+          <input type="text" id="rename-batch-name-input" class="form-control" placeholder="Enter new batch name"
+            style="font-weight: 700;">
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
           <button id="btn-cancel-rename-batch" class="btn btn-secondary">Cancel</button>
@@ -1300,11 +1407,13 @@
           🗑 Delete Lab Batch?
         </h3>
         <p id="delete-batch-desc" style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
-          Are you sure you want to delete this batch? All imported students and allocations in this batch will be removed.
+          Are you sure you want to delete this batch? All imported students and allocations in this batch will be
+          removed.
         </p>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
           <button id="btn-cancel-delete-batch" class="btn btn-secondary">Cancel</button>
-          <button id="btn-confirm-delete-batch" class="btn btn-danger" style="font-weight: 700;">Yes, Delete Batch</button>
+          <button id="btn-confirm-delete-batch" class="btn btn-danger" style="font-weight: 700;">Yes, Delete
+            Batch</button>
         </div>
       </div>
     </div>
@@ -1316,11 +1425,13 @@
           🔄 Reset All Experiment Allocations?
         </h3>
         <p id="reset-allocations-desc" style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
-          Are you sure you want to clear all assigned experiments, manual chit picks, and change of experiment records for all students in this batch?
+          Are you sure you want to clear all assigned experiments, manual chit picks, and change of experiment records
+          for all students in this batch?
         </p>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
           <button id="btn-cancel-reset-allocations" class="btn btn-secondary">Cancel</button>
-          <button id="btn-confirm-reset-allocations" class="btn btn-danger" style="font-weight: 700;">Yes, Reset Allocations</button>
+          <button id="btn-confirm-reset-allocations" class="btn btn-danger" style="font-weight: 700;">Yes, Reset
+            Allocations</button>
         </div>
       </div>
     </div>

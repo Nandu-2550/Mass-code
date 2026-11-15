@@ -1,13 +1,13 @@
 {
-  "id": "MASS8910",
+  "id": "MASS8084",
   "type": "exam",
   "title": "Mass-Code Championship",
-  "token": "MASS8910",
+  "token": "MASS8084",
   "durationMinutes": 60,
   "language": "c",
   "problems": [
     {
-      "id": "p_pdf_1_7537",
+      "id": "p_pdf_1_6966",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 1: Dynamic Memory Allocation & Library Book Management",
@@ -27,7 +27,7 @@
       "language": "c"
     },
     {
-      "id": "p_pdf_2_7537",
+      "id": "p_pdf_2_6966",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 2: Sparse Matrix Operations",
@@ -47,7 +47,7 @@
       "language": "c"
     },
     {
-      "id": "p_pdf_3_7537",
+      "id": "p_pdf_3_6966",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 3: Array Implementation of Stack",
@@ -67,7 +67,7 @@
       "language": "c"
     },
     {
-      "id": "p_pdf_4_7537",
+      "id": "p_pdf_4_6966",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 4: Printer Queue Simulation",
@@ -87,7 +87,7 @@
       "language": "c"
     },
     {
-      "id": "p_pdf_5_7537",
+      "id": "p_pdf_5_6966",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 5: Polynomial Operations using Singly Circular Linked List",
@@ -107,7 +107,7 @@
       "language": "c"
     },
     {
-      "id": "p_pdf_6_7537",
+      "id": "p_pdf_6_6966",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 6: Binary Tree Creation and Traversals",
@@ -127,7 +127,7 @@
       "language": "c"
     },
     {
-      "id": "p_pdf_7_7538",
+      "id": "p_pdf_7_6966",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 7: Infix Expression Validation & Postfix Conversion",
@@ -147,7 +147,7 @@
       "language": "c"
     },
     {
-      "id": "p_pdf_8_7538",
+      "id": "p_pdf_8_6966",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 8: University Student Records Management",
@@ -167,7 +167,7 @@
       "language": "c"
     },
     {
-      "id": "p_pdf_9_7538",
+      "id": "p_pdf_9_6966",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 9: Manufacturing Machine Parts Repository",
@@ -187,7 +187,7 @@
       "language": "c"
     },
     {
-      "id": "p_pdf_10_7538",
+      "id": "p_pdf_10_6966",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 10: Hierarchical Data Management with Numeric Keys",
@@ -207,7 +207,7 @@
       "language": "c"
     },
     {
-      "id": "p_pdf_11_7538",
+      "id": "p_pdf_11_6966",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 11: Indexed Employee Record Management",
@@ -227,7 +227,7 @@
       "language": "c"
     },
     {
-      "id": "p_pdf_12_7538",
+      "id": "p_pdf_12_6966",
       "tier": "lab",
       "difficulty": "Lab",
       "title": "Experiment 12: City Connectivity Graph Analysis",
@@ -255,35 +255,46 @@
         {
           "usn": "4HG24CS001",
           "name": "AKASH R J",
-          "assignedProblemId": "p_pdf_11_7538",
-          "assignedProblemTitle": "Experiment 11: Indexed Employee Record Management",
+          "assignedProblemId": "p_pdf_12_6966",
+          "assignedProblemTitle": "Experiment 12: City Connectivity Graph Analysis",
           "chitPickType": "none",
           "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": "7177"
+          "otp": "6791"
         },
         {
           "usn": "4HG24CS002",
           "name": "ANJANEYA",
-          "assignedProblemId": "p_pdf_11_7538",
-          "assignedProblemTitle": "Experiment 11: Indexed Employee Record Management",
+          "assignedProblemId": "p_pdf_10_6966",
+          "assignedProblemTitle": "Experiment 10: Hierarchical Data Management with Numeric Keys",
           "chitPickType": "none",
           "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": "3407"
+          "otp": "7680"
         },
         {
           "usn": "4HG24CS003",
           "name": "ANUSH M N",
-          "assignedProblemId": "p_pdf_3_7537",
+          "assignedProblemId": "p_pdf_8_6966",
+          "assignedProblemTitle": "Experiment 8: University Student Records Management",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "1782"
+        },
+        {
+          "usn": "4HG24CS004",
+          "name": "ASHA T R",
+          "assignedProblemId": "p_pdf_3_6966",
           "assignedProblemTitle": "Experiment 3: Array Implementation of Stack",
           "chitPickType": "none",
           "allocationMethod": "random",
@@ -291,27 +302,77 @@
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": "4328"
-        },
-        {
-          "usn": "4HG24CS004",
-          "name": "ASHA T R",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
-          "chitPickType": "none",
-          "allocationMethod": "unassigned",
-          "isChangeOfExperiment": false,
-          "originalProblemId": null,
-          "originalProblemTitle": "",
-          "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "5285"
         },
         {
           "usn": "4HG24CS005",
           "name": "BHAVANA",
-          "assignedProblemId": "p_pdf_11_7538",
+          "assignedProblemId": "p_pdf_9_6966",
+          "assignedProblemTitle": "Experiment 9: Manufacturing Machine Parts Repository",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "8887"
+        },
+        {
+          "usn": "4HG24CS006",
+          "name": "BHOOMIKA D K",
+          "assignedProblemId": "p_pdf_7_6966",
+          "assignedProblemTitle": "Experiment 7: Infix Expression Validation & Postfix Conversion",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "3137"
+        },
+        {
+          "usn": "4HG24CS007",
+          "name": "BHOOMIKA ISHWARAPPA RAJUR",
+          "assignedProblemId": "p_pdf_1_6966",
+          "assignedProblemTitle": "Experiment 1: Dynamic Memory Allocation & Library Book Management",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "6246"
+        },
+        {
+          "usn": "4HG24CS008",
+          "name": "BHOOMIKA T",
+          "assignedProblemId": "p_pdf_6_6966",
+          "assignedProblemTitle": "Experiment 6: Binary Tree Creation and Traversals",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "5081"
+        },
+        {
+          "usn": "4HG24CS009",
+          "name": "CHAITHRA",
+          "assignedProblemId": "p_pdf_2_6966",
+          "assignedProblemTitle": "Experiment 2: Sparse Matrix Operations",
+          "chitPickType": "none",
+          "allocationMethod": "random",
+          "isChangeOfExperiment": false,
+          "originalProblemId": null,
+          "originalProblemTitle": "",
+          "penalty": 0,
+          "otp": "6850"
+        },
+        {
+          "usn": "4HG24CS010",
+          "name": "DARSHANA R",
+          "assignedProblemId": "p_pdf_11_6966",
           "assignedProblemTitle": "Experiment 11: Indexed Employee Record Management",
           "chitPickType": "none",
           "allocationMethod": "random",
@@ -319,246 +380,163 @@
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": "7581"
-        },
-        {
-          "usn": "4HG24CS006",
-          "name": "BHOOMIKA D K",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
-          "chitPickType": "none",
-          "allocationMethod": "unassigned",
-          "isChangeOfExperiment": false,
-          "originalProblemId": null,
-          "originalProblemTitle": "",
-          "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
-        },
-        {
-          "usn": "4HG24CS007",
-          "name": "BHOOMIKA ISHWARAPPA RAJUR",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
-          "chitPickType": "none",
-          "allocationMethod": "unassigned",
-          "isChangeOfExperiment": false,
-          "originalProblemId": null,
-          "originalProblemTitle": "",
-          "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
-        },
-        {
-          "usn": "4HG24CS008",
-          "name": "BHOOMIKA T",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
-          "chitPickType": "none",
-          "allocationMethod": "unassigned",
-          "isChangeOfExperiment": false,
-          "originalProblemId": null,
-          "originalProblemTitle": "",
-          "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
-        },
-        {
-          "usn": "4HG24CS009",
-          "name": "CHAITHRA",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
-          "chitPickType": "none",
-          "allocationMethod": "unassigned",
-          "isChangeOfExperiment": false,
-          "originalProblemId": null,
-          "originalProblemTitle": "",
-          "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
-        },
-        {
-          "usn": "4HG24CS010",
-          "name": "DARSHANA R",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
-          "chitPickType": "none",
-          "allocationMethod": "unassigned",
-          "isChangeOfExperiment": false,
-          "originalProblemId": null,
-          "originalProblemTitle": "",
-          "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "7928"
         },
         {
           "usn": "4HG24CS011",
           "name": "DEEKSHITHA R O",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_4_6966",
+          "assignedProblemTitle": "Experiment 4: Printer Queue Simulation",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "1052"
         },
         {
           "usn": "4HG24CS012",
           "name": "Deepthi shree BC",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_5_6966",
+          "assignedProblemTitle": "Experiment 5: Polynomial Operations using Singly Circular Linked List",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "6427"
         },
         {
           "usn": "4HG24CS013",
           "name": "DEVIDAS",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_12_6966",
+          "assignedProblemTitle": "Experiment 12: City Connectivity Graph Analysis",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "2254"
         },
         {
           "usn": "4HG24CS014",
           "name": "Dinesh K M",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_10_6966",
+          "assignedProblemTitle": "Experiment 10: Hierarchical Data Management with Numeric Keys",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "4966"
         },
         {
           "usn": "4HG24CS015",
           "name": "GAGANA C C",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_8_6966",
+          "assignedProblemTitle": "Experiment 8: University Student Records Management",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "2072"
         },
         {
           "usn": "4HG24CS016",
           "name": "GANGOTHRI C N",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_3_6966",
+          "assignedProblemTitle": "Experiment 3: Array Implementation of Stack",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "7131"
         },
         {
           "usn": "4HG24CS017",
           "name": "GOURAVVA SURESH YALASHETTI",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_9_6966",
+          "assignedProblemTitle": "Experiment 9: Manufacturing Machine Parts Repository",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "3789"
         },
         {
           "usn": "4HG24CS018",
           "name": "GOUTHAMI P",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_7_6966",
+          "assignedProblemTitle": "Experiment 7: Infix Expression Validation & Postfix Conversion",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "4602"
         },
         {
           "usn": "4HG24CS019",
           "name": "GOWTHAM K R",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_1_6966",
+          "assignedProblemTitle": "Experiment 1: Dynamic Memory Allocation & Library Book Management",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "8355"
         },
         {
           "usn": "4HG24CS020",
           "name": "JAYALAKSHMI G",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_6_6966",
+          "assignedProblemTitle": "Experiment 6: Binary Tree Creation and Traversals",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "9933"
         },
         {
           "usn": "4HG24CS021",
           "name": "JEEVAN BAHADDUR B K",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_2_6966",
+          "assignedProblemTitle": "Experiment 2: Sparse Matrix Operations",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "1478"
         },
         {
           "usn": "4HG24CS022",
           "name": "JNANAVI K V",
-          "assignedProblemId": null,
-          "assignedProblemTitle": "",
+          "assignedProblemId": "p_pdf_11_6966",
+          "assignedProblemTitle": "Experiment 11: Indexed Employee Record Management",
           "chitPickType": "none",
-          "allocationMethod": "unassigned",
+          "allocationMethod": "random",
           "isChangeOfExperiment": false,
           "originalProblemId": null,
           "originalProblemTitle": "",
           "penalty": 0,
-          "changeOfExpRemarks": "",
-          "otp": null
+          "otp": "8296"
         }
       ]
     }

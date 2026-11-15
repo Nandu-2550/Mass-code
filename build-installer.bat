@@ -19,8 +19,8 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [1/3] Updating win-unpacked app code directly...
-call node scripts\repack_unpacked.js
+echo [1/3] Assembling win-unpacked application and app.asar...
+call node scripts\bundle_application.js
 
 echo.
 echo [2/3] Verifying electron-builder in Mass-Code...

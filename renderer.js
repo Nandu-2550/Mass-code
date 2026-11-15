@@ -81,18 +81,12 @@ class MassCodeApp {
     // Welcome Screen
     this.cardEnterHost = document.getElementById('card-enter-host');
     this.cardEnterCompetitor = document.getElementById('card-enter-competitor');
-    this.welcomeGccStatus = document.getElementById('welcome-gcc-status');
-    this.welcomeArchStatus = document.getElementById('welcome-arch-status');
-    this.welcomeIpStatus = document.getElementById('welcome-ip-status');
 
     // Host Mode Switcher Elements
     this.hostModeSelectScreen = document.getElementById('host-mode-select-screen');
     this.hostWorkspaceContent = document.getElementById('host-workspace-content');
     this.cardHostModeContest = document.getElementById('card-host-mode-contest');
     this.cardHostModeExam = document.getElementById('card-host-mode-exam');
-    this.btnSwitchHostMode = document.getElementById('btn-switch-host-mode');
-    this.btnModeContest = document.getElementById('btn-mode-contest');
-    this.btnModeExam = document.getElementById('btn-mode-exam');
     this.hostModeIndicatorTag = document.getElementById('host-mode-indicator-tag');
     this.tabBtnBuilder = document.getElementById('tab-btn-builder');
     this.tabBtnBatches = document.getElementById('tab-btn-batches');
@@ -113,9 +107,6 @@ class MassCodeApp {
     this.hostContestLanguage = document.getElementById('host-contest-language');
     this.hostProblemsList = document.getElementById('host-problems-list');
     this.btnHostAddProblem = document.getElementById('btn-host-add-problem');
-    this.btnHostLoadSample = document.getElementById('btn-host-load-sample');
-    this.btnHostImport = document.getElementById('btn-host-import');
-    this.btnHostImportPdf = document.getElementById('btn-host-import-pdf');
     this.btnHostImportPdfBank = document.getElementById('btn-host-import-pdf-bank');
     this.hostPdfDropzone = document.getElementById('host-pdf-dropzone');
     this.btnBrowsePdfZone = document.getElementById('btn-browse-pdf-zone');
@@ -124,7 +115,6 @@ class MassCodeApp {
     this.hostPdfStatus = document.getElementById('host-pdf-status');
     this.hostPdfStatusText = document.getElementById('host-pdf-status-text');
     this.btnHostExport = document.getElementById('btn-host-export');
-    this.btnHostDeployTop = document.getElementById('btn-host-deploy-top');
     this.btnHostDeployBottom = document.getElementById('btn-host-deploy-bottom');
     this.serverGuidePin = document.getElementById('server-guide-pin');
     this.btnHostToggleServer = document.getElementById('btn-host-toggle-server');
@@ -142,6 +132,7 @@ class MassCodeApp {
     this.btnHostClearHistory = document.getElementById('btn-host-clear-history');
     this.btnHostEndSession = document.getElementById('btn-host-end-session');
     this.hostLeaderboardTbody = document.getElementById('host-leaderboard-tbody');
+    this.leaderboardThead = document.getElementById('leaderboard-thead');
     this.gradingCountLabel = document.getElementById('grading-count-label');
 
     // Batch Management Elements
@@ -226,19 +217,16 @@ class MassCodeApp {
     this.btnLanAutoConnect = document.getElementById('btn-lan-auto-connect');
     this.compPinInput = document.getElementById('comp-pin-input');
     this.compHostUrl = document.getElementById('comp-host-url');
+    this.compHostSelect = document.getElementById('comp-host-select');
+    this.discoveredHosts = new Map();
     this.compUsnInput = document.getElementById('comp-usn-input');
     this.compNameInput = document.getElementById('comp-name-input');
     this.compExamOtpInput = document.getElementById('comp-exam-otp-input');
     this.compExamOtpGroup = document.getElementById('comp-exam-otp-group');
     this.compNameGroup = document.getElementById('comp-name-group');
-    this.btnCompPullLan = document.getElementById('btn-comp-pull-lan');
-    this.btnCompLoadLocal = document.getElementById('btn-comp-load-local');
     this.btnCompStartContest = document.getElementById('btn-comp-start-contest');
     this.btnCompStartExam = document.getElementById('btn-comp-start-exam');
-    this.btnCompModeContest = document.getElementById('btn-comp-mode-contest');
-    this.btnCompModeExam = document.getElementById('btn-comp-mode-exam');
     this.compContestFields = document.getElementById('comp-contest-fields');
-    this.compExamNotice = document.getElementById('comp-exam-notice');
     this.btnCompExit = document.getElementById('btn-comp-exit');
     this.compContestStatusBox = document.getElementById('comp-contest-status-box');
     this.compContestStatusText = document.getElementById('comp-contest-status-text');
@@ -272,15 +260,19 @@ class MassCodeApp {
     this.wsProblemTierTag = document.getElementById('ws-problem-tier-tag');
     this.wsProblemPoints = document.getElementById('ws-problem-points');
     this.wsProblemDesc = document.getElementById('ws-problem-desc');
-    this.wsStarterCodePreview = document.getElementById('ws-starter-code-preview');
     this.wsSampleCasesContainer = document.getElementById('ws-sample-cases-container');
     this.wsSampleInput = document.getElementById('ws-sample-input');
     this.wsSampleOutput = document.getElementById('ws-sample-output');
     this.wsMetricScore = document.getElementById('ws-metric-score');
     this.wsMetricTests = document.getElementById('ws-metric-tests');
     this.wsMetricCpu = document.getElementById('ws-metric-cpu');
+    this.workspaceMetricsDrawer = document.getElementById('workspace-metrics-drawer');
     this.editorGutter = document.getElementById('editor-gutter');
     this.editorCode = document.getElementById('editor-code');
+    this.editorFileIcon = document.getElementById('editor-file-icon');
+    this.editorFilename = document.getElementById('editor-filename');
+    this.editorSyncStatus = document.getElementById('editor-sync-status');
+    this.editorCursorPos = document.getElementById('editor-cursor-pos');
     this.clipboardToast = document.getElementById('clipboard-toast');
     this.terminalTopStatus = document.getElementById('terminal-top-status');
     this.terminalCwdTag = document.getElementById('terminal-cwd-tag');
@@ -289,17 +281,15 @@ class MassCodeApp {
     this.terminalActiveLine = document.getElementById('terminal-active-line');
     this.terminalCliInput = document.getElementById('terminal-cli-input');
     this.terminalCliPrompt = document.getElementById('terminal-cli-prompt');
-    this.btnTerminalSendCli = document.getElementById('btn-terminal-send-cli');
-    this.btnWsRunTerm = document.getElementById('btn-ws-run-term');
     this.btnWsKillTerm = document.getElementById('btn-ws-kill-term');
     this.wsAutosaveTag = document.getElementById('ws-autosave-tag');
     this.btnWsToggleExpand = document.getElementById('btn-ws-toggle-expand');
     this.btnWsResetCode = document.getElementById('btn-ws-reset-code');
-    this.btnWsClearTerm = document.getElementById('btn-ws-clear-term');
     this.btnWsRunSample = document.getElementById('btn-ws-run-sample');
     this.btnWsRunTests = document.getElementById('btn-ws-run-tests');
 
     // Thank You Screen
+    this.tyReceiptPill = document.getElementById('ty-receipt-pill');
     this.tyHeaderTitle = document.getElementById('ty-header-title');
     this.tyHeaderDesc = document.getElementById('ty-header-desc');
     this.tyContestScoresSection = document.getElementById('ty-contest-scores-section');
@@ -311,7 +301,6 @@ class MassCodeApp {
     this.tySyncStatus = document.getElementById('ty-sync-status');
     this.btnTyReviewCode = document.getElementById('btn-ty-review-code');
     this.btnTyExitApp = document.getElementById('btn-ty-exit-app');
-    this.btnTyReturnHome = document.getElementById('btn-ty-return-home');
     this.tySolvedCount = document.getElementById('ty-solved-count');
     this.tyRoundCardsContainer = document.getElementById('ty-round-cards-container');
     this.tyProgramsTbody = document.getElementById('ty-programs-tbody');
@@ -363,8 +352,24 @@ class MassCodeApp {
     this.cardEnterHost.addEventListener('click', () => this.switchView('host'));
     this.cardEnterCompetitor.addEventListener('click', () => this.switchView('competitor'));
     this.btnExitHost.addEventListener('click', () => this._handleHostBack());
+    const brandHomeLogo = document.getElementById('brand-home-logo');
+    if (brandHomeLogo) {
+      brandHomeLogo.addEventListener('click', () => {
+        if (!this.competitor?.isSessionActive && !this.hostServerRunning) {
+          this.switchView('welcome');
+        }
+      });
+    }
+    const btnBackFromHost = document.getElementById('btn-back-from-host-select');
+    if (btnBackFromHost) {
+      btnBackFromHost.addEventListener('click', () => this._handleHostBack());
+    }
     if (this.btnExitComp) {
       this.btnExitComp.addEventListener('click', () => this._handleCompBack());
+    }
+    const btnBackFromComp = document.getElementById('btn-back-from-comp-select');
+    if (btnBackFromComp) {
+      btnBackFromComp.addEventListener('click', () => this._handleCompBack());
     }
     if (this.btnCompExit) {
       this.btnCompExit.addEventListener('click', () => this._handleCompBack());
@@ -383,11 +388,6 @@ class MassCodeApp {
         this._promptSupervisorUnlock('main_menu');
       });
     }
-    if (this.btnTyReturnHome) {
-      this.btnTyReturnHome.addEventListener('click', () => {
-        this._promptSupervisorUnlock('main_menu');
-      });
-    }
 
     // Host Mode Screen Choice Cards (Step 2 -> Step 3)
     if (this.cardHostModeContest) {
@@ -403,14 +403,6 @@ class MassCodeApp {
     }
     if (this.cardCompModeExam) {
       this.cardCompModeExam.addEventListener('click', () => this._launchCandidateEntry('exam'));
-    }
-
-    // Mode Switcher Buttons (Contest Mode vs Exam Mode)
-    if (this.btnModeContest) {
-      this.btnModeContest.addEventListener('click', () => this._chooseHostMode('contest'));
-    }
-    if (this.btnModeExam) {
-      this.btnModeExam.addEventListener('click', () => this._chooseHostMode('exam'));
     }
 
     // Host Stage Navigation Tabs
@@ -576,6 +568,25 @@ class MassCodeApp {
     }
 
     // Batch Allocation & Export Controls
+    if (this.btnRandomAssignAll) {
+      this.btnRandomAssignAll.addEventListener('click', async () => {
+        this.btnRandomAssignAll.classList.add('btn-shuffling');
+        const origText = this.btnRandomAssignAll.textContent;
+        this.btnRandomAssignAll.textContent = '🎲 Shuffling chits...';
+        await new Promise(r => setTimeout(r, 600));
+        this.btnRandomAssignAll.classList.remove('btn-shuffling');
+        this.btnRandomAssignAll.textContent = origText;
+        this._randomAssignAllExperiments();
+        // Highlight newly assigned chit badges with an animated glow
+        const badges = document.querySelectorAll('.badge-chit-random');
+        badges.forEach(b => {
+          b.classList.remove('chit-badge-glow');
+          void b.offsetWidth;
+          b.classList.add('chit-badge-glow');
+        });
+      });
+    }
+
     if (this.btnResetBatchAllocations) {
       this.btnResetBatchAllocations.addEventListener('click', () => this._openResetAllocationsModal());
     }
@@ -610,15 +621,6 @@ class MassCodeApp {
         this._syncCardsToHostProblems();
         this._renderHostProblemCards();
       });
-    }
-    if (this.btnHostLoadSample) {
-      this.btnHostLoadSample.addEventListener('click', () => this._loadDefaultContestTemplate());
-    }
-    if (this.btnHostImport) {
-      this.btnHostImport.addEventListener('click', () => this._importContestDialog());
-    }
-    if (this.btnHostImportPdf) {
-      this.btnHostImportPdf.addEventListener('click', () => this._handlePdfImportDialog());
     }
     if (this.btnHostImportPdfBank) {
       this.btnHostImportPdfBank.addEventListener('click', () => this._handlePdfImportDialog());
@@ -659,7 +661,6 @@ class MassCodeApp {
     }
     this.btnHostExport.addEventListener('click', () => this._exportContestDialog());
     const handleToggleServer = () => this._toggleHostServer();
-    if (this.btnHostDeployTop) this.btnHostDeployTop.addEventListener('click', handleToggleServer);
     if (this.btnHostDeployBottom) this.btnHostDeployBottom.addEventListener('click', handleToggleServer);
     if (this.btnHostToggleServer) this.btnHostToggleServer.addEventListener('click', handleToggleServer);
     if (this.btnCopyHostUrl) {
@@ -697,12 +698,6 @@ class MassCodeApp {
     this.btnCloseInspector.addEventListener('click', () => this.modalInspector.classList.remove('active'));
 
     // Competitor Overlay Triggers
-    if (this.btnCompModeContest) {
-      this.btnCompModeContest.addEventListener('click', () => this._setCandidateMode('contest'));
-    }
-    if (this.btnCompModeExam) {
-      this.btnCompModeExam.addEventListener('click', () => this._setCandidateMode('exam'));
-    }
     if (this.btnCompStartExam) {
       this.btnCompStartExam.addEventListener('click', () => this._handleStartExamSubmit());
     }
@@ -725,13 +720,35 @@ class MassCodeApp {
         if (e.key === 'Enter') this._handleStartExamSubmit();
       });
     }
-    this.compPinInput.addEventListener('input', () => this._checkCompStartButton());
+    if (this.compPinInput) {
+      this.compPinInput.addEventListener('input', () => this._checkCompStartButton());
+    }
     this.compHostUrl.addEventListener('input', () => this._checkCompStartButton());
+    if (this.compHostSelect) {
+      this.compHostSelect.addEventListener('change', async () => {
+        const selectedUrl = this.compHostSelect.value;
+        if (this.compHostUrl) {
+          this.compHostUrl.value = selectedUrl;
+        }
+        const hostData = this.discoveredHosts.get(selectedUrl);
+        if (hostData) {
+          if (hostData.contestToken && this.compPinInput) {
+            this.compPinInput.value = hostData.contestToken;
+          }
+          if (this.lanDiscoveryTitle) {
+            this.lanDiscoveryTitle.textContent = `🟢 Host Active: ${hostData.contestTitle || 'Mass-Code Server'}`;
+          }
+          if (this.lanDiscoverySub) {
+            this.lanDiscoverySub.textContent = `Host: ${hostData.url} | PIN: ${hostData.contestToken || 'MASS2026'} (${hostData.problemCount || 0} Questions)`;
+          }
+        }
+        this._checkCompStartButton();
+        await this._pullContestOverLan(true);
+      });
+    }
     if (this.btnLanAutoConnect) {
       this.btnLanAutoConnect.addEventListener('click', () => this._pullContestOverLan(false));
     }
-    this.btnCompPullLan.addEventListener('click', () => this._pullContestOverLan(false));
-    this.btnCompLoadLocal.addEventListener('click', () => this._loadContestLocalForCompetitor());
     if (this.btnCompExit) {
       this.btnCompExit.addEventListener('click', () => this._exitCompetitorEntry());
     }
@@ -859,15 +876,6 @@ class MassCodeApp {
   async _initDiagnostics() {
     if (!window.api) return;
     const diag = await window.api.getDiagnostics();
-    if (diag.gcc && diag.gcc.available) {
-      this.welcomeGccStatus.textContent = diag.gcc.version;
-      this.welcomeGccStatus.className = 'status-ok';
-    } else {
-      this.welcomeGccStatus.textContent = 'GCC Missing';
-      this.welcomeGccStatus.style.color = 'var(--color-rose)';
-    }
-    this.welcomeArchStatus.textContent = `${diag.os} (${diag.arch})`;
-    this.welcomeIpStatus.textContent = diag.serverIps ? diag.serverIps.join(', ') : '127.0.0.1';
 
     // Auto-load default contest template for Host Builder
     const def = await window.api.getDefaultContest();
@@ -995,6 +1003,11 @@ class MassCodeApp {
   }
 
   async _handleLanHostDiscovered(data) {
+    if (data && data.url) {
+      this.discoveredHosts.set(data.url, data);
+      this._renderHostSelectOptions(data.url);
+    }
+
     if (!this.lanDiscoveryBox) return;
 
     this.lanDiscoveryBox.style.background = 'rgba(0, 200, 83, 0.08)';
@@ -1023,6 +1036,38 @@ class MassCodeApp {
 
     // AUTOMATIC SYNC: Download the host's actual contest questions immediately!
     await this._pullContestOverLan(true);
+  }
+
+  _renderHostSelectOptions(preferredUrl = null) {
+    if (!this.compHostSelect) return;
+    const currentVal = preferredUrl || this.compHostSelect.value || (this.compHostUrl ? this.compHostUrl.value : '');
+    this.compHostSelect.innerHTML = '';
+
+    if (this.discoveredHosts.size === 0) {
+      const opt = document.createElement('option');
+      opt.value = currentVal || 'http://localhost:8080';
+      opt.textContent = currentVal ? `Host Server: ${currentVal}` : '📡 Searching LAN for Host Server...';
+      this.compHostSelect.appendChild(opt);
+    } else {
+      this.discoveredHosts.forEach((hostData, url) => {
+        const opt = document.createElement('option');
+        opt.value = url;
+        const title = hostData.contestTitle ? ` (${hostData.contestTitle})` : '';
+        opt.textContent = `Host: ${url}${title}`;
+        this.compHostSelect.appendChild(opt);
+      });
+
+      if (currentVal && this.discoveredHosts.has(currentVal)) {
+        this.compHostSelect.value = currentVal;
+      } else {
+        const firstUrl = Array.from(this.discoveredHosts.keys())[0];
+        this.compHostSelect.value = firstUrl;
+      }
+    }
+
+    if (this.compHostUrl) {
+      this.compHostUrl.value = this.compHostSelect.value;
+    }
   }
 
   _updateCompetitorContestStatus(contest, source = '') {
@@ -1460,17 +1505,22 @@ class MassCodeApp {
       if (this.btnWsResetCode) this.btnWsResetCode.style.display = 'none';
       if (this.btnWsRunSample) this.btnWsRunSample.style.display = 'none';
       if (this.btnWsRunTests) this.btnWsRunTests.style.display = 'none';
+      if (this.workspaceMetricsDrawer) this.workspaceMetricsDrawer.style.display = 'none';
     } else {
       if (this.btnBackToBank) this.btnBackToBank.style.display = 'inline-flex';
       if (this.btnWsResetCode) this.btnWsResetCode.style.display = 'inline-flex';
       if (this.btnWsRunSample) this.btnWsRunSample.style.display = 'inline-flex';
       if (this.btnWsRunTests) this.btnWsRunTests.style.display = 'inline-flex';
+      if (this.workspaceMetricsDrawer) this.workspaceMetricsDrawer.style.display = 'flex';
     }
 
-    // Sync starter/existing code to solution.c in workspace for terminal use
+    // Sync starter/existing code to workspace for terminal use
     if (window.api && window.api.syncTerminalEditorFile) {
       const existingCode = this.competitor.problemCodes[problemId] || prob.starterCode || '';
-      window.api.syncTerminalEditorFile({ filename: 'solution.c', code: existingCode });
+      const probLang = (prob.language && prob.language !== 'inherit') ? prob.language : ((this.activeContest && this.activeContest.language) || 'c');
+      const filename = this._getWorkspaceFileName(probLang);
+      const fallbackFilename = (probLang === 'python' || probLang === 'py') ? 'solution.py' : (probLang === 'java' ? 'Solution.java' : 'solution.c');
+      window.api.syncTerminalEditorFile({ filename, code: existingCode, fallbackFilename });
     }
 
     // Ensure split layout is properly visible on opening
@@ -1598,13 +1648,15 @@ class MassCodeApp {
       }
     }
 
+    const activeFileName = this._getWorkspaceFileName(lang);
+    const activeBaseName = activeFileName.replace(/\.[^/.]+$/, "");
     if (this.terminalCliInput) {
       if (lang === 'python' || lang === 'py') {
-        this.terminalCliInput.placeholder = 'Type command (e.g. python solution.py) or program input...';
+        this.terminalCliInput.placeholder = `Type command (e.g. python ${activeFileName}) or program input...`;
       } else if (lang === 'java') {
-        this.terminalCliInput.placeholder = 'Type command (e.g. javac Solution.java && java Solution) or program input...';
+        this.terminalCliInput.placeholder = `Type command (e.g. javac ${activeFileName} && java ${activeBaseName}) or program input...`;
       } else {
-        this.terminalCliInput.placeholder = 'Type command (e.g. gcc solution.c -o solution.exe) or program input...';
+        this.terminalCliInput.placeholder = `Type command (e.g. gcc ${activeFileName} -o ${activeBaseName}.exe) or program input...`;
       }
     }
 
@@ -1613,26 +1665,56 @@ class MassCodeApp {
     const code = this.competitor.problemCodes[prob.id] || prob.starterCode || defaultStarter;
     this.editorCode.value = code;
     this._updateEditorGutter();
+    this._updateEditorCursorPos();
     this._syncActiveEditorCodeToDisk();
 
     // Metrics
     this._updateWorkspaceMetrics(prob.id);
   }
 
+  _getWorkspaceFileName(lang) {
+    const rawUsn = (this.competitor && this.competitor.usn ? this.competitor.usn.trim() : '') || 'solution';
+    const safeUsn = rawUsn.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const l = (lang || (this.competitor && this.competitor.currentLanguage) || (this.activeContest && this.activeContest.language) || 'c').toLowerCase();
+    if (l === 'python' || l === 'py') {
+      return `${safeUsn}.py`;
+    } else if (l === 'java') {
+      return `${safeUsn}.java`;
+    }
+    return `${safeUsn}.c`;
+  }
+
   _syncActiveEditorCodeToDisk() {
     if (!this.editorCode || !window.api || !window.api.syncTerminalEditorFile) return;
     const code = this.editorCode.value || '';
     const lang = (this.competitor && this.competitor.currentLanguage) || (this.activeContest && this.activeContest.language) || 'c';
-    let filename = 'solution.c';
+    const filename = this._getWorkspaceFileName(lang);
+    let fallbackFilename = 'solution.c';
+    let fileIcon = '🔷';
     if (lang === 'python' || lang === 'py') {
-      filename = 'solution.py';
+      fallbackFilename = 'solution.py';
+      fileIcon = '🟡';
     } else if (lang === 'java') {
-      let className = 'Solution';
-      const match = code.match(/public\s+class\s+([A-Za-z0-9_$]+)/);
-      if (match && match[1]) className = match[1];
-      filename = `${className}.java`;
+      fallbackFilename = 'Solution.java';
+      fileIcon = '☕';
     }
-    window.api.syncTerminalEditorFile({ filename, code });
+    if (this.editorFilename) this.editorFilename.textContent = filename;
+    if (this.editorFileIcon) this.editorFileIcon.textContent = fileIcon;
+    if (this.editorSyncStatus) {
+      this.editorSyncStatus.textContent = '● Synced';
+      this.editorSyncStatus.classList.remove('saving');
+    }
+    window.api.syncTerminalEditorFile({ filename, code, fallbackFilename });
+  }
+
+  _updateEditorCursorPos() {
+    if (!this.editorCursorPos || !this.editorCode) return;
+    const pos = this.editorCode.selectionStart || 0;
+    const textBefore = this.editorCode.value.substring(0, pos);
+    const lines = textBefore.split('\n');
+    const line = lines.length;
+    const col = lines[lines.length - 1].length + 1;
+    this.editorCursorPos.textContent = `Ln ${line}, Col ${col}`;
   }
 
   _updateWorkspaceMetrics(problemId) {
@@ -1655,12 +1737,21 @@ class MassCodeApp {
   _bindEditorEvents() {
     this.editorCode.addEventListener('input', () => {
       this._updateEditorGutter();
+      this._updateEditorCursorPos();
+      if (this.editorSyncStatus) {
+        this.editorSyncStatus.textContent = '● Saving...';
+        this.editorSyncStatus.classList.add('saving');
+      }
       if (this.competitor.activeProblemId) {
         this.competitor.problemCodes[this.competitor.activeProblemId] = this.editorCode.value;
         this._autoSaveSessionSnapshot();
       }
       this._syncActiveEditorCodeToDisk();
     });
+
+    this.editorCode.addEventListener('keyup', () => this._updateEditorCursorPos());
+    this.editorCode.addEventListener('click', () => this._updateEditorCursorPos());
+    this.editorCode.addEventListener('select', () => this._updateEditorCursorPos());
 
     this.editorCode.addEventListener('scroll', () => {
       this.editorGutter.scrollTop = this.editorCode.scrollTop;
@@ -1734,17 +1825,6 @@ class MassCodeApp {
       });
     }
 
-    // Clear Command Prompt (cls)
-    if (this.btnWsClearTerm) {
-      this.btnWsClearTerm.addEventListener('click', () => {
-        const dir = (this.terminalCwdTag && this.terminalCwdTag.textContent) || 'C:\\workspace';
-        this.terminalStream.textContent = `Microsoft Windows [Version 10.0.22631.4317]\r\n(c) Microsoft Corporation. All rights reserved.\r\n\r\n`;
-        if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = dir + '>';
-        if (this.terminalScreen) this.terminalScreen.scrollTop = 0;
-        if (this.terminalCliInput) this.terminalCliInput.focus();
-      });
-    }
-
     // HackerRank Style: Run Code (Sample Cases only)
     if (this.btnWsRunSample) {
       this.btnWsRunSample.addEventListener('click', () => this._runActiveProblemTests(true));
@@ -1803,9 +1883,11 @@ class MassCodeApp {
     this.terminalStream.innerHTML = '';
     const runModeLabel = samplesOnly ? 'SAMPLE CASES ONLY' : 'FULL SUITE (SAMPLE & HIDDEN CASES)';
     const effectiveLang = prob.language || this.activeContest.language || 'c';
-    let runModeCmd = 'gcc -O2 solution.c -o solution.exe';
-    if (effectiveLang === 'python' || effectiveLang === 'py') runModeCmd = 'python solution.py';
-    else if (effectiveLang === 'java') runModeCmd = 'javac Solution.java && java Solution';
+    const activeFileName = this._getWorkspaceFileName(effectiveLang);
+    const activeBaseName = activeFileName.replace(/\.[^/.]+$/, "");
+    let runModeCmd = `gcc -O2 ${activeFileName} -o ${activeBaseName}.exe`;
+    if (effectiveLang === 'python' || effectiveLang === 'py') runModeCmd = `python ${activeFileName}`;
+    else if (effectiveLang === 'java') runModeCmd = `javac ${activeFileName} && java ${activeBaseName}`;
 
     this._appendTerminalLine(`<span style="color: var(--color-cyan);">&gt; ${runModeCmd} [${runModeLabel}]</span>`);
 
@@ -2420,16 +2502,6 @@ class MassCodeApp {
   // --------------------------------------------------------------------------
   _setHostMode(mode) {
     this.hostContestType = mode === 'exam' ? 'exam' : 'contest';
-
-    if (this.btnModeContest && this.btnModeExam) {
-      if (this.hostContestType === 'exam') {
-        this.btnModeExam.classList.add('active');
-        this.btnModeContest.classList.remove('active');
-      } else {
-        this.btnModeContest.classList.add('active');
-        this.btnModeExam.classList.remove('active');
-      }
-    }
 
     if (this.hostModeIndicatorTag) {
       if (this.hostContestType === 'exam') {
@@ -4065,7 +4137,12 @@ class MassCodeApp {
 
   async _exportLeaderboardCsv() {
     if (this.hostSubmissions.length === 0) return this.showToast('No submissions to export.', 'warning');
-    const res = await window.api.exportLeaderboardCsv({ records: this.hostSubmissions, contestTitle: this.hostTitleInput.value });
+    const isExam = this.hostContestType === 'exam' || (this.activeContest && this.activeContest.type === 'exam');
+    const res = await window.api.exportLeaderboardCsv({
+      records: this.hostSubmissions,
+      contestTitle: this.hostTitleInput.value,
+      isExam
+    });
     if (res.success) this.showToast(`CSV exported: ${res.filePath}`, 'success');
   }
 
@@ -4208,10 +4285,7 @@ class MassCodeApp {
     const terminalStream = document.getElementById('terminal-stream');
     const terminalScreen = document.getElementById('terminal-screen');
     const cliInput = document.getElementById('terminal-cli-input');
-    const btnSendCli = document.getElementById('btn-terminal-send-cli');
-    const btnRunTerm = document.getElementById('btn-ws-run-term');
     const btnKillTerm = document.getElementById('btn-ws-kill-term');
-    const btnClearTerm = document.getElementById('btn-ws-clear-term');
 
     const getCmdHeader = () => {
       return `Microsoft Windows [Version 10.0.22631.4317]\r\n(c) Microsoft Corporation. All rights reserved.\r\n\r\n`;
@@ -4380,69 +4454,11 @@ class MassCodeApp {
       });
     }
 
-    if (btnSendCli) {
-      btnSendCli.addEventListener('click', () => sendCliCommand());
-    }
-
     if (btnKillTerm) {
       btnKillTerm.addEventListener('click', async () => {
         if (window.api && window.api.killTerminalProcess) {
           await window.api.killTerminalProcess();
         }
-      });
-    }
-
-    if (btnRunTerm) {
-      btnRunTerm.addEventListener('click', async () => {
-        if (cliInput && cliInput.value.trim().length > 0) {
-          sendCliCommand();
-          return;
-        }
-
-        const code = this.editorCode ? this.editorCode.value : '';
-        const activeLang = (this.competitor && this.competitor.currentLanguage) || (this.activeContest && this.activeContest.language) || 'c';
-
-        let filename = 'solution.c';
-        let execCmd = 'gcc solution.c -o solution.exe && solution.exe';
-
-        if (activeLang === 'python' || activeLang === 'py') {
-          filename = 'solution.py';
-          execCmd = 'python solution.py';
-        } else if (activeLang === 'java') {
-          let className = 'Solution';
-          const match = (code || '').match(/public\s+class\s+([A-Za-z0-9_$]+)/);
-          if (match && match[1]) className = match[1];
-          filename = `${className}.java`;
-          execCmd = `javac ${filename} && java ${className}`;
-        }
-
-        if (window.api && window.api.syncTerminalEditorFile) {
-          await window.api.syncTerminalEditorFile({ filename, code });
-        }
-
-        const promptText = (this.terminalCliPrompt ? this.terminalCliPrompt.textContent : 'C:\\workspace>') + ' ';
-        if (terminalStream) {
-          terminalStream.textContent += '\r\n' + promptText + execCmd + '\r\n';
-          terminalStream.scrollTop = terminalStream.scrollHeight;
-        }
-
-        this.isTerminalRunningProcess = true;
-        if (btnKillTerm) btnKillTerm.style.display = 'inline-block';
-        if (btnRunTerm) btnRunTerm.style.display = 'none';
-        if (this.terminalTopStatus) this.terminalTopStatus.textContent = `Command Prompt - ${filename}`;
-        if (cliInput) cliInput.placeholder = 'Enter program input here (press Enter)...';
-
-        await window.api.runTerminalCommand({ command: execCmd });
-      });
-    }
-
-    if (btnClearTerm) {
-      btnClearTerm.addEventListener('click', () => {
-        const curCwd = (this.terminalCwdTag && this.terminalCwdTag.textContent) || 'C:\\workspace';
-        if (terminalStream) terminalStream.textContent = getCmdHeader();
-        if (this.terminalCliPrompt) this.terminalCliPrompt.textContent = curCwd + '>';
-        if (terminalScreen) terminalScreen.scrollTop = 0;
-        if (cliInput) cliInput.focus();
       });
     }
 
@@ -4491,13 +4507,14 @@ class MassCodeApp {
     } else if (stageKey === 'server') {
       this._refreshHostServerStatus();
     } else if (stageKey === 'grading') {
-      this._loadAndRenderLeaderboard();
+      this._renderLeaderboardTable();
     }
   }
 
   _chooseHostMode(mode) {
     this.hostStep = 3;
     this._setHostMode(mode);
+    this._renderLeaderboardTable();
     if (this.hostModeSelectScreen) this.hostModeSelectScreen.style.display = 'none';
     if (this.hostWorkspaceContent) this.hostWorkspaceContent.style.display = 'block';
 
@@ -4555,6 +4572,7 @@ class MassCodeApp {
     if (this.competitorModeSelectScreen) this.competitorModeSelectScreen.style.display = 'none';
     if (this.compRegOverlay) this.compRegOverlay.style.display = 'flex';
     this._setCandidateMode(mode);
+    this._renderHostSelectOptions();
     if (this.btnExitComp) this.btnExitComp.style.display = 'inline-flex';
   }
 
@@ -4578,11 +4596,8 @@ class MassCodeApp {
         this.compModeIndicatorTag.textContent = '🎓 LAB EXAM MODE // Lab Experiments & Batches';
         this.compModeIndicatorTag.className = 'candidate-pill mode-indicator-exam';
       }
-      if (this.btnCompModeExam) this.btnCompModeExam.classList.add('active');
-      if (this.btnCompModeContest) this.btnCompModeContest.classList.remove('active');
       if (this.compContestFields) this.compContestFields.style.display = 'none';
-      if (this.compExamNotice) this.compExamNotice.style.display = 'block';
-      if (this.compExamOtpGroup) this.compExamOtpGroup.style.display = 'block';
+      if (this.compExamOtpGroup) this.compExamOtpGroup.style.display = 'flex';
       if (this.compNameGroup) this.compNameGroup.style.display = 'none';
       if (this.btnCompStartContest) this.btnCompStartContest.style.display = 'none';
       if (this.btnCompStartExam) this.btnCompStartExam.style.display = 'inline-block';
@@ -4595,12 +4610,9 @@ class MassCodeApp {
         this.compModeIndicatorTag.textContent = '🏆 CONTEST MODE // Multi-Tier Competitive';
         this.compModeIndicatorTag.className = 'candidate-pill mode-indicator-contest';
       }
-      if (this.btnCompModeContest) this.btnCompModeContest.classList.add('active');
-      if (this.btnCompModeExam) this.btnCompModeExam.classList.remove('active');
       if (this.compContestFields) this.compContestFields.style.display = 'block';
-      if (this.compExamNotice) this.compExamNotice.style.display = 'none';
       if (this.compExamOtpGroup) this.compExamOtpGroup.style.display = 'none';
-      if (this.compNameGroup) this.compNameGroup.style.display = 'block';
+      if (this.compNameGroup) this.compNameGroup.style.display = 'flex';
       if (this.btnCompStartContest) this.btnCompStartContest.style.display = 'inline-block';
       if (this.btnCompStartExam) this.btnCompStartExam.style.display = 'none';
       const title = document.getElementById('comp-reg-header-title');

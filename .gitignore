@@ -3,8 +3,15 @@ temp/
 sessions/
 submissions/
 synced_submissions/
+archives/
+contests/contest-MASS*.json
 Mass-Code(GECM)/
-*.exe
+dist_app/
+Mass_code.lnk
 *.log
 .DS_Store
 Thumbs.db
+
+# Ignore root or general executables, but keep dist/win-unpacked executable
+*.exe
+!dist/win-unpacked/*.exe

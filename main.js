@@ -1,3 +1,4 @@
+require('./pdf-polyfill');
 const { app, BrowserWindow, ipcMain, dialog, globalShortcut } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -1573,27 +1574,6 @@ ipcMain.handle('contest:get-default', async () => {
   };
 });
 
-ipcMain.handle('contest:get-round', async (event, { round }) => {
-  const filename = Number(round) === 2 ? 'round 2.json' : 'round 1.json';
-  const candidates = [
-    path.join(__dirname, filename),
-    path.join(contestsDir, filename),
-    path.join(__dirname, '..', 'contests', filename)
-  ];
-  for (const filePath of candidates) {
-    if (fs.existsSync(filePath)) {
-      try {
-        const raw = fs.readFileSync(filePath, 'utf-8');
-        const contest = safeParseContestJson(raw);
-        return { success: true, contest, round: Number(round), filePath };
-      } catch (err) {
-        return { success: false, error: err.message };
-      }
-    }
-  }
-  return { success: false, error: `Contest file ${filename} not found` };
-});
-
 function safeParseContestJson(raw) {
   try {
     return JSON.parse(raw);
@@ -2402,23 +2382,45 @@ ipcMain.handle('grading:scan-folder', async (event, customFolder = null) => {
   }
 });
 
-ipcMain.handle('grading:export-csv', async (event, { records, contestTitle = 'Mass-Code Contest' }) => {
+ipcMain.handle('grading:export-csv', async (event, { records, contestTitle = 'Mass-Code', isExam = false }) => {
+  const defaultFilename = isExam
+    ? `Lab_Marks_${(contestTitle || 'exam').replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.csv`
+    : `Leaderboard_${(contestTitle || 'contest').replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.csv`;
+
   const { filePath, canceled } = await dialog.showSaveDialog(mainWindow, {
-    title: 'Export Leaderboard Spreadsheet',
-    defaultPath: `Leaderboard_${(contestTitle || 'contest').replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.csv`,
+    title: isExam ? 'Export Lab Marks Spreadsheet' : 'Export Leaderboard Spreadsheet',
+    defaultPath: defaultFilename,
     filters: [{ name: 'CSV Spreadsheets', extensions: ['csv'] }]
   });
   if (canceled || !filePath) return { canceled: true };
 
-  const headers = ['Rank', 'USN', 'Candidate Name', 'Easy (R1) Score', 'Medium (R2) Score', 'Hard (R3) Score', 'Total Score', 'Max Score', 'Problems Solved', 'Total Problems', 'Contest Time (s)', 'CPU Time (ms)', 'Violations', 'Submitted At'];
-  const rows = (records || []).map(r => {
-    const easy = (r.tierScores && r.tierScores.easy) ? r.tierScores.easy.score : 0;
-    const med = (r.tierScores && r.tierScores.medium) ? r.tierScores.medium.score : 0;
-    const hard = (r.tierScores && r.tierScores.hard) ? r.tierScores.hard.score : 0;
-    return [
-      r.rank, `"${r.usn}"`, `"${r.name}"`, easy, med, hard, r.totalScore, r.maxScore, r.problemsSolvedCount, r.totalProblems, r.timeElapsedSeconds, r.totalExecutionTimeMs, r.violationsCount, `"${r.submittedAt}"`
-    ].join(',');
-  });
+  let headers, rows;
+  if (isExam) {
+    headers = ['Rank', 'USN', 'Candidate Name', 'Batch', 'Assigned Lab Experiment', 'Change of Experiment', 'Status', 'Raw Marks', 'Final Marks', 'Max Marks', 'Elapsed Time (s)', 'Violations', 'Submitted At'];
+    rows = (records || []).map(r => {
+      const p = r.fullPayload || {};
+      const batch = p.batchName || 'Batch 1';
+      const assigned = p.assignedProblemTitle || 'Lab Experiment';
+      const isCoe = p.isChangeOfExperiment ? `Yes (-${p.penalty || 0} penalty)` : 'No (Regular)';
+      const status = r.problemsSolvedCount > 0 ? 'Solved' : 'Incomplete';
+      const rawScore = r.totalScore || 0;
+      const penalty = p.penalty || 0;
+      const finalScore = p.isChangeOfExperiment ? Math.max(0, rawScore - penalty) : rawScore;
+      return [
+        r.rank, `"${r.usn}"`, `"${r.name}"`, `"${batch}"`, `"${assigned}"`, `"${isCoe}"`, `"${status}"`, rawScore, finalScore, r.maxScore, r.timeElapsedSeconds, r.violationsCount, `"${r.submittedAt}"`
+      ].join(',');
+    });
+  } else {
+    headers = ['Rank', 'USN', 'Candidate Name', 'Easy (R1) Score', 'Medium (R2) Score', 'Hard (R3) Score', 'Total Score', 'Max Score', 'Problems Solved', 'Total Problems', 'Contest Time (s)', 'CPU Time (ms)', 'Violations', 'Submitted At'];
+    rows = (records || []).map(r => {
+      const easy = (r.tierScores && r.tierScores.easy) ? r.tierScores.easy.score : 0;
+      const med = (r.tierScores && r.tierScores.medium) ? r.tierScores.medium.score : 0;
+      const hard = (r.tierScores && r.tierScores.hard) ? r.tierScores.hard.score : 0;
+      return [
+        r.rank, `"${r.usn}"`, `"${r.name}"`, easy, med, hard, r.totalScore, r.maxScore, r.problemsSolvedCount, r.totalProblems, r.timeElapsedSeconds, r.totalExecutionTimeMs, r.violationsCount, `"${r.submittedAt}"`
+      ].join(',');
+    });
+  }
 
   fs.writeFileSync(filePath, [headers.join(','), ...rows].join('\n'), 'utf-8');
   return { success: true, filePath };
@@ -2460,7 +2462,7 @@ ipcMain.handle('terminal:init-session', async (event, { usn = 'candidate' } = {}
   }
 });
 
-ipcMain.handle('terminal:sync-editor-file', async (event, { filename = 'solution.c', code = '' } = {}) => {
+ipcMain.handle('terminal:sync-editor-file', async (event, { filename = 'solution.c', code = '', fallbackFilename = null } = {}) => {
   try {
     const targetDir = currentTerminalCwd || tempDir;
     if (!fs.existsSync(targetDir)) {
@@ -2468,6 +2470,10 @@ ipcMain.handle('terminal:sync-editor-file', async (event, { filename = 'solution
     }
     const filePath = path.join(targetDir, filename);
     fs.writeFileSync(filePath, code || '', 'utf-8');
+    if (fallbackFilename && fallbackFilename !== filename) {
+      const fbPath = path.join(targetDir, fallbackFilename);
+      fs.writeFileSync(fbPath, code || '', 'utf-8');
+    }
     return { success: true, filePath, cwd: targetDir };
   } catch (err) {
     return { success: false, error: err.message };
@@ -2550,7 +2556,13 @@ ipcMain.handle('terminal:run-command', async (event, { command = '' } = {}) => {
           // Device Guard policy blocked the native .exe.
           // Fallback seamlessly to the in-process C runtime
           let foundCode = '';
-          const potentialFiles = ['solution.c', 'file.c', 'main.c', 'test.c'];
+          const potentialFiles = [];
+          try {
+            const allFiles = fs.readdirSync(cwd);
+            const cFiles = allFiles.filter(f => f.toLowerCase().endsWith('.c'));
+            potentialFiles.push(...cFiles);
+          } catch (_) {}
+          potentialFiles.push('solution.c', 'file.c', 'main.c', 'test.c');
           for (const pf of potentialFiles) {
             const pfp = path.join(cwd, pf);
             if (fs.existsSync(pfp)) {

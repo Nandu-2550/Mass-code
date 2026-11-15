@@ -6,6 +6,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "bundle": "node scripts/bundle_application.js",
     "repack": "node scripts/repack_unpacked.js",
     "dist": "electron-builder --win nsis",
     "dist:portable": "electron-builder --win portable",
@@ -31,16 +32,20 @@
     "directories": {
       "output": "dist"
     },
+    "electronDist": "node_modules/electron/dist",
     "files": [
       "main.js",
       "preload.js",
       "renderer.js",
+      "c-engine.js",
+      "pdf-polyfill.js",
       "index.html",
       "styles.css",
       "contests/**/*",
       "assets/**/*"
     ],
     "win": {
+      "icon": "assets/icon.ico",
       "forceCodeSigning": false,
       "target": [
         {

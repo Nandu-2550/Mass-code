@@ -24,6 +24,7 @@ async function updateUnpackedAsar() {
     'preload.js',
     'renderer.js',
     'c-engine.js',
+    'pdf-polyfill.js',
     'index.html',
     'styles.css',
     'package.json'
